@@ -1,0 +1,15 @@
+{
+  "name": "wj008/sdopx-php",
+  "description": "sdopx Embedded php templates",
+  "type": "library",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "wj008",
+      "email": "26029682@qq.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0"
+  }
+}
