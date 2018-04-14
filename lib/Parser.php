@@ -586,7 +586,7 @@ class Parser
             if ($exp == null) {
                 break;
             }
-            if (!empty($exp['code'])) {
+            if (!($exp['code'] === null || $exp['code'] === '')) {
                 array_push($params, $exp['code']);
             }
             if ($exp['map'] == self::CODE_MODIFIER) {
