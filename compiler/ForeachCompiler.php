@@ -47,13 +47,14 @@ class ForeachCompiler
         $output = [];
         $output[] = "\$__{$pre}_from={$from};\$__{$pre}_i=0;\$__{$pre}_length=count(\$__{$pre}_from);";
         if (!empty($key)) {
-            $output[] = "foreach(\$__{$pre}_from as \${$pre}_{$key} => \${$pre}_{$item} ){ \$__{$pre}_i++;";
+            $output[] = "foreach(\$__{$pre}_from as \${$pre}_{$key} => \${$pre}_{$item} ){ ";
         } else {
-            $output[] = "foreach(\$__{$pre}_from as \${$pre}_{$item} ){ \$__{$pre}_i++;";
+            $output[] = "foreach(\$__{$pre}_from as \${$pre}_{$item} ){ ";
         }
         if (!empty($attr)) {
             $output[] = "\${$pre}_{$attr}=['index'=>\$__{$pre}_i,'iteration'=>\$__{$pre}_i+1, 'total'=>\$__{$pre}_length,'first'=>\$__{$pre}_i==0,'last'=>\$__{$pre}_i==\$__{$pre}_length-1];";
         }
+        $output[] = "\$__{$pre}_i++;";
         $compiler->openTag('foreach', [$pre, $key, $attr]);
         return join("\n", $output);
     }
