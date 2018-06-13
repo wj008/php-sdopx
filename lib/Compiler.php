@@ -285,7 +285,14 @@ class Compiler
                         $ikey = 'item';
                     }
                     if (!preg_match('@^\w+$@', $ikey)) {
-                        $this->addError("{$name} 标签中 item 属性只能是 字母数字下划线.");
+                        $this->addError("{$name} 标签中 var 属性只能是 字母数字下划线.");
+                    }
+                    $iattr = isset($params['attr']) ? $params['attr'] : '';
+                    $iattr = trim($ikey, ' \'"');
+                    if (!empty($iattr)) {
+                        if (!preg_match('@^\w+$@', $iattr)) {
+                            $this->addError("{$name} 标签中 attr 属性只能是 字母数字下划线.");
+                        }
                     }
                     $pre = $this->getTempPrefix('custom');
                     $use_vars = [];
@@ -300,16 +307,23 @@ class Compiler
                     $use = join(',', $use_vars);
                     $varMap = $this->getVariableMap($pre);
                     $varMap->add($ikey);
+                    if (!empty($iattr)) {
+                        $varMap->add($iattr);
+                    }
                     $this->addVariableMap($varMap);
                     $temp = [];
                     foreach ($params as $key => $val) {
-                        if ($key == $ikey) {
+                        if ($key == $ikey || $key == $iattr) {
                             continue;
                         }
                         $temp[] = "'{$key}'=>{$val}";
                     }
                     $this->openTag($name, [$pre]);
-                    $code = "$class::block([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
+                    if (!empty($iattr)) {
+                        $code = "$class::block([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
+                    } else {
+                        $code = "$class::block([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
+                    }
                     return $code;
                 }
                 if (method_exists($class, 'execute')) {
