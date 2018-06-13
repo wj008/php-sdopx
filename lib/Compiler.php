@@ -288,7 +288,7 @@ class Compiler
                         $this->addError("{$name} 标签中 var 属性只能是 字母数字下划线.");
                     }
                     $iattr = isset($params['attr']) ? $params['attr'] : '';
-                    $iattr = trim($ikey, ' \'"');
+                    $iattr = trim($iattr, ' \'"');
                     if (!empty($iattr)) {
                         if (!preg_match('@^\w+$@', $iattr)) {
                             $this->addError("{$name} 标签中 attr 属性只能是 字母数字下划线.");
@@ -314,6 +314,7 @@ class Compiler
                     $temp = [];
                     foreach ($params as $key => $val) {
                         if ($key == $ikey || $key == $iattr) {
+                            $temp[] = "'__{$key}'=>{$val}";
                             continue;
                         }
                         $temp[] = "'{$key}'=>{$val}";
