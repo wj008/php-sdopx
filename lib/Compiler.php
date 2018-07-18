@@ -273,12 +273,17 @@ class Compiler
             if (!method_exists($classTags, 'execute')) {
                 $this->addError('插件不存在  execute 静态方法');
             }
+
             if ($close) {
                 list($name, $data) = $this->closeTag([$name]);
                 $this->removeVar($data[0]);
                 $code = '},$__out);';
+                if (method_exists($classTags, 'close')) {
+                    $code .= PHP_EOL . $classTags . '::close($__out);';
+                }
                 return $code;
             } else {
+
                 $ikey = isset($params['var']) ? $params['var'] : '';
                 $ikey = trim($ikey, ' \'"');
                 if (empty($ikey)) {
@@ -320,10 +325,15 @@ class Compiler
                     $temp[] = "'{$key}'=>{$val}";
                 }
                 $this->openTag($name, [$pre]);
+
+                $code = '';
+                if (method_exists($classTags, 'open')) {
+                    $code .= $classTags . '::open([' . join(',', $temp) . '],$__out);' . PHP_EOL;
+                }
                 if (!empty($iattr)) {
-                    $code = "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
+                    $code .= "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
                 } else {
-                    $code = "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
+                    $code .= "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
                 }
                 return $code;
             }
