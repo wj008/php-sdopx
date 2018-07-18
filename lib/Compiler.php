@@ -270,7 +270,7 @@ class Compiler
         $classTags = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Tags';
 
         if (class_exists($classTags)) {
-            if (method_exists($classTags, 'execute')) {
+            if (!method_exists($classTags, 'execute')) {
                 $this->addError('插件不存在  execute 静态方法');
             }
             if ($close) {
@@ -329,7 +329,7 @@ class Compiler
             }
 
         } elseif (class_exists($classPlugin)) {
-            if (method_exists($classPlugin, 'execute')) {
+            if (!method_exists($classPlugin, 'execute')) {
                 $this->addError('插件不存在  execute 静态方法');
             }
             $temp = [];
