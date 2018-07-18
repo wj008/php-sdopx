@@ -266,75 +266,77 @@ class Compiler
             }
             return "\\sdopx\\Sdopx::\$pluginMap[" . var_export($name) . "]([" . join(',', $temp) . '],$__out);';
         }
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Plugin';
-        if (class_exists($class)) {
-            if ($close) {
-                if (method_exists($class, 'block')) {
-                    list($name, $data) = $this->closeTag([$name]);
-                    $this->removeVar($data[0]);
-                    $code = '},$__out);';
-                    return $code;
-                } else {
-                    $this->addError('插件没有结束函数 close');
-                }
-            } else {
-                if (method_exists($class, 'block')) {
-                    $ikey = isset($params['var']) ? $params['var'] : '';
-                    $ikey = trim($ikey, ' \'"');
-                    if (empty($ikey)) {
-                        $ikey = 'item';
-                    }
-                    if (!preg_match('@^\w+$@', $ikey)) {
-                        $this->addError("{$name} 标签中 var 属性只能是 字母数字下划线.");
-                    }
-                    $iattr = isset($params['attr']) ? $params['attr'] : '';
-                    $iattr = trim($iattr, ' \'"');
-                    if (!empty($iattr)) {
-                        if (!preg_match('@^\w+$@', $iattr)) {
-                            $this->addError("{$name} 标签中 attr 属性只能是 字母数字下划线.");
-                        }
-                    }
-                    $pre = $this->getTempPrefix('custom');
-                    $use_vars = [];
-                    foreach ($this->getVarKeys() as $vkey) {
-                        $xvar = $this->getVar($vkey, true);
-                        if (!empty($xvar)) {
-                            $use_vars[] = $xvar;
-                        }
-                    }
-                    $use_vars[] = '$__out';
-                    $use_vars[] = '$_sdopx';
-                    $use = join(',', $use_vars);
-                    $varMap = $this->getVariableMap($pre);
-                    $varMap->add($ikey);
-                    if (!empty($iattr)) {
-                        $varMap->add($iattr);
-                    }
-                    $this->addVariableMap($varMap);
-                    $temp = [];
-                    foreach ($params as $key => $val) {
-                        if ($key == $ikey || $key == $iattr) {
-                            $temp[] = "'__{$key}'=>{$val}";
-                            continue;
-                        }
-                        $temp[] = "'{$key}'=>{$val}";
-                    }
-                    $this->openTag($name, [$pre]);
-                    if (!empty($iattr)) {
-                        $code = "$class::block([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
-                    } else {
-                        $code = "$class::block([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
-                    }
-                    return $code;
-                }
-                if (method_exists($class, 'execute')) {
-                    $temp = [];
-                    foreach ($params as $key => $val) {
-                        $temp[] = "'{$key}'=>{$val}";
-                    }
-                    return "$class::execute([" . join(',', $temp) . '],$__out);';
-                }
+        $classPlugin = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Plugin';
+        $classTags = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Tags';
+
+        if (class_exists($classTags)) {
+            if (method_exists($classTags, 'execute')) {
+                $this->addError('插件不存在  execute 静态方法');
             }
+            if ($close) {
+                list($name, $data) = $this->closeTag([$name]);
+                $this->removeVar($data[0]);
+                $code = '},$__out);';
+                return $code;
+            } else {
+                $ikey = isset($params['var']) ? $params['var'] : '';
+                $ikey = trim($ikey, ' \'"');
+                if (empty($ikey)) {
+                    $ikey = 'item';
+                }
+                if (!preg_match('@^\w+$@', $ikey)) {
+                    $this->addError("{$name} 标签中 var 属性只能是 字母数字下划线.");
+                }
+                $iattr = isset($params['attr']) ? $params['attr'] : '';
+                $iattr = trim($iattr, ' \'"');
+                if (!empty($iattr)) {
+                    if (!preg_match('@^\w+$@', $iattr)) {
+                        $this->addError("{$name} 标签中 attr 属性只能是 字母数字下划线.");
+                    }
+                }
+                $pre = $this->getTempPrefix('custom');
+                $use_vars = [];
+                foreach ($this->getVarKeys() as $vkey) {
+                    $xvar = $this->getVar($vkey, true);
+                    if (!empty($xvar)) {
+                        $use_vars[] = $xvar;
+                    }
+                }
+                $use_vars[] = '$__out';
+                $use_vars[] = '$_sdopx';
+                $use = join(',', $use_vars);
+                $varMap = $this->getVariableMap($pre);
+                $varMap->add($ikey);
+                if (!empty($iattr)) {
+                    $varMap->add($iattr);
+                }
+                $this->addVariableMap($varMap);
+                $temp = [];
+                foreach ($params as $key => $val) {
+                    if ($key == $ikey || $key == $iattr) {
+                        $temp[] = "'__{$key}'=>{$val}";
+                        continue;
+                    }
+                    $temp[] = "'{$key}'=>{$val}";
+                }
+                $this->openTag($name, [$pre]);
+                if (!empty($iattr)) {
+                    $code = "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
+                } else {
+                    $code = "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
+                }
+                return $code;
+            }
+
+        } elseif (class_exists($classPlugin)) {
+            if (method_exists($classPlugin, 'execute')) {
+                $this->addError('插件不存在  execute 静态方法');
+            }
+            $temp = [];
+            foreach ($params as $key => $val) {
+                $temp[] = "'{$key}'=>{$val}";
+            }
+            return "$classPlugin::execute([" . join(',', $temp) . '],$__out);';
         }
         $this->addError("没有找到插件" . $name . '.');
         return '';
