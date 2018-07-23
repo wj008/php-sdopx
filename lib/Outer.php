@@ -44,7 +44,7 @@ class Outer
      */
     public function text($code)
     {
-        if ($this->sdopx->parsingType == Sdopx::PARSING_TYPE_SQL) {
+        if ($this->sdopx->parsingType == Sdopx::PARSING_SQL) {
             $this->output[] = Utils::escapeSQL($code);
         } else {
             if (is_string($code)) {
@@ -61,7 +61,7 @@ class Outer
      */
     public function html($code)
     {
-        if ($this->sdopx->parsingType == Sdopx::PARSING_TYPE_SQL) {
+        if ($this->sdopx->parsingType == Sdopx::PARSING_SQL) {
             if ($code != '') {
                 if (trim($code) == '') {
                     $this->output[] = ' ';

@@ -67,11 +67,11 @@ class Sdopx extends Template
     /**
      * 解析HTML
      */
-    const PARSING_TYPE_HTML = 1;
+    const PARSING_HTML = 1;
     /**
      * 解析SQL
      */
-    const PARSING_TYPE_SQL = 2;
+    const PARSING_SQL = 2;
 
     /**
      * 调试模式
@@ -128,7 +128,7 @@ class Sdopx extends Template
     /**
      * @var int  解析类型
      */
-    public $parsingType = self::PARSING_TYPE_HTML;
+    public $parsingType = self::PARSING_HTML;
 
     /**
      * @var bool 强制编译
@@ -546,7 +546,7 @@ class Sdopx extends Template
      * @param string $encode
      * @return string|void
      */
-    public static function fetchTemplate(string $template, array $assign, int $parsingType = Sdopx::PARSING_TYPE_HTML)
+    public static function fetchTemplate(string $template, array $assign, int $parsingType = Sdopx::PARSING_HTML)
     {
         $sdopx = new Sdopx();
         $sdopx->_book = $assign;
@@ -560,7 +560,7 @@ class Sdopx extends Template
      * @param string $encode
      * @return string
      */
-    public static function compile(string $template, int $parsingType = Sdopx::PARSING_TYPE_HTML)
+    public static function compile(string $template, int $parsingType = Sdopx::PARSING_HTML)
     {
         $sdopx = new Sdopx();
         $sdopx->parsingType = $parsingType;

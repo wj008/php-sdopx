@@ -232,8 +232,13 @@ class Template
      * @param $property
      * @return bool
      */
-    public function validProperties($property): bool
+    public function validProperties(&$property): bool
     {
+        $time = time();
+        if (isset($property['checkTime']) && $property['checkTime'] == $time) {
+            return true;
+        }
+        $property['checkTime'] = $time;
         $this->property['version'] = (isset($property['version'])) ? $property['version'] : '';
         if ($this->property['version'] !== Sdopx::VERSION) {
             return false;
@@ -266,7 +271,7 @@ class Template
      * @param Closure $runFunc
      * @return string
      */
-    private function run(\Closure $runFunc)
+    private function run(\Closure &$runFunc)
     {
         $__out = new Outer($this->sdopx);
         $_sdopx = $this->sdopx;
@@ -280,7 +285,6 @@ class Template
      */
     private function runTemplate()
     {
-
         if (!isset(Template::$complieCache[$this->tplId])) {
             $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
             if (file_exists($file)) {
@@ -288,8 +292,8 @@ class Template
             }
         }
         if (isset(Template::$complieCache[$this->tplId])) {
-            $_property = Template::$complieCache[$this->tplId];
-            if ($this->sdopx->compileCheck || $this->validProperties($_property)) {
+            $_property = &Template::$complieCache[$this->tplId];
+            if (!$this->sdopx->compileCheck || $this->validProperties($_property)) {
                 return $this->run($_property['runFunc']);
             } else {
                 unset(Template::$complieCache[$this->tplId]);
@@ -328,6 +332,5 @@ class Template
 
         return $code;
     }
-
-
+    
 }
