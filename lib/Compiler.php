@@ -273,7 +273,7 @@ class Compiler
                 list($name, $data) = $this->closeTag([$name]);
                 $this->removeVar($data[0]);
                 $code = '},$__out);';
-                $code .= PHP_EOL . Sdopx::class . '::getTagplug(' . var_export($name, true) . ')->close($__out);';
+                $code .= PHP_EOL . Sdopx::class . '::getTag(' . var_export($name, true) . ')->close($__out);';
                 return $code;
             } else {
                 $ikey = isset($params['var']) ? $params['var'] : '';
@@ -319,9 +319,9 @@ class Compiler
                 $this->openTag($name, [$pre]);
                 $code = '';
                 if (!empty($iattr)) {
-                    $code .= Sdopx::class . '::getTagplug(' . var_export($name, true) . ')->render([' . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
+                    $code .= Sdopx::class . '::getTag(' . var_export($name, true) . ')->render([' . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
                 } else {
-                    $code .= Sdopx::class . '::getTagplug(' . var_export($name, true) . ')->render([' . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
+                    $code .= Sdopx::class . '::getTag(' . var_export($name, true) . ')->render([' . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
                 }
                 return $code;
             }
