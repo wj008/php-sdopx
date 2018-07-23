@@ -280,15 +280,16 @@ class Template
      */
     private function runTemplate()
     {
-        $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
+
         if (!isset(Template::$complieCache[$this->tplId])) {
+            $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
             if (file_exists($file)) {
                 Template::$complieCache[$this->tplId] = require($file);
             }
         }
         if (isset(Template::$complieCache[$this->tplId])) {
             $_property = Template::$complieCache[$this->tplId];
-            if (is_array($_property) && $this->validProperties($_property)) {
+            if ($this->sdopx->compileCheck || $this->validProperties($_property)) {
                 return $this->run($_property['runFunc']);
             } else {
                 unset(Template::$complieCache[$this->tplId]);
