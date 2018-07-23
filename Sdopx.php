@@ -191,6 +191,15 @@ class Sdopx extends Template
     }
 
     /**
+     * 设置运行时缓存目录
+     * @param $dirname
+     */
+    public function setRuntimeDir($dirname)
+    {
+        $this->runtimeDir = $dirname;
+    }
+
+    /**
      * 设置模板
      * @param array|string $dirs
      * @return $this
