@@ -20,6 +20,7 @@ class Parser
     const CODE_RAW = 'raw';
     const CODE_CLOSE = 'close';
 
+
     /**
      * @var Lexer
      */
@@ -93,7 +94,7 @@ class Parser
             'raw' => false
         ];
         if (Sdopx::$debug) {
-            $temp['info'] = $tree->getInfo();
+            $temp['info'] = $tree->getDebugInfo();
         }
         $code = trim($item['value']);
         if (preg_match('@^(.*)(\|html)$@', $code, $math)) {
@@ -117,7 +118,7 @@ class Parser
             return null;
         }
         if (Sdopx::$debug) {
-            $ret['info'] = $tree->getInfo();
+            $ret['info'] = $tree->getDebugInfo();
         }
         //结果整理===
         if ($ret['map'] == self::CODE_EXPRESS) {
@@ -171,6 +172,7 @@ class Parser
         $have = false;
         $code = '';
         $node = '';
+        $var = null;
         while (true) {
             $ret = $this->parsNext();
             if ($ret === null) {
@@ -179,6 +181,9 @@ class Parser
                 }
                 $temp['code'] = $code;
                 $temp['node'] = $node;
+                if ($var) {
+                    $temp['var'] = $var;
+                }
                 return $temp;
             }
             if ($ret['map'] == self::CODE_MODIFIER || $ret['map'] == self::CODE_RAW) {
@@ -196,10 +201,19 @@ class Parser
                 }
                 $temp['code'] = $code;
                 $temp['node'] = $node;
+                if ($var) {
+                    $temp['var'] = $var;
+                }
                 return $temp;
             }
             $have = true;
             $code .= $ret['code'] === null ? '' : $ret['code'];
+            if (isset($ret['var'])) {
+                if ($var == null) {
+                    $var = [];
+                }
+                $var = array_merge($var, $ret['var']);
+            }
             $node = $ret['node'];
         }
 
@@ -245,6 +259,23 @@ class Parser
             'code' => $code
         ];
     }
+
+    private function pars_for_var($item)
+    {
+        $code = trim($item['value']);
+        $var = '';
+        if (preg_match('@^\$(\w+)@', $code, $math)) {
+            $code = $this->compiler->compileVar($math[1]);
+            $var = [$math[1] => $code];
+        }
+        return [
+            'map' => self::CODE_EXPRESS,
+            'node' => $item['node'],
+            'code' => $code,
+            'var' => $var
+        ];
+    }
+
 
     private function pars_pvarkey($item)
     {
@@ -515,6 +546,9 @@ class Parser
             return null;
         }
         $temp['args']['code'] = $exp['code'];
+        if (isset($exp['var'])) {
+            $temp['args']['var'] = $exp['var'];
+        }
         return $temp;
     }
 
@@ -577,6 +611,15 @@ class Parser
         ];
     }
 
+    private function pars_mod_colons($item)
+    {
+        return [
+            'map' => self::CODE_EXPRESS,
+            'node' => $item['node'],
+            'code' => ' , '
+        ];
+    }
+
     private function assembly_modifier(&$ret, $name)
     {
         $params = [$ret['code']];
@@ -597,7 +640,7 @@ class Parser
                 break;
             }
             $item = $this->lexTree->next();
-            if ($item['tag'] !== 'comma') {
+            if ($item['tag'] !== 'modifierColons') {
                 $this->lexTree->prev();
                 break;
             }

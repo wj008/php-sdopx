@@ -34,8 +34,8 @@ class LiteralCompiler
             $literal = true;
         }
 
-        $compiler->source->end_literal = preg_quote($compiler->source->left_delimiter, '@') . '/literal' . preg_quote($compiler->source->right_delimiter, '@');
-        $compiler->openTag('literal', [$literal, $compiler->source->literal, $compiler->source->left_delimiter, $compiler->source->right_delimiter]);
+        $compiler->source->endLiteral = preg_quote($compiler->source->leftDelimiter, '@') . '/literal' . preg_quote($compiler->source->rightDelimiter, '@');
+        $compiler->openTag('literal', [$literal, $compiler->source->literal, $compiler->source->leftDelimiter, $compiler->source->rightDelimiter]);
 
         if ($literal) {
             $compiler->source->literal = true;

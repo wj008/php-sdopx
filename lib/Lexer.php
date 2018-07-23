@@ -40,7 +40,6 @@ class Lexer
     {
         $this->source = $source;
         $this->sdopx = $source->sdopx;
-        $source->load();
     }
 
     /**
@@ -51,7 +50,7 @@ class Lexer
      */
     private function addError($err, $offset = 0)
     {
-        $info = $this->source->getInfo($offset);
+        $info = $this->source->getDebugInfo($offset);
         $this->sdopx->rethrow($err, $info['line'], $info['src']);
     }
 
@@ -103,8 +102,9 @@ class Lexer
      */
     private function analysis($tagname, $option)
     {
-        $mode = gettype($option) == 'integer' ? $option : $option['mode'];
-        $flags = gettype($option) == 'integer' ? null : $option['flags'];
+        $mode = is_int($option) ? $option : $option['mode'];
+        $flags = is_int($option) ? null : $option['flags'];
+
         if ($flags !== null) {
             $end = end($this->stack);
             if ($end !== false && ($flags & $end) == 0) {
@@ -227,9 +227,9 @@ class Lexer
         if ($source->cursor >= $source->bound) {
             return null;
         }
-        if ($source->literal || empty($source->left_delimiter) || empty($source->right_delimiter)) {
-            if (!empty($source->end_literal)) {
-                $ret2 = $this->find('@' . $source->end_literal . '@', null, true);
+        if ($source->literal || empty($source->leftDelimiter) || empty($source->rightDelimiter)) {
+            if (!empty($source->endLiteral)) {
+                $ret2 = $this->find('@' . $source->endLiteral . '@', null, true);
                 if ($ret2 != null) {
                     $code = $source->substring($source->cursor, $ret2['start']);
                     $source->cursor = $ret2['end'];
@@ -248,10 +248,10 @@ class Lexer
         }
 
         //设置编译的定界符
-        Rules::reset($source->left_delimiter, $source->right_delimiter);
-        $ret = $this->find('@' . preg_quote($source->left_delimiter, '@') . '@', null, true);
-        if ($source->end_literal) {
-            $ret2 = $this->find('@' . $source->end_literal . '@', null, true);
+        Rules::reset($source->leftDelimiter, $source->rightDelimiter);
+        $ret = $this->find('@' . preg_quote($source->leftDelimiter, '@') . '@', null, true);
+        if ($source->endLiteral) {
+            $ret2 = $this->find('@' . $source->endLiteral . '@', null, true);
             if ($ret2 != null && ($ret == null || $ret2['start'] <= $ret['start'])) {
                 $code = $source->substring($source->cursor, $ret2['start']);
                 $source->cursor = $ret2['end'];
@@ -297,19 +297,19 @@ class Lexer
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
-            $this->addError("语法分析器查找到达末端并未找到 '{$source->left_delimiter}*' 注释开始标记", $source->cursor);
+            $this->addError("语法分析器查找到达末端并未找到 '{$source->leftDelimiter}*' 注释开始标记", $source->cursor);
             return null;
         }
-        Rules::reset($source->left_delimiter, $source->right_delimiter);
-        $ret = $this->find('@' . preg_quote($source->left_delimiter . '*', '@') . '@', null, true);
+        Rules::reset($source->leftDelimiter, $source->rightDelimiter);
+        $ret = $this->find('@' . preg_quote($source->leftDelimiter . '*', '@') . '@', null, true);
         if ($ret == null) {
-            $this->addError("未找到 '{$source->left_delimiter}*' 注释开始标记", $source->cursor);
+            $this->addError("未找到 '{$source->leftDelimiter}*' 注释开始标记", $source->cursor);
             return null;
         }
         $source->cursor = $ret['end'];
-        $ret = $this->find('@' . preg_quote('*' . $source->right_delimiter, '@') . '@', null, true);
+        $ret = $this->find('@' . preg_quote('*' . $source->rightDelimiter, '@') . '@', null, true);
         if ($ret == null) {
-            $this->addError("未找到 '*{$source->right_delimiter}' 注释结束标记", $source->cursor);
+            $this->addError("未找到 '*{$source->rightDelimiter}' 注释结束标记", $source->cursor);
             return null;
         }
         $source->cursor = $ret['end'];
@@ -325,14 +325,14 @@ class Lexer
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
-            $this->addError("语法分析器查找到达末端并未找到 '{$source->left_delimiter}#' 配置项开始标记", $source->cursor);
+            $this->addError("语法分析器查找到达末端并未找到 '{$source->leftDelimiter}#' 配置项开始标记", $source->cursor);
             return null;
         }
         $tree = new TreeMap();
         if (Sdopx::$debug) {
-            $tree->setInfo($source->getInfo());
+            $tree->setDebugInfo($source->getDebugInfo());
         }
-        Rules::reset($source->left_delimiter, $source->right_delimiter);
+        Rules::reset($source->leftDelimiter, $source->rightDelimiter);
         $next = ['openConfig' => 1];
         do {
             $data = $this->match($next);
@@ -360,26 +360,26 @@ class Lexer
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
-            $this->addError("语法分析器查找到达末端并未找到 '{$source->left_delimiter}' 模板开始标记", $source->cursor);
+            $this->addError("语法分析器查找到达末端并未找到 '{$source->leftDelimiter}' 模板开始标记", $source->cursor);
             return null;
         }
-        Rules::reset($source->left_delimiter, $source->right_delimiter);
+        Rules::reset($source->leftDelimiter, $source->rightDelimiter);
         $this->stack = [];
         $tree = new TreeMap();
         if (Sdopx::$debug) {
-            $tree->setInfo($source->getInfo());
+            $tree->setDebugInfo($source->getDebugInfo());
         }
         $next = ['openTpl' => 1];
         do {
             $data = $this->match($next);
+
             if ($data == null) {
+                print_r($tree);
                 $this->addError("模板标签语法格式不正确", $source->cursor);
                 return null;
             }
             $tag = $data['tag'];
             $source->cursor = $data['end'];
-            //print_r('=1=========');
-            //print_r($this->stack);
             //清除
             $item = Rules::getItem($tag);
             if (isset($item['clear'])) {
@@ -440,10 +440,10 @@ class Lexer
     private function findBrocks()
     {
         $source = $this->source;
-        Rules::reset($source->left_delimiter, $source->right_delimiter);
+        Rules::reset($source->leftDelimiter, $source->rightDelimiter);
 
-        $left = preg_quote($source->left_delimiter, '@');
-        $right = preg_quote($source->right_delimiter, '@');
+        $left = preg_quote($source->leftDelimiter, '@');
+        $right = preg_quote($source->rightDelimiter, '@');
 
         $block_stack = [];
         $blocks = [];
@@ -509,7 +509,7 @@ class Lexer
                     }
                     $offset = $retm['end'];
                     $item[$attr] = trim($retm['val']);
-                } else if ($attr == $source->right_delimiter) {
+                } else if ($attr == $source->rightDelimiter) {
                     $item['start'] = $offset;
                     array_push($block_stack, $item);
                     $closed = true;

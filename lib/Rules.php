@@ -20,12 +20,16 @@ class Rules
     const FLAG_TPL_STREXP = 4096; //在字符串中的表达式
     const FLAG_TPL_STRING = 8192;//函数中
 
+    const FLAG_FOR_ASSIGN = 16384;  //FOR标签中
+    const FLAG_FOR_CONDITION = 32768;  //FOR条件
+    const FLAG_FOR_LOOP = 65536;
+
+
     const TYPE_VARIABLE = 0; //变量
     const TYPE_NUMBER = 1;   //数字 常量
     const TYPE_STRING = 2;   //字符串
     const TYPE_ARRAY = 3;   //数组结束
     const TYPE_PARENTHESES = 4;   //括号结束
-
 
     private static $left = '\\{';
     private static $right = '\\}';
@@ -73,7 +77,7 @@ class Rules
         $data = [
             //关闭
             'closeTplDelimiter' => ['mode' => 0, 'flags' => self::FLAG_TPL_STREXP],//字符串内表达式结束
-            'closeTpl' => ['mode' => 0, 'flags' => self::FLAG_MODIFIER | self::FLAG_TAG_ATTR | self::FLAG_TAG | self::FLAG_TPL],//过滤器结束，属性结束，标签结束，模板结束
+            'closeTpl' => ['mode' => 0, 'flags' => self::FLAG_MODIFIER | self::FLAG_TAG_ATTR | self::FLAG_TAG | self::FLAG_FOR_LOOP | self::FLAG_TPL],//过滤器结束，属性结束，标签结束，模板结束
             'closeTagAttr' => ['mode' => 1, 'flags' => self::FLAG_TAG_ATTR],//属性结束
             'closeArray' => ['mode' => 0, 'flags' => self::FLAG_ARRAY_ARROW | self::FLAG_ARRAY],       //数组结束
             'closeParentheses' => ['mode' => 0, 'flags' => self::FLAG_PARENTHESES],//关闭括号
@@ -83,6 +87,8 @@ class Rules
             'closeMethod' => ['mode' => 0, 'flags' => self::FLAG_METHOD],         //关闭方法
             'closeDynamicMethod' => ['mode' => 0, 'flags' => self::FLAG_DYMETHOD], //关闭动态方法
             'arrayComma' => ['mode' => 0, 'flags' => self::FLAG_ARRAY_ARROW | self::FLAG_ARRAY],//数组中的逗号
+
+
             //打开
             'openMethod' => 1,   //打开方法
             'openDynamicMethod' => 1,//动态方法(只有变量可以)
@@ -93,15 +99,32 @@ class Rules
             'openTernary' => 0,  //打开三元表达式
             'raw' => ['mode' => 0, 'flags' => self::FLAG_MODIFIER | self::FLAG_TPL],       //打开修饰符
             'modifiers' => ['mode' => 0, 'flags' => self::FLAG_MODIFIER | self::FLAG_TPL], //打开修饰符
-            'symbol' => 0,        //支持比较符号等
+
             'suffixSymbol' => 0,  //尾部自增自减
             'assignSymbol' => 0,  //支持赋值和比较
+            'symbol' => 0,        //支持比较符号等
+
+            'forCondition' => [
+                'mode' => 0,
+                'flags' => self::FLAG_FOR_ASSIGN
+            ],
+            'forLoop' => [
+                'mode' => 0,
+                'flags' => self::FLAG_FOR_CONDITION
+            ],
+            'forAssign' => [
+                'mode' => 0,
+                'flags' => self::FLAG_FOR_ASSIGN
+            ],
             //逗号
             'comma' => [
                 'mode' => 0,
-                'flags' => self::FLAG_FUNCTION | self::FLAG_METHOD | self::FLAG_DYMETHOD | self::FLAG_MODIFIER
+                'flags' => self::FLAG_FUNCTION | self::FLAG_METHOD | self::FLAG_DYMETHOD
             ],
-
+            'modifierColons' => [
+                'mode' => 0,
+                'flags' => self::FLAG_MODIFIER
+            ]
         ];
         switch ($type) {
             case self::TYPE_NUMBER:
@@ -176,7 +199,9 @@ class Rules
     {
         $next = self::expression();
         $next['openCodeTag'] = 1;
+        $next['openForTag'] = 1;
         $next['openTag'] = 1;
+        $next['openAssignTag'] = 1;
         $next['endTag'] = 1; //结束的标记
         return [
             'rule' => self::$left,
@@ -191,7 +216,7 @@ class Rules
         return [
             'rule' => self::$right,
             'token' => 'closetpl',
-            'clear' => self::FLAG_MODIFIER | self::FLAG_TAG_ATTR | self::FLAG_TAG,
+            'clear' => self::FLAG_MODIFIER | self::FLAG_TAG_ATTR | self::FLAG_TAG | self::FLAG_FOR_LOOP,
             'close' => self::FLAG_TPL
         ];
     }
@@ -213,10 +238,82 @@ class Rules
     private static function openCodeTag()
     {
         return [
-            'rule' => '(?:if|else\s*if|while|assign|global)\s+',
+            'rule' => '(?:if|else\s*if|while)\s+',
             'next' => self::expression(),
             'token' => 'tagcode',
             'open' => self::FLAG_TAG,
+        ];
+    }
+
+    private static function openAssignTag()
+    {
+        return [
+            'rule' => '(?:assign|global)\s+',
+            'next' => self::expression(),
+            'token' => 'tagcode',
+            'open' => self::FLAG_TAG,
+        ];
+    }
+
+    private static function openForTag()
+    {
+        return [
+            'rule' => 'for\s+',
+            'next' => [
+                'forVariable' => 0,
+            ],
+            'token' => 'tagcode',
+            'open' => self::FLAG_FOR_ASSIGN,
+        ];
+    }
+
+    private static function forAssign()
+    {
+        return [
+            'rule' => ',',
+            'next' => [
+                'forVariable' => 0,
+            ],
+            'token' => 'code',
+        ];
+    }
+
+    //赋值变量
+    private static function forVariable()
+    {
+        return [
+            'rule' => '\$\w+',
+            'token' => 'for_var',
+            'next' => [
+                //打开
+                'openSubscript' => 1,//打开下标
+                'varPoint' => 1,     //变量下标
+                'varArrow' => 1,     //变量箭头
+                'suffixSymbol' => 0,  //尾部自增自减
+                'assignSymbol' => 0,  //支持赋值和比较
+            ]
+        ];
+    }
+
+    private static function forCondition()
+    {
+        return [
+            'rule' => ';',
+            'next' => self::expression(),
+            'token' => 'code',
+            'close' => self::FLAG_FOR_ASSIGN,
+            'open' => self::FLAG_FOR_CONDITION,
+        ];
+    }
+
+    private static function forLoop()
+    {
+        return [
+            'rule' => ';',
+            'next' => self::expression(),
+            'token' => 'code',
+            'close' => self::FLAG_FOR_CONDITION,
+            'open' => self::FLAG_FOR_LOOP,
         ];
     }
 
@@ -292,6 +389,7 @@ class Rules
             'next' => self::finishExpression(self::TYPE_VARIABLE)
         ];
     }
+
 
     //数字
     private static function number()
@@ -684,6 +782,16 @@ class Rules
             ],
             'open' => self::FLAG_MODIFIER,
             'clear' => self::FLAG_MODIFIER,
+        ];
+    }
+
+    //冒号
+    private static function modifierColons()
+    {
+        return [
+            'rule' => '\:',
+            'token' => 'mod_colons',
+            'next' => self::expression()
         ];
     }
 

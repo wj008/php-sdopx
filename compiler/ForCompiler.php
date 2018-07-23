@@ -8,68 +8,26 @@ class ForCompiler
 {
     public static function compile(Compiler $compiler, string $name, array $args)
     {
-        $start = isset($args['start']) ? $args['start'] : null;
-        $key = isset($args['key']) ? $args['key'] : null;
-        $step = isset($args['step']) ? $args['step'] : 1;
-        $to = isset($args['to']) ? $args['to'] : null;
-
-        if (empty($start)) {
-            $compiler->addError("{for} 标签中 start 属性是必须的.");
+        $code = isset($args['code']) ? $args['code'] : null;
+        if (empty($code)) {
+            $compiler->addError("{for} 标签中丢失对于的条件数据.");
         }
-        $tpk = null;
-        $smycodes = [
-            'lt' => '<',
-            'gt' => '>',
-            'gte' => '>=',
-            'lte' => '<=',
-            'neq' => '!=',
-            'eq' => '==',
-        ];
-        $smval = 'null';
-        foreach ($args as $k => $v) {
-            if (isset($smycodes[$k])) {
-                if ($tpk !== null) {
-                    $compiler->addError('{for}标签中循环条件重复 ' . $tpk . ' 和 ' . $k . ' 重复.');
-                }
-                $tpk = $k;
-                $smval = $v;
-            }
-        }
-        if ($tpk === null && empty($to)) {
-            $compiler->addError('{for}标签中循环中 缺少 to 或者 (lt,gt,lte,gte,neq,eq).');
-        }
-        if (!empty($key)) {
-            $key = trim($key, ' \'"');
-            if (preg_match('@^\w+$@', $key)) {
-                $compiler->addError('{for}标签中循环中 key 属性格式不正确.');
-            }
-        }
-
         $pre = $compiler->getTempPrefix('for');
         $varMap = $compiler->getVariableMap($pre);
-        $ekey = "\$__{$pre}_i";
-        if (!empty($key)) {
-            $varMap->add($key);
-            $ekey = "\${$pre}_{$key}";
+        if (isset($args['var']) && is_array($args['var'])) {
+            foreach ($args['var'] as $var => $val) {
+                if (empty($var)) {
+                    continue;
+                }
+                $varMap->add($var);
+                $code = preg_replace('@' . preg_quote($val, '@') . '@', '$' . $pre . '_' . $var, $code);
+            }
         }
         $compiler->addVariableMap($varMap);
         $output = [];
-        $expcode = '';
-        if (!empty($to)) {
-            $expcode = "({$start}<={$to})?({$ekey}<={$to}):({$ekey}>={$to})";
-            if (!empty($tpk)) {
-                $expcode .= ' && ' . "({$ekey} {$smycodes[$tpk]} {$smval}); ";
-            } else {
-                $expcode .= '; ';
-            }
-            $expcode .= "{$ekey}+=({$start}<={$to}?{$step}:-{$step})";
-        } else {
-            $expcode .= "{$ekey} {$smycodes[$tpk]} {$smval}; ";
-            $expcode .= "{$ekey}+={$step}";
-        }
         $output[] = "\$__{$pre}_index=0; ";
-        $output[] = "for({$ekey}={$start}; {$expcode}){ \$__{$pre}_index++;";
-        $compiler->openTag('for', [$pre, $key]);
+        $output[] = "for({$code}){ \$__{$pre}_index++;";
+        $compiler->openTag('for', [$pre]);
         return join("\n", $output);
     }
 }

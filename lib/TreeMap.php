@@ -10,12 +10,12 @@ class TreeMap implements \Iterator
 
     private $info = null;
 
-    public function setInfo($info)
+    public function setDebugInfo($info)
     {
         $this->info = $info;
     }
 
-    public function getInfo()
+    public function getDebugInfo()
     {
         return $this->info;
     }

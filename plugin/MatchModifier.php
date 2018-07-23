@@ -3,9 +3,9 @@
 namespace sdopx\plugin;
 
 
-class OptionModifier
+class MatchModifier
 {
-    public static function execute($string, $arg1, $arg2, $def = '')
+    public  function render($string, $arg1, $arg2, $def = '')
     {
         if (empty($string)) {
             return $def;

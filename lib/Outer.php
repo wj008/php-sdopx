@@ -1,79 +1,51 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: wj008
+ * Date: 18-7-23
+ * Time: 上午5:26
+ */
 
 namespace sdopx\lib;
-
 
 use sdopx\Sdopx;
 
 class Outer
 {
+    /**
+     * @var array
+     */
     private $output = [];
+    /**
+     * @var int
+     */
     private $line = 0;
+    /**
+     * @var string
+     */
     private $src = '';
-    public $_sdopx = null;
+    /**
+     * @var null|Sdopx
+     */
+    public $sdopx = null;
 
-
-    public static function escapeSQL($value)
+    /**
+     * Outer constructor.
+     * @param Sdopx $sdopx
+     */
+    public function __construct(Sdopx $sdopx)
     {
-        if ($value === null) {
-            return 'NULL';
-        }
-        $type = gettype($value);
-        switch ($type) {
-            case 'bool':
-            case 'boolean':
-                return $value ? 1 : 0;
-            case 'int':
-            case 'integer':
-            case 'double':
-            case 'float':
-                return $value;
-            case 'string':
-                break;
-            case 'array':
-            case 'object':
-                $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                break;
-            default :
-                $value = strval($value);
-                break;
-        }
-        $value = '\'' . preg_replace_callback('@[\0\b\t\n\r\x1a\"\'\\\\]@', function ($m) {
-                switch ($m[0]) {
-                    case '\0':
-                        return '\\0';
-                    case '\b':
-                        return '\\b';
-                    case '\t':
-                        return '\\t';
-                    case '\n':
-                        return '\\n';
-                    case '\r':
-                        return '\\r';
-                    case '\x1a':
-                        return '\\Z';
-                    case '"':
-                        return '\\"';
-                    case '\'':
-                        return '\\\'';
-                    case '\\':
-                        return '\\\\';
-                    default:
-                        return '';
-                }
-            }, $value) . '\'';
-        return $value;
+        $this->sdopx = $sdopx;
     }
 
-    public function __construct(Sdopx $_sdopx)
-    {
-        $this->_sdopx = $_sdopx;
-    }
-
+    /**
+     * 输出html实体编码后的文本
+     * @param $code
+     */
     public function text($code)
     {
-        if ($this->_sdopx->encode == 'sql') {
-            $this->output[] = self::escapeSQL($code);
+        if ($this->sdopx->parsingType == Sdopx::PARSING_TYPE_SQL) {
+            $this->output[] = Utils::escapeSQL($code);
         } else {
             if (is_string($code)) {
                 $this->output[] = htmlspecialchars($code, ENT_QUOTES);
@@ -83,9 +55,13 @@ class Outer
         }
     }
 
+    /**
+     * 原样输出
+     * @param $code
+     */
     public function html($code)
     {
-        if ($this->_sdopx->encode == 'sql') {
+        if ($this->sdopx->parsingType == Sdopx::PARSING_TYPE_SQL) {
             if ($code != '') {
                 if (trim($code) == '') {
                     $this->output[] = ' ';
@@ -108,18 +84,32 @@ class Outer
         $this->output[] = $code;
     }
 
-    public function debug($line, $src)
+    /**
+     * 调试信息记录
+     * @param int $line
+     * @param string $src
+     */
+    public function debug(int $line, string $src)
     {
         $this->line = $line;
         $this->src = $src;
     }
 
-    public function rethrow($err)
+    public function throw($error)
     {
-        $this->_sdopx->rethrow($err, $this->line, $this->src);
+        if (Sdopx::$debug && !empty($this->src)) {
+            $this->sdopx->rethrow($error, $this->line, $this->src);
+        } else {
+            $this->sdopx->rethrow($error);
+        }
+        return join('', $this->output);
     }
 
-    public function getCode()
+    /**
+     * 获取输出内容
+     * @return string
+     */
+    public function getCode(): string
     {
         return join('', $this->output);
     }

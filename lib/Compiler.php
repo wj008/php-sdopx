@@ -3,6 +3,7 @@
 namespace sdopx\lib;
 
 
+use sdopx\CompilerException;
 use sdopx\Sdopx;
 
 
@@ -66,8 +67,22 @@ class Compiler
      */
     public function addError($err, $offset = 0)
     {
-        $info = $this->source->getInfo($offset);
-        $this->sdopx->rethrow($err, $info['line'], $info['src']);
+        $info = $this->source->getDebugInfo($offset);
+        $lineno = $info['line'];
+        $tplname = $info['src'];
+        $content = $this->source->content;
+        $lines = explode("\n", $content);
+        $len = count($lines);
+        $start = ($lineno - 3) < 0 ? 0 : $lineno - 3;
+        $end = ($lineno + 3) >= $len ? $len - 1 : $lineno + 3;
+        $lines = array_slice($lines, $start, $end - $start, true);
+        foreach ($lines as $idx => &$line) {
+            $curr = $idx + 1;
+            $line = ($curr == $lineno ? ' >> ' : '    ') . $curr . '| ' . $line;
+        }
+        $context = join("\n", $lines);
+        $message = $tplname . ':' . $lineno . "\n" . $context . "\n";
+        throw new CompilerException($message);
     }
 
     private function loop(&$output)
@@ -213,14 +228,7 @@ class Compiler
 
     public function compileConfigVar($var)
     {
-        $keys = explode('.', $var);
-        if (count($keys) > 1) {
-            $code = "\$_sdopx->_config['{$keys[0]}']";
-            array_shift($keys);
-            $code .= '[\'' . join('\'][\'', $keys) . '\']';
-            return $code;
-        }
-        return "\$_sdopx->_config['{$var}']";
+        return "\$_sdopx->getConfig('{$var}')";
     }
 
     public function compileFunc($func)
@@ -230,14 +238,13 @@ class Compiler
 
     public function compileModifier($name, $params)
     {
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'ModifierCompiler';
-        if (class_exists($class) && is_callable($class, 'compile')) {
-            $code = call_user_func([$class, 'compile'], $this, $params);
-            return $code;
+        $modifierCompiler = Sdopx::getModifierCompiler($name);
+        if ($modifierCompiler) {
+            return $modifierCompiler->compile($this, $params);
         }
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Modifier';
-        if (class_exists($class) && method_exists($class, 'execute')) {
-            return "$class::execute(" . join(',', $params) . ')';
+        $modifier = Sdopx::getModifier($name);
+        if ($modifier) {
+            return Sdopx::class . '::getModifier(' . var_export($name, true) . ')->render(' . join(',', $params) . ')';
         }
         $this->addError("{$name} 修饰器不存在.");
     }
@@ -248,6 +255,7 @@ class Compiler
         if ($close) {
             $tag = $tag . 'Close';
         }
+        //如果有编译器 就编译
         $class = '\\sdopx\\compiler\\' . $tag . 'Compiler';
         if (class_exists($class) && is_callable($class, 'compile')) {
             if ($close) {
@@ -258,32 +266,16 @@ class Compiler
                 return $code;
             }
         }
-        //插件查找
-        if (isset(Sdopx::$pluginMap[$name]) && is_callable(Sdopx::$pluginMap[$name])) {
-            $temp = [];
-            foreach ($params as $key => $val) {
-                $temp[] = "'{$key}'=>{$val}";
-            }
-            return "\\sdopx\\Sdopx::\$pluginMap[" . var_export($name) . "]([" . join(',', $temp) . '],$__out);';
-        }
-        $classPlugin = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Plugin';
-        $classTags = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Tags';
-
-        if (class_exists($classTags)) {
-            if (!method_exists($classTags, 'execute')) {
-                $this->addError('插件不存在  execute 静态方法');
-            }
-
+        //如果有配对标记就使用配对标记
+        $tagplug = Sdopx::getTag($name);
+        if ($tagplug) {
             if ($close) {
                 list($name, $data) = $this->closeTag([$name]);
                 $this->removeVar($data[0]);
                 $code = '},$__out);';
-                if (method_exists($classTags, 'close')) {
-                    $code .= PHP_EOL . $classTags . '::close($__out);';
-                }
+                $code .= PHP_EOL . Sdopx::class . '::getTagplug(' . var_export($name, true) . ')->close($__out);';
                 return $code;
             } else {
-
                 $ikey = isset($params['var']) ? $params['var'] : '';
                 $ikey = trim($ikey, ' \'"');
                 if (empty($ikey)) {
@@ -325,28 +317,24 @@ class Compiler
                     $temp[] = "'{$key}'=>{$val}";
                 }
                 $this->openTag($name, [$pre]);
-
                 $code = '';
-                if (method_exists($classTags, 'open')) {
-                    $code .= $classTags . '::open([' . join(',', $temp) . '],$__out);' . PHP_EOL;
-                }
                 if (!empty($iattr)) {
-                    $code .= "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
+                    $code .= Sdopx::class . '::getTagplug(' . var_export($name, true) . ')->render([' . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null,$' . $pre . '_' . $iattr . '=null) use (' . $use . '){';
                 } else {
-                    $code .= "$classTags::execute([" . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
+                    $code .= Sdopx::class . '::getTagplug(' . var_export($name, true) . ')->render([' . join(',', $temp) . '],function($' . $pre . '_' . $ikey . '=null) use (' . $use . '){';
                 }
                 return $code;
             }
+        }
 
-        } elseif (class_exists($classPlugin)) {
-            if (!method_exists($classPlugin, 'execute')) {
-                $this->addError('插件不存在  execute 静态方法');
-            }
+        //单标记
+        $plugin = Sdopx::getPlugin($name);
+        if ($plugin) {
             $temp = [];
             foreach ($params as $key => $val) {
                 $temp[] = "'{$key}'=>{$val}";
             }
-            return "$classPlugin::execute([" . join(',', $temp) . '],$__out);';
+            return Sdopx::class . '::getPlugin(' . var_export($name, true) . ")->render([" . join(',', $temp) . '],$__out);';
         }
         $this->addError("没有找到插件" . $name . '.');
         return '';
@@ -379,9 +367,9 @@ class Compiler
             return false;
         }
         $tags = gettype($tags) == 'array' ? $tags : [$tags];
-        for ($i = $len; $i >= 0; $i--) {
+        for ($i = $len - 1; $i >= 0; $i--) {
             $item = $this->tag_stack[$i];
-            if (array_search($item[0], $tags) !== false) {
+            if (in_array($item[0], $tags)) {
                 return true;
             }
         }
@@ -500,8 +488,8 @@ class Compiler
             $output = $this->compileTemplate();
             $source->literal = $literal;
         } else if (is_string($info['left']) && is_string($info['right']) && !empty($info['left']) && !empty($info['right'])) {
-            $old_left = $source->left_delimiter;
-            $old_right = $source->right_delimiter;
+            $old_left = $source->leftDelimiter;
+            $old_right = $source->rightDelimiter;
             $source->changDelimiter($info['left'], $info['right']);
             $output = $this->compileTemplate();
             $source->changDelimiter($old_left, $old_right);
@@ -511,8 +499,6 @@ class Compiler
         $source->cursor = $offset;
         $source->bound = $bound;
         $this->closed = $closed;
-
-
         if ($block != null) {
             if ($block['prepend'] && $block['code'] !== null) {
                 $output = $block['code'] . "\n" . $output;

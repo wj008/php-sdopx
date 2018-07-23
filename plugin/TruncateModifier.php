@@ -5,7 +5,7 @@ namespace sdopx\plugin;
 
 class TruncateModifier
 {
-    public static function execute($string, $length = 80, $etc = '...', $code = 'UTF-8')
+    public function render($string, $length = 80, $etc = '...', $code = 'UTF-8')
     {
         $string = trim($string);
         if ($length == 0) {

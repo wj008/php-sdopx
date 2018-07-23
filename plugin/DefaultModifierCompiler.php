@@ -12,7 +12,7 @@ class DefaultModifierCompiler
      * @param array $args
      * @return mixed|string
      */
-    public static function compile(Compiler $compiler, array $args)
+    public  function compile(Compiler $compiler, array $args)
     {
         $output = $args[0];
         if (!isset($args[1])) {

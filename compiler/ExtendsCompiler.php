@@ -6,7 +6,6 @@ use sdopx\lib\Compiler;
 
 class ExtendsCompiler
 {
-
     public static function compile(Compiler $compiler, string $name, array $args)
     {
         $file = isset($args['file']) ? $args['file'] : null;
@@ -33,5 +32,4 @@ class ExtendsCompiler
         $compiler->closed = true;
         return $tpl->compileTemplateSource();
     }
-
 }

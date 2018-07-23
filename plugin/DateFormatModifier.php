@@ -5,6 +5,10 @@ namespace sdopx\plugin;
 
 class DateFormatModifier
 {
+    /**
+     * @param $string
+     * @return false|int
+     */
     private static function makeTimestamp($string)
     {
         if (empty($string)) {
@@ -26,7 +30,15 @@ class DateFormatModifier
         }
     }
 
-    public static function execute($string, $format = null, $default_date = '', $formatter = 'auto')
+    /**
+     * 渲染
+     * @param $string
+     * @param string|null $format
+     * @param string $default_date
+     * @param string $formatter
+     * @return mixed|void
+     */
+    public function render($string, string $format = null, string $default_date = '', string $formatter = 'auto')
     {
         if ($format === null) {
             $format = '%Y-%m-%d %H:%M:%S';
@@ -40,7 +52,7 @@ class DateFormatModifier
             return;
         }
         if ($formatter == 'strftime' || ($formatter == 'auto' && strpos($format, '%') !== false)) {
-            if (DS == '\\') {
+            if (DIRECTORY_SEPARATOR == '\\') {
                 $_win_from = array('%D', '%h', '%n', '%r', '%R', '%t', '%T');
                 $_win_to = array('%m/%d/%y', '%b', "\n", '%I:%M:%S %p', '%H:%M', "\t", '%H:%M:%S');
                 if (strpos($format, '%e') !== false) {

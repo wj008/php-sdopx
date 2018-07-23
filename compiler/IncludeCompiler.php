@@ -28,7 +28,7 @@ class IncludeCompiler
             $val = empty($val) ? 'null' : $val;
             $argsMap[$key] = $val;
         }
-        foreach ($compiler->getVarKeys() as $vkey) {
+        foreach ($compiler->getVarKeys() as $vkey => $val) {
             $val = $compiler->getVar($vkey, true);
             $argsMap[$vkey] = $val;
         }

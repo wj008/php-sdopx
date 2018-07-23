@@ -7,7 +7,12 @@ use sdopx\lib\Compiler;
 
 class UpperModifierCompiler
 {
-    public static function compile(Compiler $compiler, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param array $args
+     * @return string
+     */
+    public function compile(Compiler $compiler, array $args)
     {
         return 'strtoupper(' . $args[0] . ')';
     }

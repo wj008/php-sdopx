@@ -18,7 +18,8 @@ class AssignCompiler
             if ($value == null) {
                 $compiler->addError('{assign} 标签中 \'value\' 属性是必须的.');
             }
-            if ($key == '' || preg_match('@^\w+$@', $key)) {
+            $key = trim($key, ' \'"');
+            if ($key == '' || !preg_match('@^\w+$@', $key)) {
                 $compiler->addError('{assign} 标签中 \'key\' 中只能是 字母数字下划线组合');
             }
             if ($compiler->hasVar($key)) {
@@ -30,7 +31,7 @@ class AssignCompiler
             $varMap->add($key);
             $compiler->addVariableMap($varMap);
             $temp = $compiler->getVar($key);
-            return str_replace('@key', $key, $temp) . ' = ' . $value . ';';
+            return '$' . str_replace('@key', $key, $temp) . ' = ' . $value . ';';
         } else {
             if (!preg_match('@/^\$_sdopx\->_book\[\'(\w+)\'\](.+)$@', $code, $m)) {
                 return $code . ';';
