@@ -170,7 +170,7 @@ class Sdopx extends Template
     /**
      * @var array 运行缓存目录
      */
-    public $runtimeDir = null;
+    public $compileDir = null;
 
     /**
      * @var string 合并的目录字符串
@@ -184,9 +184,9 @@ class Sdopx extends Template
         $this->context = $context;
         $this->_book['this'] = $context;
         if (defined('ROOT_DIR')) {
-            $this->runtimeDir = Utils::path(ROOT_DIR, 'runtime');
+            $this->compileDir = Utils::path(ROOT_DIR, 'runtime');
         } else {
-            $this->runtimeDir = Utils::path(__DIR__, 'runtime');
+            $this->compileDir = Utils::path(__DIR__, 'runtime');
         }
     }
 
@@ -194,9 +194,9 @@ class Sdopx extends Template
      * 设置运行时缓存目录
      * @param $dirname
      */
-    public function setRuntimeDir($dirname)
+    public function setCompileDir($dirname)
     {
-        $this->runtimeDir = $dirname;
+        $this->compileDir = $dirname;
     }
 
     /**

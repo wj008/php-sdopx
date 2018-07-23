@@ -198,7 +198,7 @@ class Template
             Template::$complieCache[$this->tplId] = $_property;
         }
         //装入文件
-        $file = Utils::path($this->sdopx->runtimeDir, $this->tplId . '.php');
+        $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
         file_put_contents($file, '<?php ' . $content . 'return $_property;', LOCK_EX);
         if (isset($_property['runFunc']) && is_callable($_property['runFunc'])) {
             return $this->run($_property['runFunc']);
@@ -280,7 +280,7 @@ class Template
      */
     private function runTemplate()
     {
-        $file = Utils::path($this->sdopx->runtimeDir, $this->tplId . '.php');
+        $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
         if (!isset(Template::$complieCache[$this->tplId])) {
             if (file_exists($file)) {
                 Template::$complieCache[$this->tplId] = require($file);
