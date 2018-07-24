@@ -200,6 +200,19 @@ class Sdopx extends Template
     }
 
     /**
+     * 显示数据
+     * @param string $template
+     */
+    public function display(string $template)
+    {
+        if ($this->context && is_callable([$this->context, 'end'])) {
+            $this->context->end($this->fetch($template));
+        } else {
+            echo $this->fetch($template);
+        }
+    }
+
+    /**
      * 设置模板
      * @param array|string $dirs
      * @return $this
