@@ -200,8 +200,8 @@ class Rules
         $next = self::expression();
         $next['openCodeTag'] = 1;
         $next['openForTag'] = 1;
-        $next['openTag'] = 1;
         $next['openAssignTag'] = 1;
+        $next['openTag'] = 1;
         $next['endTag'] = 1; //结束的标记
         return [
             'rule' => self::$left,
@@ -248,7 +248,7 @@ class Rules
     private static function openAssignTag()
     {
         return [
-            'rule' => '(?:assign|global)\s+',
+            'rule' => '(?:assign|global)\s+(?=\$\w+)',
             'next' => self::expression(),
             'token' => 'tagcode',
             'open' => self::FLAG_TAG,
