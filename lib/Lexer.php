@@ -374,7 +374,6 @@ class Lexer
             $data = $this->match($next);
 
             if ($data == null) {
-                print_r($tree);
                 $this->addError("模板标签语法格式不正确", $source->cursor);
                 return null;
             }

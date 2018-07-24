@@ -45,7 +45,9 @@ class ForeachCompiler
         }
         $compiler->addVariableMap($varMap);
         $output = [];
-        $output[] = "\$__{$pre}_from={$from};\$__{$pre}_i=0;\$__{$pre}_length=count(\$__{$pre}_from);";
+        $output[] = "\$__{$pre}_from={$from};";
+        $output[] = "if(!is_array(\$__{$pre}_from) && is_object(\$__{$pre}_from)){\$__{$pre}_from=get_object_vars(\$__{$pre}_from);}";
+        $output[] = "\$__{$pre}_i=0;\$__{$pre}_length=count(\$__{$pre}_from);";
         if (!empty($key)) {
             $output[] = "foreach(\$__{$pre}_from as \${$pre}_{$key} => \${$pre}_{$item} ){ ";
         } else {
