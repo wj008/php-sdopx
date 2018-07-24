@@ -25,10 +25,10 @@ class GlobalCompiler
             return "\$_sdopx->_book['{$key}']={$value};";
         } else {
             $code = trim($code);
-            if (preg_match('@/^\$_sdopx->_book@', $code)) {
+            if (preg_match('@^\$_sdopx->_book@', $code)) {
                 return $code . ';';
             }
-            if (!preg_match('@/^[a-z]+[0-9]*_(\w+)(.+)@', $code, $match)) {
+            if (!preg_match('@^[a-z]+[0-9]*_(\w+)(.+)@', $code, $match)) {
                 return $code . ';';
             }
             $key = $match[1];
