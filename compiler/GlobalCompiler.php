@@ -19,7 +19,7 @@ class GlobalCompiler
                 $compiler->addError('{global} 标签中 \'value\' 属性是必须的.');
             }
             $key = trim($key, ' \'"');
-            if ($key == '' || preg_match('@^\w+$@', $key)) {
+            if ($key == '' || !preg_match('@^\w+$@', $key)) {
                 $compiler->addError('{global} 标签中 \'key\' 中只能是 字母数字下划线组合');
             }
             return "\$_sdopx->_book['{$key}']={$value};";
