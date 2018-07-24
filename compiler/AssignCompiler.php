@@ -33,7 +33,7 @@ class AssignCompiler
             $temp = $compiler->getVar($key);
             return '$' . str_replace('@key', $key, $temp) . ' = ' . $value . ';';
         } else {
-            if (!preg_match('@/^\$_sdopx\->_book\[\'(\w+)\'\](.+)$@', $code, $m)) {
+            if (!preg_match('@^\$_sdopx\->_book\[\'(\w+)\'\](.+)$@', $code, $m)) {
                 return $code . ';';
             }
             $key = $m[1];
