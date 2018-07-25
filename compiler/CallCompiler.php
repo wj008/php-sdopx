@@ -6,15 +6,15 @@ use \sdopx\lib\Compiler;
 
 class CallCompiler
 {
-   public static function compile(Compiler $compiler, string $name, array $args)
+    public static function compile(Compiler $compiler, string $name, array $args)
     {
         $fn = isset($args['fn']) ? $args['fn'] : null;
         if (empty($fn)) {
-            $compiler->addError("{call} 标签中 fn 函数名属性不能为空");
+            $compiler->addError("The [fn] attribute in the {call} tag is required.");
         }
         $fn = trim($fn, ' \'"');
         if (!preg_match('@^\w+$@', $fn)) {
-            $compiler->addError("{call} 标签中 fn 函数名只能是 字母数字");
+            $compiler->addError("The [fn] attribute of the {call} tag is invalid. Please use letters and numbers and underscores.");
         }
         $temp = [];
         foreach ($args as $key => $val) {

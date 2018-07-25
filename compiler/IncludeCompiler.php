@@ -10,7 +10,7 @@ class IncludeCompiler
     {
         $file = isset($args['file']) ? $args['file'] : null;
         if (empty($file)) {
-            $compiler->addError("{include} 标签中 file 属性是必须的.");
+            $compiler->addError("The [file] attribute in the {include} tag is required.");
         }
         unset($args['file']);
         $is_output = true;

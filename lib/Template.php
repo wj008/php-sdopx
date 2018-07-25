@@ -186,6 +186,7 @@ class Template
     private function writeAndRunContent($content)
     {
         $output = [];
+        $this->property['debug'] = Sdopx::$debug;
         $output[] = '$_property = ' . Utils::export($this->property) . ';';
         $output[] = '$_property[\'runFunc\']=function($_sdopx,$__out){';
         $output[] = $content;
@@ -241,6 +242,9 @@ class Template
         $property['checkTime'] = $time;
         $this->property['version'] = (isset($property['version'])) ? $property['version'] : '';
         if ($this->property['version'] !== Sdopx::VERSION) {
+            return false;
+        }
+        if ($this->property['debug'] !== Sdopx::$debug) {
             return false;
         }
         if (isset($property['dependency'])) {
@@ -332,5 +336,5 @@ class Template
 
         return $code;
     }
-    
+
 }

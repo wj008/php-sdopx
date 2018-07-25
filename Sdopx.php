@@ -80,6 +80,12 @@ class Sdopx extends Template
     public static $debug = false;
 
     /**
+     * 固定后缀模式，如果设置将会自动添加后缀
+     * @var string
+     */
+    public static $extension = '';
+
+    /**
      * 注册的函数
      * @var array
      */
@@ -177,6 +183,18 @@ class Sdopx extends Template
      */
     private $templateJoined = '';
 
+    /**
+     * 模板中注册的函数
+     * @var array
+     */
+    public $funcMap = [];
+
+    /**
+     * 钩子
+     * @var array
+     */
+
+    public $hackMap = [];
 
     public function __construct($context = null)
     {
@@ -319,6 +337,22 @@ class Sdopx extends Template
     {
         if (self::$config != null) {
             return self::$config->get($key);
+        }
+        return null;
+    }
+
+    /**
+     * 获取钩子
+     * @param string|null $fn
+     * @return array|mixed|null
+     */
+    public function getHock(string $fn = null)
+    {
+        if ($fn == null) {
+            return $this->hackMap;
+        }
+        if (isset($this->hackMap[$fn])) {
+            return $this->hackMap[$fn];
         }
         return null;
     }

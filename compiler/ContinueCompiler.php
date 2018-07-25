@@ -17,7 +17,7 @@ class ContinueCompiler
     {
         $check = $compiler->testTag(['foreach', 'for', 'while']);
         if ($check == false) {
-            $compiler->addError("{continue} 只能在 {for} {foreach} {while} 标记内使用");
+            $compiler->addError("{continue} can only be used within the {for} {foreach} {while} tag.");
         }
         return "\n" . 'continue;';
     }

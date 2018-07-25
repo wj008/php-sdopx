@@ -10,7 +10,7 @@ class ForCompiler
     {
         $code = isset($args['code']) ? $args['code'] : null;
         if (empty($code)) {
-            $compiler->addError("{for} 标签中丢失对于的条件数据.");
+            $compiler->addError("Conditional code is missing from the {for} tag.");
         }
         $pre = $compiler->getTempPrefix('for');
         $varMap = $compiler->getVariableMap($pre);

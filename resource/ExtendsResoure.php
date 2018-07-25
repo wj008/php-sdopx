@@ -18,7 +18,7 @@ class ExtendsResoure
     {
         $names = explode('|', $tplname);
         if (count($names) < 2) {
-            $sdopx->rethrow("Sdopx 解析母版继承错误{$tplname} .");
+            $sdopx->rethrow("File path format is incorrect :{$tplname} .");
         }
         $tplchild = array_pop($names);
         $extends = join('|', $names);
@@ -33,7 +33,7 @@ class ExtendsResoure
     {
         $names = explode('|', $tplname);
         if (count($names) < 2) {
-            $sdopx->rethrow("Sdopx 解析母版继承错误{$tplname} .");
+            $sdopx->rethrow("File path format is incorrect :{$tplname} .");
         }
         $tplchild = array_pop($names);
         $extends = join('|', $names);

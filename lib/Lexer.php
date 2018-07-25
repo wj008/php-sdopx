@@ -67,7 +67,7 @@ class Lexer
         $source = $this->source;
         $offset = ($offset === null) ? $source->cursor : $offset;
         if ($offset >= $source->bound) {
-            $this->addError('解析模板的位置超出了模板内容长度');
+            $this->addError('The scope of the parsing template is beyond the length of the template content');
             return null;
         }
         $content = $source->substring($offset, $source->bound);
@@ -297,19 +297,19 @@ class Lexer
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
-            $this->addError("语法分析器查找到达末端并未找到 '{$source->leftDelimiter}*' 注释开始标记", $source->cursor);
+            $this->addError("The parser did not find the '{$source->leftDelimiter}*' comment start tag.", $source->cursor);
             return null;
         }
         Rules::reset($source->leftDelimiter, $source->rightDelimiter);
         $ret = $this->find('@' . preg_quote($source->leftDelimiter . '*', '@') . '@', null, true);
         if ($ret == null) {
-            $this->addError("未找到 '{$source->leftDelimiter}*' 注释开始标记", $source->cursor);
+            $this->addError("The parser did not find the '{$source->leftDelimiter}*' comment start tag.", $source->cursor);
             return null;
         }
         $source->cursor = $ret['end'];
         $ret = $this->find('@' . preg_quote('*' . $source->rightDelimiter, '@') . '@', null, true);
         if ($ret == null) {
-            $this->addError("未找到 '*{$source->rightDelimiter}' 注释结束标记", $source->cursor);
+            $this->addError("The parser did not find the '*{$source->rightDelimiter}' comment end tag.", $source->cursor);
             return null;
         }
         $source->cursor = $ret['end'];
@@ -325,7 +325,7 @@ class Lexer
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
-            $this->addError("语法分析器查找到达末端并未找到 '{$source->leftDelimiter}#' 配置项开始标记", $source->cursor);
+            $this->addError("The parser did not find the '{$source->leftDelimiter}#' configuration item start tag", $source->cursor);
             return null;
         }
         $tree = new TreeMap();
@@ -337,7 +337,7 @@ class Lexer
         do {
             $data = $this->match($next);
             if ($data == null) {
-                $this->addError("配置项中模板标签语法格式不正确", $source->cursor);
+                $this->addError("The template tag syntax in the configuration item is incorrectly formatted.", $source->cursor);
                 return null;
             }
             $tag = $data['tag'];
@@ -360,7 +360,7 @@ class Lexer
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
-            $this->addError("语法分析器查找到达末端并未找到 '{$source->leftDelimiter}' 模板开始标记", $source->cursor);
+            $this->addError("The parser did not find the '{$source->leftDelimiter}' template start tag", $source->cursor);
             return null;
         }
         Rules::reset($source->leftDelimiter, $source->rightDelimiter);
@@ -374,7 +374,7 @@ class Lexer
             $data = $this->match($next);
 
             if ($data == null) {
-                $this->addError("模板标签语法格式不正确", $source->cursor);
+                $this->addError("Template tag syntax is incorrect", $source->cursor);
                 return null;
             }
             $tag = $data['tag'];
@@ -395,7 +395,7 @@ class Lexer
                 $flag = end($this->stack);
                 if ($flag !== null) {
                     if (($flag & $close) == 0) {
-                        $this->addError("模板标签语法解析错误，未闭合的语法", $source->cursor);
+                        $this->addError("Template tag syntax parsing error, unclosed syntax.", $source->cursor);
                         return null;
                     }
                     array_pop($this->stack);
@@ -407,7 +407,7 @@ class Lexer
             }
             if ($tag == 'closeTpl') {
                 if (count($this->stack) != 0) {
-                    $this->addError("模板标签语法解析错误，还有未闭合的语法标签", $source->cursor);
+                    $this->addError("Template tag syntax parsing error, as well as unclosed syntax tags.", $source->cursor);
                     return null;
                 }
                 $data['node'] = null;
@@ -458,7 +458,7 @@ class Lexer
             //找到的是结束标记
             if ($ret['val'] == '/block') {
                 if (count($block_stack) == 0) {
-                    $this->addError("多余的{/block}结束标记符", $offset);
+                    $this->addError("Extra {/block} end tag", $offset);
                     return;
                 }
                 $temp = array_pop($block_stack);
@@ -497,14 +497,14 @@ class Lexer
                 if ($attr == 'name') {
                     $retm = $this->find('@^(\\w+)\\s*|^\'(\\w+)\'\\s*|^"(\\w+)"\\s*@', $offset);
                     if ($retm === null || empty($retm['val'])) {
-                        $this->addError("{block} 标签属性中 name 的值语法错误", $offset);
+                        $this->addError("[name] attribute value syntax error in {block} tag", $offset);
                     }
                     $offset = $retm['end'];
                     $item['name'] = trim($retm['val']);
                 } else if ($attr == 'left' || $attr == 'right') {
                     $retm = $this->find('@^\'([^\']+)\'\\s*|^"([^"]+)"\\s*@', $offset);
                     if ($retm === null || empty($retm['val'])) {
-                        $this->addError("{block} 标签属性中 {$attr} 的值语法错误", $offset);
+                        $this->addError("[{$attr}] attribute value syntax error in {block} tag", $offset);
                     }
                     $offset = $retm['end'];
                     $item[$attr] = trim($retm['val']);
@@ -519,7 +519,7 @@ class Lexer
 
             }
             if (!$closed) {
-                $this->addError("{block} 没有找到结束定界符号", $offset);
+                $this->addError("{block} did not find the end delimiter symbol.", $offset);
             }
         }
         $this->blocks = [];

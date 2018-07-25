@@ -10,7 +10,7 @@ class ExtendsCompiler
     {
         $file = isset($args['file']) ? $args['file'] : null;
         if (empty($file)) {
-            $compiler->addError("{extends} 标签中 file 文件名没指定");
+            $compiler->addError("The [file] attribute in the {extends} tag is required.");
         }
         $_sdopx = $compiler->sdopx;
         $tpl_name = $file;

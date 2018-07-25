@@ -17,18 +17,18 @@ class LiteralCompiler
             try {
                 eval('$delim_left=trim(' . $left . ');');
             } catch (Exception $e) {
-                $compiler->addError('左定界符 left 解析有误');
+                $compiler->addError('Left delimiter [left] parsed incorrectly.');
             }
             try {
                 eval('$delim_right=trim(' . $right . ');');
             } catch (Exception $e) {
-                $compiler->addError('右定界符 right 解析有误');
+                $compiler->addError('Right delimiter [right] parsed incorrectly');
             }
             if (empty($delim_left) || gettype($delim_left) !== 'string') {
-                $compiler->addError('左定界符 left 解析不是字符串');
+                $compiler->addError('Left delimiter [left] is not a string');
             }
             if (empty($delim_right) || gettype($delim_right) !== 'string') {
-                $compiler->addError('右定界符 left 解析不是字符串');
+                $compiler->addError('Right delimiter [right] is not a string');
             }
         } else {
             $literal = true;

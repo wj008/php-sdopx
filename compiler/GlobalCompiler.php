@@ -13,14 +13,14 @@ class GlobalCompiler
         $code = isset($args['code']) ? $args['code'] : null;
         if ($code === null) {
             if ($key == null) {
-                $compiler->addError('{global} 标签中  \'var\' 属性是必须的.');
+                $compiler->addError('The [var] attribute in the {global} tag is required.');
             }
             if ($value == null) {
-                $compiler->addError('{global} 标签中 \'value\' 属性是必须的.');
+                $compiler->addError('The [value] attribute in the {global} tag is required.');
             }
             $key = trim($key, ' \'"');
             if ($key == '' || !preg_match('@^\w+$@', $key)) {
-                $compiler->addError('{global} 标签中 \'key\' 中只能是 字母数字下划线组合');
+                $compiler->addError('The [var] attribute of the {global} tag is invalid. Please use letters and numbers and underscores.');
             }
             return "\$_sdopx->_book['{$key}']={$value};";
         } else {

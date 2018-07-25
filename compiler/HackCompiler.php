@@ -3,6 +3,7 @@
 namespace sdopx\compiler;
 
 use sdopx\lib\Compiler;
+use sdopx\Sdopx;
 
 class HackCompiler
 {
@@ -10,11 +11,11 @@ class HackCompiler
     {
         $fn = isset($args['fn']) ? $args['fn'] : null;
         if (empty($fn)) {
-            $compiler->addError("{function} 标签中 fn 函数名属性不能为空");
+            $compiler->addError("The [fn] attribute in the {hack} tag is required.");
         }
         $fn = trim($fn, ' \'"');
         if (!preg_match('@^[A-Za-z0-9_-]+$@', $fn)) {
-            $compiler->addError("{function} 标签中 fn 函数名只能是 字母数字");
+            $compiler->addError('The [fn] attribute of the {hack} tag is invalid. Please use letters and numbers and underscores.');
         }
         $codes = [];
         $temp = [];
@@ -34,8 +35,10 @@ class HackCompiler
         $compiler->openTag('function', [$params, $fn]);
         $output[] = "\$_sdopx->hackMap['{$fn}']=function(\${$params}=null) use (\$_sdopx){";
         $output[] = '$__out=new \sdopx\lib\Outer($_sdopx);';
-        $output[] = 'try{';
-        $output[] = '$__out->debug(' . $compiler->debugTemp['line'] . ',' . var_export($compiler->debugTemp['src'], true) . ');';
+        if (Sdopx::$debug) {
+            $output[] = 'try{';
+            $output[] = '$__out->debug(' . $compiler->debugTemp['line'] . ',' . var_export($compiler->debugTemp['src'], true) . ');';
+        }
         $output[] = join("\n", $codes);
         $code = join("\n", $output);
         return $code;
@@ -50,7 +53,9 @@ class HackCloseCompiler
         $compiler->removeVar($data[0]);
         $output = [];
         $output[] = 'return $__out->getCode();';
-        $output[] = '} catch (\Exception $exception) { $__out->rethrow($exception);}';
+        if (Sdopx::$debug) {
+            $output[] = '} catch (\Exception $exception) { $__out->rethrow($exception);}';
+        }
         $output[] = '};';
         return join("\n", $output);
     }

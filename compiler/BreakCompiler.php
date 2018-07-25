@@ -17,7 +17,7 @@ class BreakCompiler
     {
         $check = $compiler->testTag(['foreach', 'for', 'while']);
         if ($check == false) {
-            $compiler->addError("{break} 只能在 {for} {foreach} {while} 标记内使用");
+            $compiler->addError("{break} can only be used within the {for} {foreach} {while} tag.");
         }
         return "\n" . 'break;';
     }

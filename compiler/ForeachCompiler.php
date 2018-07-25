@@ -13,25 +13,25 @@ class ForeachCompiler
         $key = isset($args['key']) ? $args['key'] : null;
         $attr = isset($args['attr']) ? $args['attr'] : null;
         if (empty($from)) {
-            $compiler->addError("{foreach} 标签中 from 属性是必须的.");
+            $compiler->addError("The [from] attribute in the {foreach} tag is required.");
         }
         if (empty($item)) {
-            $compiler->addError("{foreach} 标签中 item 属性是必须的.");
+            $compiler->addError("The [item] attribute in the {foreach} tag is required.");
         }
         $item = trim($item, ' \'"');
         if (empty($item) || !preg_match('@^\w+$@', $item)) {
-            $compiler->addError("{foreach} 标签中 item 属性只能是 字母数字下划线.");
+            $compiler->addError("The [item] attribute of the {foreach} tag is invalid. Please use letters and numbers and underscores.");
         }
         if (!empty($key)) {
             $key = trim($key, ' \'"');
             if (!preg_match('@^\w+$@', $key)) {
-                $compiler->addError("{foreach} 标签中 key 属性只能是 字母数字下划线.");
+                $compiler->addError("The [key] attribute of the {foreach} tag is invalid. Please use letters and numbers and underscores.");
             }
         }
         if (!empty($attr)) {
             $attr = trim($attr, ' \'"');
             if (!preg_match('@^\w+$@', $attr)) {
-                $compiler->addError("{foreach} 标签中 attr 属性只能是 字母数字下划线.");
+                $compiler->addError("The [attr] attribute of the {foreach} tag is invalid. Please use letters and numbers and underscores.");
             }
         }
         $pre = $compiler->getTempPrefix('fe');

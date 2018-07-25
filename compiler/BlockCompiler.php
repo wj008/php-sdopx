@@ -12,11 +12,11 @@ class BlockCompiler
         $name = isset($args['name']) ? $args['name'] : null;
         $hide = isset($args['hide']) ? $args['hide'] : null;
         if (empty($name)) {
-            $compiler->addError("{block} 标签中 name 是必须项");
+            $compiler->addError("The [name] attribute in the {block} tag is required.");
         }
         $name = trim($name, ' \'"');
         if (empty($name) || !preg_match('@^\w+$@', $name)) {
-            $compiler->addError("{block} 标签中 name 只能是字幕数字下划线组合");
+            $compiler->addError("The [name] attribute of the {block} tag is invalid. Please use letters and numbers and underscores.");
         }
         $offset = $compiler->source->cursor;
         $block = $compiler->getParentBlock($name);

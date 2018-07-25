@@ -168,15 +168,18 @@ class Utils
     {
         $tplDirs = $sdopx->getTemplateDir();
         if ($tplDirs == null) {
-            $sdopx->rethrow('没有找到 模板目录为设置 ');
+            $sdopx->rethrow('Template directory not set.');
         }
         foreach ($tplDirs as $key => $dirName) {
+            if (!empty(Sdopx::$extension)) {
+                $tplname = $tplname . '.' . Sdopx::$extension;
+            }
             $filePath = Utils::path($dirName, $tplname);
             if ($filePath != '' && file_exists($filePath)) {
                 return $filePath;
             }
         }
-        $sdopx->rethrow('没有找到 模板文件 ' . $tplname);
+        $sdopx->rethrow('template file not found:' . $tplname);
     }
 
 }
