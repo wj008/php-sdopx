@@ -339,8 +339,7 @@ class Compiler
                     $param_temp[] = "'{$key}'=>{$val}";
                 }
                 $this->openTag($name, [$pre]);
-                $code = '';
-                $code .= Sdopx::class . '::getTag(' . var_export($name, true) . ')->render([' . join(',', $param_temp) . '],function(' . join(',', $func_temp) . ') use (' . $use . '){';
+                $code = Sdopx::class . '::getTag(' . var_export($name, true) . ')->render([' . join(',', $param_temp) . '],function(' . join(',', $func_temp) . ') use (' . $use . '){';
                 return $code;
             }
         }

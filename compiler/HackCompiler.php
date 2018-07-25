@@ -32,7 +32,7 @@ class HackCompiler
             $codes[] = "\${$params}_{$key}=(\${$params}!==null && isset(\${$params}['{$key}']))?\${$params}['{$key}']:{$value};";
         }
         $compiler->addVariableMap($varMap);
-        $compiler->openTag('function', [$params, $fn]);
+        $compiler->openTag('hack', [$params, $fn]);
         $output[] = "\$_sdopx->hackMap['{$fn}']=function(\${$params}=null) use (\$_sdopx){";
         $output[] = '$__out=new \sdopx\lib\Outer($_sdopx);';
         if (Sdopx::$debug) {
@@ -49,12 +49,12 @@ class HackCloseCompiler
 {
     public static function compile(Compiler $compiler, string $name)
     {
-        list($name, $data) = $compiler->closeTag(['function']);
+        list($name, $data) = $compiler->closeTag(['hack']);
         $compiler->removeVar($data[0]);
         $output = [];
         $output[] = 'return $__out->getCode();';
         if (Sdopx::$debug) {
-            $output[] = '} catch (\Exception $exception) { $__out->rethrow($exception);}';
+            $output[] = '} catch (\ErrorException $exception) { $__out->throw($exception);}';
         }
         $output[] = '};';
         return join("\n", $output);

@@ -194,7 +194,11 @@ class Template
         $content = join("\n", $output);
         //装入变量
         $_property = null;
-        @eval($content);
+        try {
+            @eval($content);
+        } catch (\ParseError $error) {
+            $this->sdopx->rethrow($error);
+        }
         if (is_array($_property) && isset($_property['runFunc'])) {
             Template::$complieCache[$this->tplId] = $_property;
         }
@@ -279,7 +283,11 @@ class Template
     {
         $__out = new Outer($this->sdopx);
         $_sdopx = $this->sdopx;
-        call_user_func($runFunc, $_sdopx, $__out);
+        try {
+            call_user_func($runFunc, $_sdopx, $__out);
+        } catch (\ErrorException $exception) {
+            $__out->throw($exception);
+        }
         return $__out->getCode();
     }
 

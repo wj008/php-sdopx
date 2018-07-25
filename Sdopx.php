@@ -364,11 +364,8 @@ class Sdopx extends Template
 
     public function rethrow($err, int $lineno = null, string $tplname = null)
     {
-        if (is_string($err)) {
-            if (!Sdopx::$debug) {
-                throw new SdopxException($err);
-            }
-            if ($lineno && $tplname) {
+        if (is_string($err) || $err instanceof \ErrorException) {
+            if (Sdopx::$debug && $lineno && $tplname) {
                 list($name, $type) = Utils::parseResourceName($tplname);
                 $instance = Sdopx::getResource($type);
                 $content = $instance->getContent($name, $this);
@@ -382,10 +379,19 @@ class Sdopx extends Template
                     $line = ($curr == $lineno ? ' >> ' : '    ') . $curr . '| ' . $line;
                 }
                 $context = join("\n", $lines);
-                $message = $err . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
-                throw new SdopxException($message);
+                if (is_string($err)) {
+                    $message = $err . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
+                    throw new SdopxException($message);
+                } else {
+                    $message = $err->getMessage() . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
+                    throw new SdopxException($message);
+                }
             }
-            throw new SdopxException($err);
+            if (is_string($err)) {
+                throw new SdopxException($err);
+            } else {
+                throw $err;
+            }
         }
         throw $err;
     }
