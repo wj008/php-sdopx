@@ -17,15 +17,16 @@ if (!defined('SDOPX_DIR')) {
     define('SDOPX_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 }
 
-set_error_handler(function ($severity, $message, $filename, $lineno) {
-    if (error_reporting() == 0) {
-        return FALSE;
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+    if (!(error_reporting() & $errno)) {
+        return false;
     }
-    if (error_reporting() & $severity) {
-        throw new \ErrorException($message, 0, $severity, $filename, $lineno);
+    if ($errno == E_WARNING || $errno == E_PARSE || $errno == E_NOTICE) {
+        throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
     return true;
 });
+
 
 spl_autoload_register(function ($class) {
     //编译器
@@ -43,7 +44,7 @@ spl_autoload_register(function ($class) {
  * Class SdopxException
  * @package sdopx
  */
-class SdopxException extends \Exception
+class SdopxException extends \ErrorException
 {
 }
 
@@ -383,8 +384,12 @@ class Sdopx extends Template
                     $message = $err . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
                     throw new SdopxException($message);
                 } else {
-                    $message = $err->getMessage() . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
-                    throw new SdopxException($message);
+                    if ($err->getSeverity() == E_NOTICE) {
+                        $message = $err->getMessage() . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
+                        throw new SdopxException($message, $err->getCode(), $err->getSeverity(), $err->getFile(), $err->getLine());
+                    } else {
+                        throw $err;
+                    }
                 }
             }
             if (is_string($err)) {
