@@ -244,11 +244,10 @@ class Template
             return true;
         }
         $property['checkTime'] = $time;
-        $this->property['version'] = (isset($property['version'])) ? $property['version'] : '';
-        if ($this->property['version'] !== Sdopx::VERSION) {
+        if (!isset($property['version']) || !isset($property['debug'])) {
             return false;
         }
-        if ($this->property['debug'] !== Sdopx::$debug) {
+        if ($property['version'] !== Sdopx::VERSION || $property['debug'] !== Sdopx::$debug) {
             return false;
         }
         if (isset($property['dependency'])) {
