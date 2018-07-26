@@ -3,7 +3,7 @@
 namespace sdopx\plugin;
 
 
-class MatchModifier
+class OptionModifier
 {
     public  function render($string, $arg1, $arg2, $def = '')
     {
