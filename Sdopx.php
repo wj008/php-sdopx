@@ -134,6 +134,17 @@ class Sdopx extends Template
      */
     private static $modifierCompilers = [];
 
+    /**
+     * 默认模板目录
+     * @var string
+     */
+    public static $defaultTemplateDirs = './view';
+
+    /**
+     * 默认编译目录
+     * @var string
+     */
+    public static $defaultCompileDirs = './runtime';
 
     /**
      * @var int  解析类型
@@ -210,11 +221,7 @@ class Sdopx extends Template
         parent::__construct();
         $this->context = $context;
         $this->_book['this'] = $context;
-        if (defined('ROOT_DIR')) {
-            $this->compileDir = Utils::path(ROOT_DIR, 'runtime');
-        } else {
-            $this->compileDir = Utils::path(__DIR__, 'runtime');
-        }
+        $this->compileDir = Sdopx::$defaultCompileDirs;
     }
 
     /**
@@ -289,7 +296,11 @@ class Sdopx extends Template
     public function getTemplateDir($key = null)
     {
         if ($key === null) {
-            return $this->templateDirs;
+            if (empty($this->templateDirs)) {
+                return $this->templateDirs;
+            } else {
+                return [Sdopx::$templateDefaultDirs];
+            }
         }
         if (is_string($key) === 'string' || is_int($key)) {
             return isset($this->templateDirs[$key]) ? $this->templateDirs[$key] : null;
@@ -309,6 +320,9 @@ class Sdopx extends Template
         $temp = [];
         foreach ($this->templateDirs as $item) {
             $temp[] = $item;
+        }
+        if (empty($temp)) {
+            $temp[] = Sdopx::$templateDefaultDirs;
         }
         $joined = join(";", $temp);
         if (isset($joined[32])) {
