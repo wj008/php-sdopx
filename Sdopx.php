@@ -203,7 +203,7 @@ class Sdopx extends Template
      * @var array
      */
 
-    public $hackMap = [];
+    public $hookMap = [];
 
     public function __construct($context = null)
     {
@@ -355,13 +355,13 @@ class Sdopx extends Template
      * @param string|null $fn
      * @return array|mixed|null
      */
-    public function getHock(string $fn = null)
+    public function getHook(string $fn = null)
     {
         if ($fn == null) {
-            return $this->hackMap;
+            return $this->hookMap;
         }
-        if (isset($this->hackMap[$fn])) {
-            return $this->hackMap[$fn];
+        if (isset($this->hookMap[$fn])) {
+            return $this->hookMap[$fn];
         }
         return null;
     }

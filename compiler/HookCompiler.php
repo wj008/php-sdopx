@@ -5,17 +5,17 @@ namespace sdopx\compiler;
 use sdopx\lib\Compiler;
 use sdopx\Sdopx;
 
-class HackCompiler
+class HookCompiler
 {
     public static function compile(Compiler $compiler, string $name, array $args)
     {
         $fn = isset($args['fn']) ? $args['fn'] : null;
         if (empty($fn)) {
-            $compiler->addError("The [fn] attribute in the {hack} tag is required.");
+            $compiler->addError("The [fn] attribute in the {hook} tag is required.");
         }
         $fn = trim($fn, ' \'"');
         if (!preg_match('@^[A-Za-z0-9_-]+$@', $fn)) {
-            $compiler->addError('The [fn] attribute of the {hack} tag is invalid. Please use letters and numbers and underscores.');
+            $compiler->addError('The [fn] attribute of the {hook} tag is invalid. Please use letters and numbers and underscores.');
         }
         $codes = [];
         $temp = [];
@@ -32,8 +32,8 @@ class HackCompiler
             $codes[] = "\${$params}_{$key}=(\${$params}!==null && isset(\${$params}['{$key}']))?\${$params}['{$key}']:{$value};";
         }
         $compiler->addVariableMap($varMap);
-        $compiler->openTag('hack', [$params, $fn]);
-        $output[] = "\$_sdopx->hackMap['{$fn}']=function(\${$params}=null) use (\$_sdopx){";
+        $compiler->openTag('hook', [$params, $fn]);
+        $output[] = "\$_sdopx->hookMap['{$fn}']=function(\${$params}=null) use (\$_sdopx){";
         $output[] = '$__out=new \sdopx\lib\Outer($_sdopx);';
         if (Sdopx::$debug) {
             $output[] = 'try{';
@@ -45,11 +45,11 @@ class HackCompiler
     }
 }
 
-class HackCloseCompiler
+class HookCloseCompiler
 {
     public static function compile(Compiler $compiler, string $name)
     {
-        list($name, $data) = $compiler->closeTag(['hack']);
+        list($name, $data) = $compiler->closeTag(['hook']);
         $compiler->removeVar($data[0]);
         $output = [];
         $output[] = 'return $__out->getCode();';
