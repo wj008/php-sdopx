@@ -15,6 +15,7 @@ class CyclePlugin
 {
     public function render(array $params, Outer $outer)
     {
+
         $template = $outer->sdopx;
         if (!isset($template->_cache['_cycle_vars'])) {
             $template->_cache['_cycle_vars'] = [];
@@ -25,7 +26,7 @@ class CyclePlugin
         $print = (isset($params['print'])) ? boolval($params['print']) : true;
         $advance = (isset($params['advance'])) ? boolval($params['advance']) : true;
         $reset = (isset($params['reset'])) ? boolval($params['reset']) : false;
-
+        $raw = (isset($params['raw'])) ? boolval($params['raw']) : false;
         if (!isset($cycle_vars[$name])) {
             $cycle_vars[$name] = [];
         }
@@ -69,6 +70,10 @@ class CyclePlugin
                 $cycle_vars[$name]['index']++;
             }
         }
-        return $retval;
+        if ($raw) {
+            $outer->html($retval);
+        } else {
+            $outer->text($retval);
+        }
     }
 }
