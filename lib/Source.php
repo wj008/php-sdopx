@@ -94,6 +94,9 @@ class Source
         $this->tplId = $tpl->tplId;
         list($name, $type) = Utils::parseResourceName($tpl->tplname);
         $this->resource = Sdopx::getResource($type);
+        if ($this->resource == null) {
+            $this->sdopx->rethrow('Resource type: ' . $type . ' does not exist');
+        }
         $this->type = $type;
         $this->name = $name;
         $this->changDelimiter($this->sdopx->leftDelimiter, $this->sdopx->rightDelimiter);

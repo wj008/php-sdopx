@@ -9,7 +9,7 @@
 namespace sdopx\resource;
 
 
-class StringResoure
+class StringResource
 {
     public function getContent(string $tplname, Sdopx $sdopx): string
     {

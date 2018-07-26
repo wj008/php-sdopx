@@ -12,7 +12,7 @@ namespace sdopx\resource;
 use sdopx\lib\Utils;
 use sdopx\Sdopx;
 
-class ExtendsResoure
+class ExtendsResource
 {
     public function getContent(string $tplname, Sdopx $sdopx): string
     {

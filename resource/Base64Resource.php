@@ -11,7 +11,7 @@ namespace sdopx\resource;
 
 use sdopx\Sdopx;
 
-class Base64Resoure
+class Base64Resource
 {
     public function getContent(string $tplname, Sdopx $sdopx): string
     {
