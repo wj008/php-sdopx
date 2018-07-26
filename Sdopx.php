@@ -54,7 +54,7 @@ class CompilerException extends \Exception
  */
 class Sdopx extends Template
 {
-    const VERSION = '2.0.19';
+    const VERSION = '2.0.21';
     /**
      * 解析HTML
      */
@@ -138,7 +138,7 @@ class Sdopx extends Template
      * 默认模板目录
      * @var string
      */
-    public static $defaultTemplateDir = './view';
+    public static $defaultTemplateDirs = './view';
 
     /**
      * 默认编译目录
@@ -222,6 +222,11 @@ class Sdopx extends Template
         $this->context = $context;
         $this->_book['this'] = $context;
         $this->compileDir = Sdopx::$defaultCompileDir;
+        if (is_array(Sdopx::$defaultTemplateDirs)) {
+            $this->templateDirs = Sdopx::$defaultTemplateDirs;
+        } elseif (is_string(Sdopx::$defaultTemplateDirs)) {
+            $this->templateDirs = [Sdopx::$defaultTemplateDirs];
+        }
     }
 
     /**
@@ -298,8 +303,6 @@ class Sdopx extends Template
         if ($key === null) {
             if (empty($this->templateDirs)) {
                 return $this->templateDirs;
-            } else {
-                return [Sdopx::$defaultTemplateDir];
             }
         }
         if (is_string($key) === 'string' || is_int($key)) {
@@ -320,9 +323,6 @@ class Sdopx extends Template
         $temp = [];
         foreach ($this->templateDirs as $item) {
             $temp[] = $item;
-        }
-        if (empty($temp)) {
-            $temp[] = Sdopx::$defaultTemplateDir;
         }
         $joined = join(";", $temp);
         if (isset($joined[32])) {
