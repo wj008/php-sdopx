@@ -100,7 +100,7 @@ class Template
         return $type . '_' . trim($temp, '_');
     }
 
-    public function fetch($tplname)
+    public function fetch(string $tplname)
     {
         $this->tplname = $tplname;
         $this->tplId = $this->createTplId($tplname);
