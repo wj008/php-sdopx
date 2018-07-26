@@ -138,13 +138,13 @@ class Sdopx extends Template
      * 默认模板目录
      * @var string
      */
-    public static $defaultTemplateDirs = './view';
+    public static $defaultTemplateDir = './view';
 
     /**
      * 默认编译目录
      * @var string
      */
-    public static $defaultCompileDirs = './runtime';
+    public static $defaultCompileDir = './runtime';
 
     /**
      * @var int  解析类型
@@ -221,7 +221,7 @@ class Sdopx extends Template
         parent::__construct();
         $this->context = $context;
         $this->_book['this'] = $context;
-        $this->compileDir = Sdopx::$defaultCompileDirs;
+        $this->compileDir = Sdopx::$defaultCompileDir;
     }
 
     /**
@@ -299,7 +299,7 @@ class Sdopx extends Template
             if (empty($this->templateDirs)) {
                 return $this->templateDirs;
             } else {
-                return [Sdopx::$templateDefaultDirs];
+                return [Sdopx::$defaultTemplateDir];
             }
         }
         if (is_string($key) === 'string' || is_int($key)) {
@@ -322,7 +322,7 @@ class Sdopx extends Template
             $temp[] = $item;
         }
         if (empty($temp)) {
-            $temp[] = Sdopx::$templateDefaultDirs;
+            $temp[] = Sdopx::$defaultTemplateDir;
         }
         $joined = join(";", $temp);
         if (isset($joined[32])) {
