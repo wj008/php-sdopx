@@ -168,6 +168,11 @@ class Sdopx extends Template
      */
     public $_book = [];
 
+    /**
+     * @var array 缓存数据
+     */
+    public $_cache = [];
+
 
     /**
      * @var array 模板目录
