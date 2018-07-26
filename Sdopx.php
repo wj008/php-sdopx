@@ -222,11 +222,7 @@ class Sdopx extends Template
         $this->context = $context;
         $this->_book['this'] = $context;
         $this->compileDir = Sdopx::$defaultCompileDir;
-        if (is_array(Sdopx::$defaultTemplateDirs)) {
-            $this->templateDirs = Sdopx::$defaultTemplateDirs;
-        } elseif (is_string(Sdopx::$defaultTemplateDirs)) {
-            $this->templateDirs = [Sdopx::$defaultTemplateDirs];
-        }
+        $this->setTemplateDir(Sdopx::$defaultTemplateDirs);
     }
 
     /**
@@ -301,9 +297,10 @@ class Sdopx extends Template
     public function getTemplateDir($key = null)
     {
         if ($key === null) {
-            if (empty($this->templateDirs)) {
+            if (count($this->templateDirs) > 0) {
                 return $this->templateDirs;
             }
+            return null;
         }
         if (is_string($key) === 'string' || is_int($key)) {
             return isset($this->templateDirs[$key]) ? $this->templateDirs[$key] : null;
