@@ -54,7 +54,7 @@ class CompilerException extends \Exception
  */
 class Sdopx extends Template
 {
-    const VERSION = '2.0.0';
+    const VERSION = '2.0.19';
     /**
      * 解析HTML
      */
@@ -623,31 +623,17 @@ class Sdopx extends Template
         return null;
     }
 
-
-    /**
-     * 输出模板
-     * @param string $template
-     * @param array $assign
-     * @param string $encode
-     * @return string|void
-     */
-    public static function fetchTemplate(string $template, array $assign, int $parsingType = Sdopx::PARSING_HTML)
-    {
-        $sdopx = new Sdopx();
-        $sdopx->_book = $assign;
-        $sdopx->parsingType = $parsingType;
-        return $sdopx->fetch($template);
-    }
-
     /**
      * 编译片段
      * @param string $template
-     * @param string $encode
-     * @return string
+     * @param string $templateDir
+     * @param int $parsingType
+     * @return mixed
      */
-    public static function compile(string $template, int $parsingType = Sdopx::PARSING_HTML)
+    public static function compile(string $template, string $templateDir, int $parsingType = Sdopx::PARSING_HTML)
     {
         $sdopx = new Sdopx();
+        $sdopx->setTemplateDir($templateDir);
         $sdopx->parsingType = $parsingType;
         $sdopx->tplname = $template;
         return $sdopx->compileTemplateSource();
