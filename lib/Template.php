@@ -104,7 +104,14 @@ class Template
     {
         $this->tplname = $tplname;
         $this->tplId = $this->createTplId($tplname);
-        return $this->fetchTpl();
+        $temp = $this->fetchTpl();
+        if ($this instanceof Sdopx) {
+            $filters = Sdopx::getFilter('output');
+            foreach ($filters as $filter) {
+                $temp = call_user_func($filter, $temp, $this);
+            }
+        }
+        return $temp;
     }
 
     /**

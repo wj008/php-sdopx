@@ -136,7 +136,12 @@ class Source
     private function load()
     {
         $name = $this->name;
-        $this->content = $this->resource->getContent($name, $this->sdopx);
+        $content = $this->resource->getContent($name, $this->sdopx);
+        $filters = Sdopx::getFilter('pre');
+        foreach ($filters as $filter) {
+            $content = call_user_func($filter, $content, $this->sdopx);
+        }
+        $this->content = $content;
         $this->length = strlen($this->content);
         $this->bound = $this->length;
         $this->timestamp = $this->getTimestamp($name, $this->sdopx);
