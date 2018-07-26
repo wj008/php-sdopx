@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace sdopx;
 require_once("lib/Utils.php");
+require_once("lib/Template.php");
 
 use sdopx\lib\Template;
 use sdopx\lib\Utils;
@@ -27,17 +28,6 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) {
     return true;
 });
 
-
-spl_autoload_register(function ($class) {
-    //编译器
-    if (preg_match('@^sdopx\\\\(.+)$@', $class, $mc)) {
-        $path = Utils::path(SDOPX_DIR, "{$mc[1]}.php");
-        if (file_exists($path)) {
-            @include($path);
-            return;
-        }
-    }
-});
 
 /**
  * 模板错误
@@ -106,6 +96,19 @@ class Sdopx extends Template
      * @var array
      */
     private static $plugins = [];
+
+
+    /**
+     * 插件查找的位置
+     * @var string
+     */
+    private static $pluginDir = null;
+
+    /**
+     * 插件查找的位置
+     * @var string
+     */
+    private static $resourceDir = null;
 
     /**
      * 注册的配对标记
@@ -446,6 +449,16 @@ class Sdopx extends Template
     }
 
     /**
+     * 设置插件目录
+     * @param string $dirname
+     */
+    public static function setPluginDir(string $dirname)
+    {
+        self::$pluginDir = $dirname;
+    }
+
+
+    /**
      * 获取注册的插件
      * @param string $name
      * @return mixed
@@ -584,6 +597,15 @@ class Sdopx extends Template
     }
 
     /**
+     * 设置资源目录
+     * @param string $dirname
+     */
+    public static function setResourceDir(string $dirname)
+    {
+        self::$resourceDir = $dirname;
+    }
+
+    /**
      * 获取注册的资源
      * @param string $type
      * @return mixed
@@ -631,4 +653,41 @@ class Sdopx extends Template
         return $sdopx->compileTemplateSource();
     }
 
+    public static function autoload()
+    {
+        $pluginDir = self::$pluginDir;
+        $resourceDir = self::$resourceDir;
+        spl_autoload_register(function ($class) use ($pluginDir, $resourceDir) {
+            //插件目录
+            if (preg_match('@^sdopx\\\\plugin\\\\(.+)$@', $class, $mc)) {
+                if (!empty($pluginDir)) {
+                    $path = Utils::path($pluginDir, "{$mc[1]}.php");
+                    if (file_exists($path)) {
+                        @include($path);
+                        return;
+                    }
+                }
+            }
+            //资源目录
+            if (preg_match('@^sdopx\\\\resource\\\\(.+)$@', $class, $mc)) {
+                if (!empty($resourceDir)) {
+                    $path = Utils::path($resourceDir, "{$mc[1]}.php");
+                    if (file_exists($path)) {
+                        @include($path);
+                        return;
+                    }
+                }
+            }
+            //其他所有
+            if (preg_match('@^sdopx\\\\(.+)$@', $class, $mc)) {
+                $path = Utils::path(SDOPX_DIR, "{$mc[1]}.php");
+                if (file_exists($path)) {
+                    @include($path);
+                    return;
+                }
+            }
+        });
+    }
 }
+
+Sdopx::autoload();
