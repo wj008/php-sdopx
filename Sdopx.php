@@ -175,7 +175,7 @@ class Sdopx extends Template
      * 上下文，在模板中可以用 $this
      */
 
-    private $context = null;
+    public $context = null;
 
     /**
      * @var array 注册变量字典
