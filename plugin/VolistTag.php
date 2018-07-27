@@ -41,10 +41,21 @@ class VolistTag
         $isKey = empty($param['key']) ? false : true;
         $isAttr = empty($param['attr']) ? false : true;
         $count = count($param['from']);
+        $show_total = $count;
+        if ($offset !== null && $offset > 0) {
+            $show_total = $show_total - $offset;
+        }
+        if ($mod !== null && $mod > 1) {
+            $show_total = floor($show_total / $mod);
+        }
+        if ($length !== null) {
+            $show_total = $show_total > $length ? $length : $show_total;
+        }
         $attr = null;
         if ($isAttr) {
             $attr = [];
             $attr['total'] = $count;
+            $attr['show_total'] = $show_total;
         }
         $index = -1;
         $iteration = 0;
@@ -80,17 +91,7 @@ class VolistTag
                 $attr['index'] = $index;
                 $attr['first'] = $iteration == 1;
                 $attr['last'] = false;
-                if ($index >= $count - 1) {
-                    $attr['last'] = true;
-                }
-                if ($length !== null && $iteration >= $length) {
-                    $attr['last'] = true;
-                }
-                if ($mod !== null && $mod > 0) {
-                    if (($index + $mod) >= $count) {
-                        $attr['last'] = true;
-                    }
-                }
+                $attr['last'] = $iteration == $show_total;
                 $attr['iteration'] = $iteration;
                 $args[] = $attr;
             }
