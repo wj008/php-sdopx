@@ -54,7 +54,7 @@ class CompilerException extends \Exception
  */
 class Sdopx extends Template
 {
-    const VERSION = '2.0.25';
+    const VERSION = '2.0.26';
     /**
      * 解析HTML
      */
@@ -484,6 +484,15 @@ class Sdopx extends Template
         self::$pluginDir = $dirname;
     }
 
+    /**
+     * 获取插件目录
+     * @return string
+     */
+    public static function getPluginDir()
+    {
+        return self::$pluginDir;
+    }
+
 
     /**
      * 获取注册的插件
@@ -633,6 +642,15 @@ class Sdopx extends Template
     }
 
     /**
+     * 获取资源目录
+     * @return string
+     */
+    public static function getResourceDir()
+    {
+        return self::$resourceDir;
+    }
+
+    /**
      * 获取注册的资源
      * @param string $type
      * @return mixed
@@ -668,10 +686,9 @@ class Sdopx extends Template
 
     public static function autoload()
     {
-        $pluginDir = self::$pluginDir;
-        $resourceDir = self::$resourceDir;
-        spl_autoload_register(function ($class) use ($pluginDir, $resourceDir) {
+        spl_autoload_register(function ($class) {
             //插件目录
+            $pluginDir = Sdopx::getPluginDir();
             if (preg_match('@^sdopx\\\\plugin\\\\(.+)$@', $class, $mc)) {
                 if (!empty($pluginDir)) {
                     $path = Utils::path($pluginDir, "{$mc[1]}.php");
@@ -681,6 +698,7 @@ class Sdopx extends Template
                     }
                 }
             }
+            $resourceDir = Sdopx::getResourceDir();
             //资源目录
             if (preg_match('@^sdopx\\\\resource\\\\(.+)$@', $class, $mc)) {
                 if (!empty($resourceDir)) {
