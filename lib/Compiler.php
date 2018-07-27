@@ -233,6 +233,11 @@ class Compiler
 
     public function compileFunc($func)
     {
+        if (preg_match('@^\w+$@', $func)) {
+            if (Sdopx::getFunction($func) !== null) {
+                return Sdopx::class . '::getFunction(' . var_export($func, true) . ')(';
+            }
+        }
         return $func . '(';
     }
 
