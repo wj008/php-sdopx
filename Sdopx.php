@@ -229,7 +229,7 @@ class Sdopx extends Template
      * 设置运行时缓存目录
      * @param $dirname
      */
-    public function setCompileDir($dirname)
+    public function setCompileDir(string $dirname)
     {
         $this->compileDir = $dirname;
     }
@@ -346,6 +346,22 @@ class Sdopx extends Template
             }
         }
         return $this;
+    }
+
+    /**
+     * 获取注册变量
+     * @param string|null $key
+     * @return array|mixed|null
+     */
+    public function getAssign(string $key = null)
+    {
+        if ($key == null) {
+            return $this->_book;
+        }
+        if (isset($this->_book[$key])) {
+            return $this->_book[$key];
+        }
+        return null;
     }
 
     /**
