@@ -8,7 +8,7 @@ php 模板引擎
 与1.x版本有不兼容问题.
 
 
-更多详细帮助文档: http://sdopx.wj008.com 查阅
+更多详细帮助文档: http://sdopx.wj008.net 查阅
 
 ```php
 
