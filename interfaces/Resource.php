@@ -9,6 +9,8 @@
 namespace sdopx\interfaces;
 
 
+use sdopx\Sdopx;
+
 interface Resource
 {
     public function getContent(string $tplname, Sdopx $sdopx): string;
