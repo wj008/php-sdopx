@@ -450,7 +450,7 @@ class Sdopx extends Template
      * @param string $name
      * @param \Closure $func
      */
-    public static function registerFunction(string $name, \Closure $func)
+    public static function registerFunction(string $name, $func)
     {
         self::$functions[$name] = $func;
     }
