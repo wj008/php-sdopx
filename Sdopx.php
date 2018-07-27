@@ -54,7 +54,7 @@ class CompilerException extends \Exception
  */
 class Sdopx extends Template
 {
-    const VERSION = '2.0.23';
+    const VERSION = '2.0.24';
     /**
      * 解析HTML
      */
