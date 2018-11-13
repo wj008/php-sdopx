@@ -124,7 +124,7 @@ class Sdopx extends Template
 
 
     /**
-     * @var ConfigInterface
+     * @var ConfigInterface|\Closure
      */
     private static $config = null;
 
@@ -371,7 +371,22 @@ class Sdopx extends Template
      */
     public function getConfig(string $key)
     {
-        if (self::$config != null) {
+        //使用回调函数
+        if (self::$config instanceof \Closure) {
+            return call_user_func(self::$config, $key);
+        } //直接注册数组
+        elseif (is_array(self::$config)) {
+            if (preg_match('@^(\w+)\.(.+)$@', $key, $m)) {
+                $name = trim($m[1]);
+                $key = trim($m[2]);
+                if (isset(self::$config[$name]) && isset(self::$config[$name][$key])) {
+                    return self::$config[$name][$key];
+                }
+                return null;
+            }
+            return isset(self::$config[$key]) ? self::$config[$key] : null;
+        } //使用实例
+        elseif (self::$config != null && method_exists(self::$config, 'get')) {
             return self::$config->get($key);
         }
         return null;
