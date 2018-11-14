@@ -195,7 +195,6 @@ class Utils
             }
         } else {
             foreach ($tplDirs as $key => $dirName) {
-                echo $dirName . "\n";
                 $filePath = Utils::path($dirName, $tplname);
                 if ($filePath != '' && file_exists($filePath)) {
                     return $filePath;
