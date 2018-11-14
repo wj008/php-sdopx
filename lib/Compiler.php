@@ -350,15 +350,16 @@ class Compiler
         }
         //单标记
         $plugin = Sdopx::getPlugin($name);
+        $temp = [];
+        foreach ($params as $key => $val) {
+            $temp[] = "'{$key}'=>{$val}";
+        }
         if ($plugin) {
-            $temp = [];
-            foreach ($params as $key => $val) {
-                $temp[] = "'{$key}'=>{$val}";
-            }
             return Sdopx::class . '::getPlugin(' . var_export($name, true) . ")->render([" . join(',', $temp) . '],$__out);';
         }
-        $this->addError("($name) plugin not found.");
-        return '';
+        //还有模板函数也应该支持
+        $code = "if(isset(\$_sdopx->funcMap[" . var_export($name, true) . "])){\n  \$_sdopx->funcMap[" . var_export($name, true) . "]([" . join(',', $temp) . "],\$__out,\$_sdopx);\n}else{\n  \$__out->throw('{$name} plugin not found.');\n}";
+        return $code;
     }
 
     public function openTag($tag, $data = null)
