@@ -61,9 +61,10 @@ class Compiler
     }
 
     /**
+     * 抛出编译错误
      * @param $err
      * @param int $offset
-     * @throws \sdopx\SdopxException
+     * @throws CompilerException
      */
     public function addError($err, $offset = 0)
     {
@@ -82,7 +83,7 @@ class Compiler
         }
         $context = join("\n", $lines);
         $message = $tplname . ':' . $lineno . "\n" . $context . "\n";
-        throw new CompilerException($message);
+        throw new CompilerException($err, $message);
     }
 
     private function loop(&$output)
