@@ -34,8 +34,20 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) {
  * Class SdopxException
  * @package sdopx
  */
-class SdopxException extends \ErrorException
+class SdopxException extends \Exception
 {
+    protected $detail = '';
+
+    public function __construct(string $message = '', $detail = '', int $code = 0, Throwable $previous = null)
+    {
+        $this->detail = $detail;
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getDetail()
+    {
+        return $this->detail;
+    }
 }
 
 /**
@@ -45,6 +57,18 @@ class SdopxException extends \ErrorException
  */
 class CompilerException extends \Exception
 {
+    protected $detail = '';
+
+    public function __construct(string $message = '', $detail = '', int $code = 0, Throwable $previous = null)
+    {
+        $this->detail = $detail;
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getDetail()
+    {
+        return $this->detail;
+    }
 }
 
 /**
@@ -430,13 +454,13 @@ class Sdopx extends Template
                     $line = ($curr == $lineno ? ' >> ' : '    ') . $curr . '| ' . $line;
                 }
                 $context = join("\n", $lines);
+                $stack = $tplname . ':' . $lineno . "\n" . $context . "\n";
                 if (is_string($err)) {
-                    $message = $err . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
-                    throw new SdopxException($message);
+                    throw new SdopxException($err, $stack);
                 } else {
                     if ($err->getSeverity() == E_NOTICE) {
-                        $message = $err->getMessage() . "\n" . $tplname . ':' . $lineno . "\n" . $context . "\n";
-                        throw new SdopxException($message, $err->getCode(), $err->getSeverity(), $err->getFile(), $err->getLine());
+                        $stack = $tplname . ':' . $lineno . "\n" . $context . "\n";
+                        throw new SdopxException($err->getMessage(), $stack, $err->getCode(), $err->getSeverity(), $err->getFile(), $err->getLine());
                     } else {
                         throw $err;
                     }
