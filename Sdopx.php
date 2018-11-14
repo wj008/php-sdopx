@@ -699,6 +699,20 @@ class Sdopx extends Template
         return $sdopx->compileTemplateSource();
     }
 
+    /**
+     * 解析sql 模板语句
+     * @param string $sql
+     * @param array $params
+     * @return mixed|string|void
+     */
+    public static function fetchSQL(string $sql, array $params)
+    {
+        $sdopx = new Sdopx();
+        $sdopx->assign($params);
+        $sdopx->parsingType = Sdopx::PARSING_SQL;
+        return $sdopx->fetch('string:' . $sql);
+    }
+
     public static function autoload()
     {
         spl_autoload_register(function ($class) {
