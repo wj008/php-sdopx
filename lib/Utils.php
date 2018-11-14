@@ -132,6 +132,12 @@ class Utils
         return $value;
     }
 
+    /**
+     * 格式化导出数组
+     * @param $data
+     * @param string $sp
+     * @return string
+     */
     public static function export($data, $sp = '')
     {
         $tabs[] = '[';
@@ -146,6 +152,11 @@ class Utils
         return join("\n", $tabs);
     }
 
+    /**
+     * 解析资源名称
+     * @param string $tplname
+     * @return array
+     */
     public static function parseResourceName(string $tplname)
     {
         if (preg_match('@^(\w+):@', $tplname, $match)) {
@@ -161,22 +172,34 @@ class Utils
      * @param string $tplname
      * @param Sdopx $sdopx
      * @return string
+     * @throws \ErrorException
      * @throws \sdopx\SdopxException
      */
-
     public static function getPath(string $tplname, Sdopx $sdopx)
     {
+        if (empty($tplname)) {
+            $sdopx->rethrow('template file is empty.');
+        }
+        //如果没有后缀
+        if (!empty(Sdopx::$extension) && !preg_match('@\.[a-zA-z0-9]+$@', $tplname)) {
+            $tplname = $tplname . '.' . Sdopx::$extension;
+        }
         $tplDirs = $sdopx->getTemplateDir();
         if ($tplDirs == null) {
             $sdopx->rethrow('Template directory not set.');
         }
-        foreach ($tplDirs as $key => $dirName) {
-            if (!empty(Sdopx::$extension)) {
-                $tplname = $tplname . '.' . Sdopx::$extension;
-            }
-            $filePath = Utils::path($dirName, $tplname);
+        if ($tplname[0] == '@' && isset($tplDirs['common'])) {
+            $filePath = Utils::path($tplDirs['common'], substr($tplname, 1));
             if ($filePath != '' && file_exists($filePath)) {
                 return $filePath;
+            }
+        } else {
+            foreach ($tplDirs as $key => $dirName) {
+                echo $dirName . "\n";
+                $filePath = Utils::path($dirName, $tplname);
+                if ($filePath != '' && file_exists($filePath)) {
+                    return $filePath;
+                }
             }
         }
         $sdopx->rethrow('template file not found:' . $tplname);
