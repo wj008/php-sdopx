@@ -15,7 +15,7 @@ class BlockCompiler
             $compiler->addError("The [name] attribute in the {block} tag is required.");
         }
         $name = trim($name, ' \'"');
-        if (empty($name) || !preg_match('@^\w+$@', $name)) {
+        if (empty($name) || !preg_match('@^[\w-]+$@', $name)) {
             $compiler->addError("The [name] attribute of the {block} tag is invalid. Please use letters and numbers and underscores.");
         }
         $offset = $compiler->source->cursor;

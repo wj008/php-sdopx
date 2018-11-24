@@ -46,6 +46,7 @@ class Lexer
      * 添加错误
      * @param $err
      * @param int $offset
+     * @throws \ErrorException
      * @throws \sdopx\SdopxException
      */
     private function addError($err, $offset = 0)
@@ -60,6 +61,7 @@ class Lexer
      * @param null $offset
      * @param bool $normal
      * @return array|null
+     * @throws \ErrorException
      * @throws \sdopx\SdopxException
      */
     private function find($pattern, $offset = null, $normal = false)
@@ -219,6 +221,7 @@ class Lexer
     /**
      * 解析HTML
      * @return array|null
+     * @throws \ErrorException
      * @throws \sdopx\SdopxException
      */
     public function lexHtml()
@@ -291,6 +294,7 @@ class Lexer
     /**
      * 解析注释
      * @return array|null
+     * @throws \ErrorException
      * @throws \sdopx\SdopxException
      */
     public function lexComment()
@@ -318,7 +322,8 @@ class Lexer
 
     /**
      * 解析配置
-     * @return null|TreeMap
+     * @return TreeMap|null
+     * @throws \ErrorException
      * @throws \sdopx\SdopxException
      */
     public function lexConfig()
@@ -353,7 +358,8 @@ class Lexer
 
     /**
      * 解析模板
-     * @return null|TreeMap
+     * @return TreeMap|null
+     * @throws \ErrorException
      * @throws \sdopx\SdopxException
      */
     public function lexTpl()
@@ -449,7 +455,7 @@ class Lexer
         $offset = 0;
 
         while ($offset < $source->length) {
-            $ret = $this->find('@' . $left . '(block)\\s+|' . $left . '(/block)\\s*' . $right . '@', $offset);
+            $ret = $this->find('@' . $left . '(block)\s+|' . $left . '(/block)\s*' . $right . '@', $offset);
             if ($ret == null) {
                 //开始到结尾都没有找到
                 break;
@@ -487,7 +493,7 @@ class Lexer
             //查找属性
             $closed = false;
             while ($ret !== null) {
-                $ret = $this->find('@^(name|left|right)=\\s*|^(append|prepend|hide|nocache|literal)(?:=true)?\\s*|^(' . $right . ')@', $offset);
+                $ret = $this->find('@^(name|left|right)=\s*|^(append|prepend|hide|nocache|literal)(?:=true)?\s*|^(' . $right . ')@', $offset);
                 if ($ret === null) {
                     //没有找到属性值
                     break;
@@ -495,14 +501,14 @@ class Lexer
                 $attr = $ret['val'];
                 $offset = $ret['end'];
                 if ($attr == 'name') {
-                    $retm = $this->find('@^(\\w+)\\s*|^\'(\\w+)\'\\s*|^"(\\w+)"\\s*@', $offset);
+                    $retm = $this->find('@^([\w-]+)\s*|^\'([\w-]+)\'\s*|^"[\w-]+)"\s*@', $offset);
                     if ($retm === null || empty($retm['val'])) {
                         $this->addError("[name] attribute value syntax error in {block} tag", $offset);
                     }
                     $offset = $retm['end'];
                     $item['name'] = trim($retm['val']);
                 } else if ($attr == 'left' || $attr == 'right') {
-                    $retm = $this->find('@^\'([^\']+)\'\\s*|^"([^"]+)"\\s*@', $offset);
+                    $retm = $this->find('@^\'([^\']+)\'\s*|^"([^"]+)"\s*@', $offset);
                     if ($retm === null || empty($retm['val'])) {
                         $this->addError("[{$attr}] attribute value syntax error in {block} tag", $offset);
                     }
