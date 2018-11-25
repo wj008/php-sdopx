@@ -501,7 +501,7 @@ class Lexer
                 $attr = $ret['val'];
                 $offset = $ret['end'];
                 if ($attr == 'name') {
-                    $retm = $this->find('@^([\w-]+)\s*|^\'([\w-]+)\'\s*|^"[\w-]+)"\s*@', $offset);
+                    $retm = $this->find('@^([\w-]+)\s*|^\'([\w-]+)\'\s*|^"([\w-]+)"\s*@', $offset);
                     if ($retm === null || empty($retm['val'])) {
                         $this->addError("[name] attribute value syntax error in {block} tag", $offset);
                     }
