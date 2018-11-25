@@ -299,9 +299,9 @@ class Sdopx extends Template
 
     /**
      * 添加模板
-     * @param string $name
+     * @param string $dir
      * @param string|null $key
-     * @return $this
+     * @return Sdopx
      */
     public function addTemplateDir(string $dir, string $key = null): Sdopx
     {
@@ -434,9 +434,12 @@ class Sdopx extends Template
 
     /**
      * 重新丢出错误
-     * @param $error
+     * @param $err
+     * @param int|null $lineno
+     * @param string|null $tplname
+     * @throws SdopxException
+     * @throws \ErrorException
      */
-
     public function rethrow($err, int $lineno = null, string $tplname = null)
     {
         if (is_string($err) || $err instanceof \ErrorException) {
@@ -460,7 +463,7 @@ class Sdopx extends Template
                 } else {
                     if ($err->getSeverity() == E_NOTICE) {
                         $stack = $tplname . ':' . $lineno . "\n" . $context . "\n";
-                        throw new SdopxException($err->getMessage(), $stack, $err->getCode(), $err->getSeverity(), $err->getFile(), $err->getLine());
+                        throw new SdopxException($err->getMessage(), $stack, $err->getCode(), $err);
                     } else {
                         throw $err;
                     }
