@@ -8,6 +8,7 @@
 
 namespace sdopx\resource;
 
+use sdopx\Sdopx;
 
 class StringResource
 {
