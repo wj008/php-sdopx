@@ -730,11 +730,13 @@ class Sdopx extends Template
      * 解析sql 模板语句
      * @param string $sql
      * @param array $params
+     * @param string $compileDir 编译文件存放路径
      * @return mixed|string|void
      */
-    public static function fetchSQL(string $sql, array $params)
+    public static function fetchSQL(string $sql, array $params, string $compileDir)
     {
         $sdopx = new Sdopx();
+        $sdopx->setCompileDir($compileDir);
         $sdopx->assign($params);
         $sdopx->parsingType = Sdopx::PARSING_SQL;
         return $sdopx->fetch('string:' . $sql);
