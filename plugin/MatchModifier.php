@@ -9,7 +9,7 @@ class MatchModifier
     {
         //如果两个都是数组
         if (is_array($keys) && is_array($values)) {
-            if (empty($string)) {
+            if ($string === null) {
                 return $def;
             }
             $key = array_search($string, $keys);
@@ -19,7 +19,7 @@ class MatchModifier
             return array_key_exists($key, $values) ? $values[$key] : $def;
         } else if (is_array($keys)) {
             $def = $values;
-            if (empty($string)) {
+            if ($string === null) {
                 return $def;
             }
             foreach ($keys as $k => $v) {
