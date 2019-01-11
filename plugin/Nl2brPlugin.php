@@ -8,6 +8,7 @@
 
 namespace sdopx\plugin;
 
+use sdopx\lib\Outer;
 
 class Nl2brPlugin
 {
@@ -21,7 +22,7 @@ class Nl2brPlugin
         if (is_string($string)) {
             if ($raw) {
                 $string = nl2br($string);
-            }else{
+            } else {
                 $string = nl2br(htmlspecialchars($string, ENT_QUOTES));
             }
         }
