@@ -483,7 +483,7 @@ class Parser
             #属性关闭
             switch ($next_item['tag']) {
                 case 'closeTagAttr':
-                    continue;
+                    break;
                 case 'closeTpl':
                     $temp['node'] = $next_item['node'];
                     return $temp;
@@ -501,7 +501,7 @@ class Parser
                     }
                     $temp['args'][$name] = $exp['code'];
                     $temp['node'] = $next_item['node'];
-                    continue;
+                    break;
                 case 'singleTagAttr':
                     $ret = $this->pars_attr($next_item);
                     if ($ret == null) {
@@ -510,7 +510,7 @@ class Parser
                     $name = trim($ret['name']);
                     $temp['args'][$name] = true;
                     $temp['node'] = $next_item['node'];
-                    continue;
+                    break;
                 default:
                     $exp = $this->pars_express();
                     if ($exp == null) {
