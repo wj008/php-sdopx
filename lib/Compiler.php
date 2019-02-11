@@ -244,15 +244,25 @@ class Compiler
 
     public function compileModifier($name, $params)
     {
-        $modifierCompiler = Sdopx::getModifierCompiler($name);
-        if ($modifierCompiler) {
-            return $modifierCompiler->compile($this, $params);
+        if (preg_match('@^(\w+)-(\w+)$@', $name, $m)) {
+            $name = $m[1];
+            $method = $m[2];
+            $modifier = Sdopx::getModifier($name);
+            if ($modifier) {
+                return Sdopx::class . '::getModifier(' . var_export($name, true) . ')->' . $method . '(' . join(',', $params) . ')';
+            }
+            $this->addError("|$name modifier does not exist.");
+        } else {
+            $modifierCompiler = Sdopx::getModifierCompiler($name);
+            if ($modifierCompiler) {
+                return $modifierCompiler->compile($this, $params);
+            }
+            $modifier = Sdopx::getModifier($name);
+            if ($modifier) {
+                return Sdopx::class . '::getModifier(' . var_export($name, true) . ')->render(' . join(',', $params) . ')';
+            }
+            $this->addError("|$name modifier does not exist.");
         }
-        $modifier = Sdopx::getModifier($name);
-        if ($modifier) {
-            return Sdopx::class . '::getModifier(' . var_export($name, true) . ')->render(' . join(',', $params) . ')';
-        }
-        $this->addError("|$name modifier does not exist.");
     }
 
     public function compilePlugin($name, $params = null, $close = false)

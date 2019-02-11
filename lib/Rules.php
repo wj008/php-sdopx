@@ -772,7 +772,7 @@ class Rules
     private static function modifiers()
     {
         return [
-            'rule' => '\|\w+',
+            'rule' => '\|\w+-\w+|\|\w+',
             'token' => 'modifier',
             'next' => [
                 'colons' => 0,
