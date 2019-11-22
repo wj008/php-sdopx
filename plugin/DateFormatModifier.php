@@ -38,7 +38,7 @@ class DateFormatModifier
      * @param string $formatter
      * @return mixed|void
      */
-    public function render($string, string $format = null, string $default_date = '', string $formatter = 'auto')
+    public static function render($string, string $format = null, string $default_date = '', string $formatter = 'auto')
     {
         if ($format === null) {
             $format = '%Y-%m-%d %H:%M:%S';

@@ -12,7 +12,7 @@ use sdopx\lib\Outer;
 
 class Nl2brPlugin
 {
-    public function render(array $param, Outer $outer)
+    public static function render(array $param, Outer $outer)
     {
         $raw = (isset($params['raw'])) ? boolval($param['raw']) : false;
         if (!isset($param['value'])) {

@@ -17,7 +17,7 @@ class VolistTag
      * 用于回调的参数描述变量指定
      * @return array
      */
-    public function callbackParameter(): array
+    public static function callbackParameter(): array
     {
         return [
             'item' => ['must' => true, 'default' => 'item'],
@@ -26,7 +26,7 @@ class VolistTag
         ];
     }
 
-    public function render(array $param, $callback, Outer $outer)
+    public static function render(array $param, $callback, Outer $outer)
     {
         if (!isset($param['from'])) {
             $outer->throw('Missing [from] attribute field.');

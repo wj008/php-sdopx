@@ -11,7 +11,7 @@ namespace sdopx\plugin;
 
 class LeftpadModifier
 {
-    public function render($string, int $len, string $ch = ' ')
+    public static function render($string, int $len, string $ch = ' ')
     {
         return str_pad($string, $len, $ch, STR_PAD_LEFT);
     }

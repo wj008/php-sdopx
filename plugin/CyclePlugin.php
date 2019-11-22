@@ -13,7 +13,7 @@ use sdopx\lib\Outer;
 
 class CyclePlugin
 {
-    public function render(array $params, Outer $outer)
+    public static function render(array $params, Outer $outer)
     {
 
         $template = $outer->sdopx;

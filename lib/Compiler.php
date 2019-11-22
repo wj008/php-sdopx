@@ -86,62 +86,66 @@ class Compiler
         throw new CompilerException($err, $message);
     }
 
+    /**
+     * 循环解析标签
+     * @param $output
+     * @return bool
+     */
     private function loop(&$output)
     {
         if ($this->closed) {
             return false;
         }
         $parser = $this->parser;
-        $html_item = $parser->presHtml();
-        if ($html_item == null) {
+        $htmlItem = $parser->presHtml();
+        if ($htmlItem == null) {
             $this->closed = true;
             return false;
         }
-        if (isset($html_item['code'][0])) {
-
-            $html_item['code'] = $html_item['code'];
-            if (isset($html_item['code'][0])) {
-                $code = '$__out->html(' . var_export($html_item['code'], true) . ');';
+        if (isset($htmlItem['code'][0])) {
+            $htmlItem['code'] = $htmlItem['code'];
+            if (isset($htmlItem['code'][0])) {
+                $code = '$__out->html(' . var_export($htmlItem['code'], true) . ');';
                 array_push($output, $code);
             }
         }
         //结束
-        if ($html_item['next'] == 'finish') {
+        if ($htmlItem['next'] == 'finish') {
             return false;
         }
         //解析语法
-        if ($html_item['next'] == 'parsTpl') {
-            $tpl_item = $parser->parsTpl();
-            if ($tpl_item == null) {
+        if ($htmlItem['next'] == 'parsTpl') {
+            $tplItem = $parser->parsTpl();
+            if ($tplItem == null) {
                 return false;
             }
-            if (Sdopx::$debug && isset($tpl_item['info'])) {
-                $debug = $tpl_item['info'];
+            if (Sdopx::$debug && isset($tplItem['info'])) {
+                $debug = $tplItem['info'];
                 if ($debug['line'] !== $this->debugTemp['line'] || $debug['src'] != $this->debugTemp['src']) {
                     $this->debugTemp['line'] = $debug['line'];
                     $this->debugTemp['src'] = $debug['src'];
                     array_push($output, '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');');
                 }
             }
-            switch ($tpl_item['map']) {
+            switch ($tplItem['map']) {
                 case Parser::CODE_EXPRESS:
-                    if (isset($tpl_item['raw']) && $tpl_item['raw'] === true) {
-                        array_push($output, '$__out->html(' . $tpl_item['code'] . ');');
+                    if (isset($tplItem['raw']) && $tplItem['raw'] === true) {
+                        array_push($output, '$__out->html(' . $tplItem['code'] . ');');
                     } else {
-                        array_push($output, '$__out->text(' . $tpl_item['code'] . ');');
+                        array_push($output, '$__out->text(' . $tplItem['code'] . ');');
                     }
                     break;
                 case Parser::CODE_ASSIGN:
-                    array_push($output, $tpl_item['code'] . ';');
+                    array_push($output, $tplItem['code'] . ';');
                     break;
                 case  Parser::CODE_TAG:
-                    $code = $this->compilePlugin($tpl_item['name'], $tpl_item['args']);
+                    $code = $this->compilePlugin($tplItem['name'], $tplItem['args']);
                     if ($code !== '') {
                         array_push($output, $code);
                     }
                     break;
                 case  Parser::CODE_TAG_END:
-                    $code = $this->compilePlugin($tpl_item['name'], null, true);
+                    $code = $this->compilePlugin($tplItem['name'], null, true);
                     if ($code !== '') {
                         array_push($output, $code);
                     }
@@ -152,42 +156,42 @@ class Compiler
             return !$this->closed;
         }
         //解析配置
-        if ($html_item['next'] == 'parsConfig') {
-            $cfg_item = $parser->parsConfig();
-            if ($cfg_item == null) {
+        if ($htmlItem['next'] == 'parsConfig') {
+            $cfgItem = $parser->parsConfig();
+            if ($cfgItem == null) {
                 return false;
             }
-            if (Sdopx::$debug && isset($cfg_item['info'])) {
-                $debug = $cfg_item['info'];
+            if (Sdopx::$debug && isset($cfgItem['info'])) {
+                $debug = $cfgItem['info'];
                 if ($debug['line'] !== $this->debugTemp['line'] || $debug['src'] != $this->debugTemp['src']) {
                     $this->debugTemp['line'] = $debug['line'];
                     $this->debugTemp['src'] = $debug['src'];
                     array_push($output, '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');');
                 }
             }
-            if ($cfg_item['raw'] === true) {
-                array_push($output, '$__out->html(' . $cfg_item['code'] . ');');
+            if ($cfgItem['raw'] === true) {
+                array_push($output, '$__out->html(' . $cfgItem['code'] . ');');
             } else {
-                array_push($output, '$__out->text(' . $cfg_item['code'] . ');');
+                array_push($output, '$__out->text(' . $cfgItem['code'] . ');');
             }
             return !$this->closed;
         }
         //解析注释
-        if ($html_item['next'] == 'parsComment') {
-            $com_item = $parser->parsComment();
-            if ($com_item == null) {
+        if ($htmlItem['next'] == 'parsComment') {
+            $comItem = $parser->parsComment();
+            if ($comItem == null) {
                 return false;
             }
             return !$this->closed;
         }
         //解析注释
-        if ($html_item['next'] == 'parsLiteral') {
-            $lit_item = $parser->parsLiteral();
-            if ($lit_item == null) {
+        if ($htmlItem['next'] == 'parsLiteral') {
+            $litItem = $parser->parsLiteral();
+            if ($litItem == null) {
                 return false;
             }
-            if ($lit_item['map'] === Parser::CODE_TAG_END) {
-                $name = $lit_item['name'];
+            if ($litItem['map'] === Parser::CODE_TAG_END) {
+                $name = $litItem['name'];
                 $code = $this->compilePlugin($name, null, true);
                 if ($code !== '') {
                     array_push($output, $code);
@@ -198,12 +202,17 @@ class Compiler
         return !$this->closed;
     }
 
+    /**
+     * 编译模板
+     * @return string
+     * @throws CompilerException
+     */
     public function compileTemplate()
     {
         $output = [];
-        $tice = 0;
-        while ($this->loop($output) && $tice < 100000) {
-            $tice++;
+        $qty = 0;
+        while ($this->loop($output) && $qty < 1000000) {
+            $qty++;
         };
         $this->closed = true;
         $this->removeVar('var');
@@ -215,6 +224,11 @@ class Compiler
         return $code;
     }
 
+    /**
+     * 编译变量
+     * @param $key
+     * @return mixed|string
+     */
     public function compileVar($key)
     {
         if ($key == 'global') {
@@ -227,11 +241,21 @@ class Compiler
         return $code;
     }
 
+    /**
+     * 编译配置项
+     * @param $var
+     * @return string
+     */
     public function compileConfigVar($var)
     {
         return "\$_sdopx->getConfig('{$var}')";
     }
 
+    /**
+     * 编译函数块
+     * @param $func
+     * @return string
+     */
     public function compileFunc($func)
     {
         if (preg_match('@^\w+$@', $func)) {
@@ -242,6 +266,13 @@ class Compiler
         return $func . '(';
     }
 
+    /**
+     * 编译过滤器
+     * @param $name
+     * @param $params
+     * @return string
+     * @throws CompilerException
+     */
     public function compileModifier($name, $params)
     {
         if (preg_match('@^(\w+)-(\w+)$@', $name, $m)) {
@@ -282,21 +313,22 @@ class Compiler
                 return $code;
             }
         }
+
         //如果有配对标记就使用配对标记
-        $tagplug = Sdopx::getTag($name);
-        if ($tagplug) {
+        $tagPlug = Sdopx::getTag($name);
+        if ($tagPlug) {
             if ($close) {
                 list($name, $data) = $this->closeTag([$name]);
                 $this->removeVar($data[0]);
                 $code = '},$__out);';
-                if (method_exists($tagplug, 'close')) {
+                if (method_exists($tagPlug, 'close')) {
                     $code .= PHP_EOL . Sdopx::class . '::getTag(' . var_export($name, true) . ')->close($__out);';
                 }
                 return $code;
             } else {
                 $reserved = [];
-                if (method_exists($tagplug, 'callbackParameter')) {
-                    $reserved = $tagplug->callbackParameter();
+                if (method_exists($tagPlug, 'callbackParameter')) {
+                    $reserved = $tagPlug->callbackParameter();
                 }
                 $func_vars = [];
                 foreach ($reserved as $rkey => $rval) {

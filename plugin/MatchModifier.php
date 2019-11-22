@@ -5,9 +5,8 @@ namespace sdopx\plugin;
 
 class MatchModifier
 {
-    public function render($string, $keys, $values = null, $def = '')
+    private static function find($string, $keys, $values = '', $def = '')
     {
-        //如果两个都是数组
         if (is_array($keys) && is_array($values)) {
             if ($string === null) {
                 return $def;
@@ -17,7 +16,8 @@ class MatchModifier
                 return $def;
             }
             return array_key_exists($key, $values) ? $values[$key] : $def;
-        } else if (is_array($keys)) {
+        }
+        if (is_array($keys)) {
             $def = $values;
             if ($string === null) {
                 return $def;
@@ -30,5 +30,17 @@ class MatchModifier
             return $def;
         }
         return $string == $keys ? $values : $def;
+    }
+
+    public static function render($string, $keys, $values = null, $def = '')
+    {
+        if (is_array($string)) {
+            $temp = [];
+            foreach ($string as $item) {
+                $temp[] = self::find($item, $keys, $values, $def);
+            }
+            return join(',', $temp);
+        }
+        return self::find($string, $keys, $values, $def);
     }
 }
