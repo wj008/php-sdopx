@@ -22,15 +22,28 @@ class VolistTag
      * @param array $args
      * @return array
      */
-    public static function define(Compiler $compiler, array $args): array
+    public static function define(array $args, Compiler $compiler): array
     {
         $param = [];
-        $param[] = isset($args['item']) ? $args['item'] : 'item';
+        $item = 'item';
+        if (!empty($args['item'])) {
+            $item = $compiler->toValue($args['item']);
+            if (empty($item)) {
+                $item = 'item';
+            }
+        }
+        $param[] = $item;
         if (!empty($args['key'])) {
-            $param[] = $args['key'];
+            $key = $compiler->toValue($args['key']);
+            if (!empty($key)) {
+                $param[] = $key;
+            }
         }
         if (!empty($args['attr'])) {
-            $param[] = $args['key'];
+            $attr = $compiler->toValue($args['attr']);
+            if (!empty($attr)) {
+                $param[] = $attr;
+            }
         }
         return $param;
     }

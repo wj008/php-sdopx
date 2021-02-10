@@ -99,7 +99,7 @@ class Compiler
         }
 
         if (isset($htmlItem['code'][0])) {
-            $code = '$__out->html(' . var_export($htmlItem['code'], true) . ');';
+            $code = '$__out->html(' . var_export($htmlItem['code'], true) . ');/* 103 */';
             $output[] = $code;
         }
         //结束
@@ -123,7 +123,7 @@ class Compiler
             switch ($tplItem['map']) {
                 case Parser::CODE_EXPRESS:
                     if (isset($tplItem['raw']) && $tplItem['raw'] === true) {
-                        $output[] = '$__out->html(' . $tplItem['code'] . ');';
+                        $output[] = '$__out->html(' . $tplItem['code'] . ');/* 127 */';
                     } else {
                         $output[] = '$__out->text(' . $tplItem['code'] . ');';
                     }
@@ -164,7 +164,7 @@ class Compiler
                 }
             }
             if ($cfgItem['raw'] === true) {
-                $output[] = '$__out->html(' . $cfgItem['code'] . ');';
+                $output[] = '$__out->html(' . $cfgItem['code'] . ');/* 168 */';
             } else {
                 $output[] = '$__out->text(' . $cfgItem['code'] . ');';
             }
@@ -326,7 +326,7 @@ class Compiler
             } else {
                 $func_vars = [];
                 if (method_exists($tagPlug, 'define')) {
-                    $func_vars = call_user_func([$tagPlug, 'define'], $this, $params);
+                    $func_vars = call_user_func([$tagPlug, 'define'], $params, $this);
                 }
                 $pre = $this->getTempPrefix('custom');
                 $use_vars = []; //匿名函数需要传递的 use()
@@ -354,7 +354,8 @@ class Compiler
                     $param_temp[] = "'{$key}'=>{$val}";
                 }
                 $this->openTag($name, [$pre]);
-                return $tagPlug . '::render([' . join(',', $param_temp) . '],function(' . join(',', $func_temp) . ') use (' . $use . '){';
+                $code = $tagPlug . '::render([' . join(',', $param_temp) . '],function(' . join(',', $func_temp) . ') use (' . $use . '){';
+                return $code;
             }
         }
         //单标记
@@ -369,6 +370,26 @@ class Compiler
         //还有模板函数也应该支持
         $code = "if(isset(\$_sdopx->funcMap[" . var_export($name, true) . "])){\n  \$_sdopx->funcMap[" . var_export($name, true) . "]([" . join(',', $temp) . "],\$__out,\$_sdopx);\n}else{\n  \$__out->throw('{$name} plugin not found.');\n}";
         return $code;
+    }
+
+    /**
+     * 转成值
+     * @param string $arg
+     * @return mixed
+     */
+    public function toValue(string $arg): mixed
+    {
+        if (empty($arg)) {
+            return null;
+        }
+        $ret = '';
+        try {
+            $_sdopx = $this->sdopx;
+            eval('$ret=' . $arg . ';');
+        } catch (\Exception $e) {
+            return $arg;
+        }
+        return $ret;
     }
 
     /**
@@ -457,7 +478,7 @@ class Compiler
      * @param string $name
      * @param Block $block
      */
-    public function addBlockCache(string $name, Block $block)
+    public function addBlockCache(string $name, ?Block $block)
     {
         $this->blockCache[$name] = $block;
     }

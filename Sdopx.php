@@ -8,13 +8,12 @@
 declare(strict_types=1);
 
 namespace sdopx;
-require_once("lib/Utils.php");
-require_once("lib/Template.php");
+
 
 use Closure;
 use ErrorException;
 use sdopx\interfaces\Resource;
-use stdClass;
+
 
 use sdopx\lib\Template;
 use sdopx\lib\SdopxUtil;
@@ -81,9 +80,9 @@ class Sdopx extends Template
 
     /**
      * 设置配置器
-     * @var Closure|stdClass|array|null
+     * @var Closure|array|null
      */
-    private static Closure|stdClass|array|null $config = null;
+    private static Closure|array|null $config = null;
 
     /**
      * 默认模板目录
@@ -125,7 +124,7 @@ class Sdopx extends Template
     /**
      * 上下文，在模板中可以用 $this
      */
-    public ?stdClass $context = null;
+    public $context = null;
 
     /**
      * @var array 注册变量字典
@@ -165,7 +164,7 @@ class Sdopx extends Template
     public array $hookMap = [];
 
 
-    public function __construct(?stdClass $context = null)
+    public function __construct($context = null)
     {
         parent::__construct();
         $this->context = $context;
@@ -336,9 +335,6 @@ class Sdopx extends Template
             }
             return isset(self::$config[$key]) ? self::$config[$key] : null;
         } //使用实例
-        elseif (self::$config != null && method_exists(self::$config, 'get')) {
-            return self::$config->get($key);
-        }
         return null;
     }
 
@@ -397,9 +393,9 @@ class Sdopx extends Template
 
     /**
      * 注册配置器
-     * @param Closure|stdClass|array $config
+     * @param Closure|array $config
      */
-    public static function registerConfig(Closure|stdClass|array $config)
+    public static function registerConfig(Closure|array $config)
     {
         self::$config = $config;
     }

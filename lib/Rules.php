@@ -3,6 +3,7 @@
 namespace sdopx\lib;
 
 
+
 class Rules
 {
     const FLAG_TPL = 1; //模板
@@ -48,9 +49,9 @@ class Rules
     /**
      * @param string $tag
      * @param ?string $key
-     * @return ?array
+     * @return mixed
      */
-    public static function getItem(string $tag, ?string $key = null): ?array
+    public static function getItem(string $tag, ?string $key = null): mixed
     {
         if (!method_exists(__CLASS__, $tag)) {
             return null;

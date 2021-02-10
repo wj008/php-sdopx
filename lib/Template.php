@@ -354,7 +354,6 @@ class Template
             }
             $this->sdopx->_book[$key] = $val;
         }
-
         $tpl = $this->createChildTemplate($tplname);
         $code = $tpl->fetchTpl();
         foreach ($params as $key => $val) {

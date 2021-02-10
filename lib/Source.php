@@ -153,12 +153,12 @@ class Source
     /**
      * 截断内容
      * @param int $start
-     * @param int $end
+     * @param ?int $end
      * @return bool|string
      */
-    public function subString(int $start, int $end = 0): false|string
+    public function subString(int $start, ?int $end = null): false|string
     {
-        if ($end === 0) {
+        if ($end === null) {
             return substr($this->content, $start);
         }
         $len = $end - $start;

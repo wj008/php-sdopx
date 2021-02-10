@@ -252,6 +252,8 @@ class Lexer
             ];
         }
         //设置编译的定界符
+
+
         Rules::reset($source->leftDelimiter, $source->rightDelimiter);
         $ret = $this->find('@' . preg_quote($source->leftDelimiter, '@') . '@', null, true);
         if ($source->endLiteral) {
@@ -489,7 +491,7 @@ class Lexer
                     $offset = $ret2['end'];
                     $item->$attr = trim($ret2['val']);
                 } else if ($attr == $source->rightDelimiter) {
-                    $item['start'] = $offset;
+                    $item->start = $offset;
                     array_push($block_stack, $item);
                     $closed = true;
                     break;
