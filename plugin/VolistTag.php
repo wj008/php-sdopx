@@ -9,24 +9,38 @@
 namespace sdopx\plugin;
 
 
+use sdopx\lib\Compiler;
 use sdopx\lib\Outer;
+use sdopx\SdopxException;
 
 class VolistTag
 {
+
     /**
-     * 用于回调的参数描述变量指定
+     * 定义匿名函数的参数
+     * @param Compiler $compiler
+     * @param array $args
      * @return array
      */
-    public function callback(string $item='item',string $key=null,string $attr): array
+    public static function define(Compiler $compiler, array $args): array
     {
-        return [
-            'item' => ['must' => true, 'default' => 'item'],
-            'key' => ['must' => false],
-            'attr' => ['must' => false],
-        ];
+        $param = [];
+        $param[] = isset($args['item']) ? $args['item'] : 'item';
+        if (!empty($args['key'])) {
+            $param[] = $args['key'];
+        }
+        if (!empty($args['attr'])) {
+            $param[] = $args['key'];
+        }
+        return $param;
     }
 
-
+    /**
+     * @param array $param
+     * @param $callback
+     * @param Outer $outer
+     * @throws SdopxException
+     */
     public static function render(array $param, $callback, Outer $outer)
     {
         if (!isset($param['from'])) {
@@ -39,8 +53,10 @@ class VolistTag
         $length = isset($param['length']) ? intval($param['length']) : null;
         $mod = isset($param['mod']) ? intval($param['mod']) : null;
         $empty = isset($param['empty']) ? $param['empty'] : null;
+
         $isKey = empty($param['key']) ? false : true;
         $isAttr = empty($param['attr']) ? false : true;
+
         $count = count($param['from']);
         $show_total = $count;
         if ($offset !== null && $offset > 0) {
@@ -102,4 +118,6 @@ class VolistTag
             $outer->html($empty);
         }
     }
+
+
 }

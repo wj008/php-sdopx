@@ -322,43 +322,12 @@ class Compiler
             if ($close) {
                 list(, $data) = $this->closeTag([$name]);
                 $this->removeVar($data[0]);
-                $code = '},$__out);';
-                if (method_exists($tagPlug, 'close')) {
-                    $code .= PHP_EOL . $tagPlug . '::close($__out);';
-                }
-                return $code;
+                return '},$__out);';
             } else {
-                $reserved = [];
-                if (method_exists($tagPlug, 'callbackParameter')) {
-                    $reserved = $tagPlug->callbackParameter();
-                }
                 $func_vars = [];
-                foreach ($reserved as $rkey => $rval) {
-                    $rkey = trim($rkey);
-                    $fkey = isset($params[$rkey]) ? $params[$rkey] : '';
-                    $fkey = trim($fkey, ' \'"');
-                    if (is_array($rval) && isset($rval['default'])) {
-                        if (empty($fkey)) {
-                            $fkey = $rval['default'];
-                        }
-                    }
-                    $fkey = trim($fkey);
-                    //不能为空
-                    if (is_array($rval) && isset($rval['must']) && $rval['must']) {
-                        if (empty($fkey)) {
-                            $this->addError("The [$rkey] attribute of the {{$name}} tag cannot be empty.");
-                        }
-                    }
-                    if (empty($fkey)) {
-                        continue;
-                    }
-                    //验证是否变量名称
-                    if (!preg_match('@^\w+$@', $fkey)) {
-                        $this->addError("The [$rkey] attribute of the {{$name}} tag is invalid. Please use letters and numbers and underscores.");
-                    }
-                    $func_vars[$rkey] = $fkey;
+                if (method_exists($tagPlug, 'define')) {
+                    $func_vars = call_user_func([$tagPlug, 'define'], $this, $params);
                 }
-
                 $pre = $this->getTempPrefix('custom');
                 $use_vars = []; //匿名函数需要传递的 use()
                 foreach ($this->getVarKeys() as $vkey) {
@@ -377,20 +346,15 @@ class Compiler
                 $this->addVarMapper($varMap);
                 $param_temp = [];
                 $func_temp = [];
-                foreach ($func_vars as $attr => $key) {
+                foreach ($func_vars as $key) {
                     $func_temp[] = '$' . $pre . '_' . $key . '=null';
-                    $param_temp[] = "'{$attr}'=>" . var_export($key, true);
                 }
                 foreach ($params as $key => $val) {
                     $key = trim($key);
-                    if (isset($func_vars[$key])) {
-                        continue;
-                    }
                     $param_temp[] = "'{$key}'=>{$val}";
                 }
                 $this->openTag($name, [$pre]);
-                $code = Sdopx::class . '::getTag(' . var_export($name, true) . ')->render([' . join(',', $param_temp) . '],function(' . join(',', $func_temp) . ') use (' . $use . '){';
-                return $code;
+                return $tagPlug . '::render([' . join(',', $param_temp) . '],function(' . join(',', $func_temp) . ') use (' . $use . '){';
             }
         }
         //单标记
