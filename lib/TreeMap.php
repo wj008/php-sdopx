@@ -5,22 +5,39 @@ namespace sdopx\lib;
 
 class TreeMap implements \Iterator
 {
-    private $data = [];
-    private $position = 0;
+    /**
+     * 节点数据
+     * @var array[]
+     */
+    private array $data = [];
+    private int $position = 0;
 
-    private $info = null;
+    private ?array $info = null;
 
-    public function setDebugInfo($info)
+    /**
+     * 设置调试信息
+     * @param array $info
+     */
+    public function setDebugInfo(array $info)
     {
         $this->info = $info;
     }
 
-    public function getDebugInfo()
+    /**
+     * 获取调试信息
+     * @return ?array
+     */
+    public function getDebugInfo(): ?array
     {
         return $this->info;
     }
 
-    public function next($move = true)
+    /**
+     * 获取下一个节点
+     * @param bool $move
+     * @return array|null
+     */
+    public function next($move = true): ?array
     {
         $idx = $this->position + 1;
         if ($move) {
@@ -29,7 +46,12 @@ class TreeMap implements \Iterator
         return $idx >= count($this->data) ? null : $this->data[$idx];
     }
 
-    public function prev($move = true)
+    /**
+     * 获取上一个节点
+     * @param bool $move
+     * @return array|null
+     */
+    public function prev($move = true): ?array
     {
         $idx = $this->position - 1;
         if ($move) {
@@ -38,62 +60,121 @@ class TreeMap implements \Iterator
         return $idx < 0 ? null : $this->data[$idx];
     }
 
-    public function end()
+    /**
+     * 获取最后一个节点
+     * @return ?array
+     */
+    public function end(): ?array
     {
+        if (!isset($this->data[0])) {
+            return null;
+        }
         return end($this->data);
     }
 
-    public function first()
+    /**
+     * 获取第一个节点
+     * @return ?array
+     */
+    public function first(): ?array
     {
         return count($this->data) > 0 ? $this->data[0] : null;
     }
 
-    public function get($idx)
+    /**
+     * 指定位置获取节点
+     * @param int $idx
+     * @return array|null
+     */
+    public function get(int $idx): ?array
     {
         return $idx < 0 || $idx >= count($this->data) ? null : $this->data[$idx];
     }
 
-    public function length()
+    /**
+     * 节点长度
+     * @return int
+     */
+    public function length(): int
     {
         return count($this->data);
     }
 
-    public function current()
+    /**
+     * 获取当前节点数据
+     * @return ?array
+     */
+    public function current(): ?array
     {
         return $this->position < 0 || $this->position >= count($this->data) ? null : $this->data[$this->position];
     }
 
-    public function pop()
+    /**
+     * 删除最后一个节点并返回
+     * @return ?array
+     */
+    public function pop(): ?array
     {
+        if (!isset($this->data[0])) {
+            return null;
+        }
         return array_pop($this->data);
     }
 
-    public function shift()
+    /**
+     * 删除第一个节点并返回
+     * @return ?array
+     */
+    public function shift(): ?array
     {
+        if (!isset($this->data[0])) {
+            return null;
+        }
         return array_shift($this->data);
     }
 
-    public function push($item)
+    /**
+     * 添加元素
+     * @param $item
+     * @return int
+     */
+    public function push(array $item): int
     {
         return array_push($this->data, $item);
     }
 
-    public function key()
+    /**
+     * 获取当前位置
+     * @return int
+     */
+    public function key(): int
     {
         return $this->position;
     }
 
-    public function valid()
+    /**
+     * 是否有效
+     * @return bool
+     */
+    public function valid(): bool
     {
         return isset($this->data[$this->position]);
     }
 
+    /**
+     * 重置游标
+     */
     public function rewind()
     {
         $this->position = 0;
     }
 
-    public function testNext($tag, $move = true)
+    /**
+     * @param $tag
+     * @param bool $move
+     * @return bool
+     */
+    public function lookupNext(string $tag, bool $move = true): bool
     {
         $idx = $this->position + 1;
         $item = $idx >= count($this->data) ? null : $this->data[$idx];

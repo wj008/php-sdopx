@@ -11,13 +11,13 @@ use sdopx\SdopxException;
 class Compiler
 {
 
-    public ?Source $source = null;
+    public Source $source;
 
-    public ?Sdopx $sdopx = null;
+    public Sdopx $sdopx;
 
-    public ?Template $tpl = null;
+    public Template $tpl;
 
-    private ?Parser $parser = null;
+    private Parser $parser;
 
     //是否已经关闭
     public bool $closed = false;
@@ -510,7 +510,7 @@ class Compiler
         if ($offset == 0) {
             $offset = $this->source->cursor;
         }
-        $blocks = $this->parser->getBlock($name);
+        $blocks = $this->parser->getBlocks($name);
         if ($blocks === null) {
             return null;
         }
@@ -534,7 +534,7 @@ class Compiler
      */
     public function getFirstBlockItem(string $name): ?BlockItem
     {
-        $blocks = $this->parser->getBlock($name);
+        $blocks = $this->parser->getBlocks($name);
         if ($blocks === null) {
             return null;
         }

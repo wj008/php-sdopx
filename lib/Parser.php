@@ -3,6 +3,7 @@
 namespace sdopx\lib;
 
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
 class Parser
 {
@@ -24,17 +25,16 @@ class Parser
     /**
      * @var Lexer
      */
-    private $lexer = null;
+    private Lexer $lexer;
     /**
      * @var Compiler
      */
-    private $compiler = null;
+    private Compiler $compiler;
 
     /**
-     * @var TreeMap
+     * @var ?TreeMap
      */
-    private $lexTree = null;
-
+    private ?TreeMap $lexTree = null;
 
     public function __construct(Compiler $compiler)
     {
@@ -45,14 +45,20 @@ class Parser
     /**
      * @param string $name
      * @return BlockItem[]|null
+     * @throws SdopxException
      */
-    public function getBlock(string $name): ?array
+    public function getBlocks(string $name): ?array
     {
         $blocks = $this->lexer->getBlockMapper();
         return isset($blocks[$name]) ? $blocks[$name] : null;
     }
 
-    public function presHtml()
+    /**
+     * 解析HTML
+     * @return array|null
+     * @throws SdopxException
+     */
+    public function presHtml(): ?array
     {
         $item = $this->lexer->lexHtml();
         if ($item == null) {
@@ -62,13 +68,21 @@ class Parser
         return $item;
     }
 
-    public function parsLiteral()
+    /**
+     * 接下原义标签
+     * @return array
+     */
+    public function parsLiteral(): array
     {
-        $item = ['map' => self::CODE_TAG_END, 'name' => 'literal', 'node' => null];
-        return $item;
+        return ['map' => self::CODE_TAG_END, 'name' => 'literal', 'node' => null];
     }
 
-    public function parsComment()
+    /**
+     * 解析注释
+     * @return ?array
+     * @throws SdopxException
+     */
+    public function parsComment(): ?array
     {
         $item = $this->lexer->lexComment();
         if ($item == null) {
@@ -78,14 +92,20 @@ class Parser
         return $item;
     }
 
-    public function parsConfig()
+
+    /**
+     * 解析备注
+     * @return array|null
+     * @throws SdopxException
+     */
+    public function parsConfig(): ?array
     {
         $tree = $this->lexer->lexConfig();
         if ($tree == null) {
             return null;
         }
         $item = $tree->next();
-        if (!$tree->testNext('closeConfig')) {
+        if (!$tree->lookupNext('closeConfig')) {
             return null;
         }
         $temp = [
@@ -107,7 +127,12 @@ class Parser
         return $temp;
     }
 
-    public function parsTpl()
+    /**
+     * 解析模板
+     * @return ?array
+     * @throws SdopxException
+     */
+    public function parsTpl(): ?array
     {
         $tree = $this->lexer->lexTpl();
         if ($tree == null) {
@@ -125,7 +150,7 @@ class Parser
         if ($ret['map'] == self::CODE_EXPRESS) {
             $exp = $this->pars_express();
             if ($exp === null) {
-                if ($this->lexTree->testNext('closeTpl', false)) {
+                if ($this->lexTree->lookupNext('closeTpl', false)) {
                     return $ret;
                 }
                 return null;
@@ -160,7 +185,7 @@ class Parser
     private function pars_express()
     {
         //测试下一个是不是结束标记
-        if ($this->lexTree->testNext('closeTpl', false)) {
+        if ($this->lexTree->lookupNext('closeTpl', false)) {
             return null;
         }
         $temp = [
@@ -556,7 +581,7 @@ class Parser
     //闭合标签
     private function pars_tagend($item)
     {
-        if (!$this->lexTree->testNext("closeTpl")) {
+        if (!$this->lexTree->lookupNext("closeTpl")) {
             return null;
         }
         return [
