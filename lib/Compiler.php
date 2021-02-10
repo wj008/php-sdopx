@@ -504,6 +504,7 @@ class Compiler
      * @param string $name
      * @param int $offset
      * @return array|null
+     * @throws SdopxException
      */
     public function getCursorBlockItem(string $name, int $offset = 0): ?BlockItem
     {

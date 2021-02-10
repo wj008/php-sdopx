@@ -31,16 +31,26 @@ class Rules
     const TYPE_ARRAY = 3;   //数组结束
     const TYPE_PARENTHESES = 4;   //括号结束
 
-    private static $left = '\\{';
-    private static $right = '\\}';
+    private static string $left = '\\{';
+    private static string $right = '\\}';
 
+    /**
+     * 重置分界符
+     * @param $left
+     * @param $right
+     */
     public static function reset($left, $right)
     {
         self::$left = preg_quote($left, '@');
         self::$right = preg_quote($right, '@');
     }
 
-    public static function getItem($tag, $key = null)
+    /**
+     * @param string $tag
+     * @param ?string $key
+     * @return ?array
+     */
+    public static function getItem(string $tag, ?string $key = null): ?array
     {
         if (!method_exists(__CLASS__, $tag)) {
             return null;
@@ -53,7 +63,7 @@ class Rules
     }
 
     //变量表达式开始
-    private static function expression()
+    private static function expression(): array
     {
         $data = [
             'variable' => 0,          //√变量开头
@@ -72,7 +82,7 @@ class Rules
     }
 
     //变量表达式尾部
-    private static function finishExpression($type = self::TYPE_VARIABLE)
+    private static function finishExpression($type = self::TYPE_VARIABLE): array
     {
         $data = [
             //关闭
@@ -87,7 +97,6 @@ class Rules
             'closeMethod' => ['mode' => 0, 'flags' => self::FLAG_METHOD],         //关闭方法
             'closeDynamicMethod' => ['mode' => 0, 'flags' => self::FLAG_DYMETHOD], //关闭动态方法
             'arrayComma' => ['mode' => 0, 'flags' => self::FLAG_ARRAY_ARROW | self::FLAG_ARRAY],//数组中的逗号
-
 
             //打开
             'openMethod' => 1,   //打开方法
@@ -167,7 +176,7 @@ class Rules
 
     //==================================================================================================================
     //打开配置项
-    private static function openConfig()
+    private static function openConfig(): array
     {
         return [
             'rule' => self::$left . '#',
@@ -176,7 +185,7 @@ class Rules
     }
 
     //获取配置项名称
-    private static function getConfigKey()
+    private static function getConfigKey(): array
     {
         return [
             'rule' => '\w+(?:\.\w+)*(?:\|raw)?',
@@ -186,7 +195,7 @@ class Rules
     }
 
     //关闭配置项
-    private static function closeConfig()
+    private static function closeConfig(): array
     {
         return [
             'rule' => '#' . self::$right,
@@ -195,7 +204,7 @@ class Rules
     }
 
     //打开模板
-    private static function openTpl()
+    private static function openTpl(): array
     {
         $next = self::expression();
         $next['openCodeTag'] = 1;
@@ -211,7 +220,7 @@ class Rules
     }
 
     //关闭模板
-    private static function closeTpl()
+    private static function closeTpl(): array
     {
         return [
             'rule' => self::$right,
@@ -221,7 +230,7 @@ class Rules
         ];
     }
 
-    private static function openTag()
+    private static function openTag(): array
     {
         return [
             'rule' => '(?:\w+:)?\w+\s+|(?:\w+:)?\w+(?=\s*' . self::$right . ')',
@@ -235,7 +244,7 @@ class Rules
         ];
     }
 
-    private static function openCodeTag()
+    private static function openCodeTag(): array
     {
         return [
             'rule' => '(?:if|else\s*if|while)\s+',
@@ -245,7 +254,7 @@ class Rules
         ];
     }
 
-    private static function openAssignTag()
+    private static function openAssignTag(): array
     {
         return [
             'rule' => '(?:assign|global)\s+(?=\$\w+)',
@@ -255,7 +264,7 @@ class Rules
         ];
     }
 
-    private static function openForTag()
+    private static function openForTag(): array
     {
         return [
             'rule' => 'for\s+',
@@ -267,7 +276,7 @@ class Rules
         ];
     }
 
-    private static function forAssign()
+    private static function forAssign(): array
     {
         return [
             'rule' => ',',
@@ -279,7 +288,7 @@ class Rules
     }
 
     //赋值变量
-    private static function forVariable()
+    private static function forVariable(): array
     {
         return [
             'rule' => '\$\w+',
@@ -295,7 +304,7 @@ class Rules
         ];
     }
 
-    private static function forCondition()
+    private static function forCondition(): array
     {
         return [
             'rule' => ';',
@@ -306,7 +315,7 @@ class Rules
         ];
     }
 
-    private static function forLoop()
+    private static function forLoop(): array
     {
         return [
             'rule' => ';',
@@ -317,7 +326,7 @@ class Rules
         ];
     }
 
-    private static function openTagAttr()
+    private static function openTagAttr(): array
     {
         $next = array_merge(['varKeyWord' => 0], self::expression());
         return [
@@ -328,7 +337,7 @@ class Rules
         ];
     }
 
-    private static function singleTagAttr()
+    private static function singleTagAttr(): array
     {
         return [
             'rule' => '\w+(?=(?:\s|' . self::$right . '))',
@@ -342,7 +351,7 @@ class Rules
     }
 
     //字面量定义
-    private static function varKeyWord()
+    private static function varKeyWord(): array
     {
         return [
             'rule' => '\w+(?=(?:\s|' . self::$right . '))',
@@ -354,7 +363,7 @@ class Rules
         ];
     }
 
-    private static function closeTagAttr()
+    private static function closeTagAttr(): array
     {
         return [
             'rule' => '\s+',
@@ -368,7 +377,7 @@ class Rules
         ];
     }
 
-    private static function endTag()
+    private static function endTag(): array
     {
         return [
             'rule' => '/(?:\w+:)?\w+(?=\s*' . self::$right . ')',
@@ -381,7 +390,7 @@ class Rules
 
     //== 1级表达式 ========================================
     //变量
-    private static function variable()
+    private static function variable(): array
     {
         return [
             'rule' => '\$\w+',
@@ -392,7 +401,7 @@ class Rules
 
 
     //数字
-    private static function number()
+    private static function number(): array
     {
         return [
             'rule' => '\d+\.\d+|\d+|\.\d+',
@@ -402,7 +411,7 @@ class Rules
     }
 
     //字符串
-    private static function string()
+    private static function string(): array
     {
         return [
             'rule' => '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"',
@@ -412,7 +421,7 @@ class Rules
     }
 
     //打开模板字符串
-    private static function openTplString()
+    private static function openTplString(): array
     {
         return [
             'rule' => '`',
@@ -427,7 +436,7 @@ class Rules
     }
 
     //字符串
-    private static function tplString()
+    private static function tplString(): array
     {
         return [
             'rule' => '[^`\{\\\\]*(?:\\.[^`\{\\\\]*)*',
@@ -440,7 +449,7 @@ class Rules
     }
 
     //关闭模板字符
-    private static function closeTplString()
+    private static function closeTplString(): array
     {
         return [
             'rule' => '`',
@@ -451,7 +460,7 @@ class Rules
     }
 
     //字符串内表达式
-    private static function openTplDelimiter()
+    private static function openTplDelimiter(): array
     {
         return [
             'rule' => '\{',
@@ -461,7 +470,7 @@ class Rules
         ];
     }
 
-    private static function closeTplDelimiter()
+    private static function closeTplDelimiter(): array
     {
         return [
             'rule' => '\}',
@@ -476,7 +485,7 @@ class Rules
     }
 
     //关键字常量
-    private static function constant()
+    private static function constant(): array
     {
         return [
             'rule' => 'true|false|null|[A-Z0-9_]+(?!(?:\w|::|\())',
@@ -486,7 +495,7 @@ class Rules
     }
 
     //打开数组
-    private static function openArray()
+    private static function openArray(): array
     {
         $next = self::expression();
         $next['closeArray'] = ['mode' => 0, 'flags' => self::FLAG_ARRAY];
@@ -499,7 +508,7 @@ class Rules
     }
 
     //关闭数组
-    private static function closeArray()
+    private static function closeArray(): array
     {
         return [
             'rule' => '\]',
@@ -511,7 +520,7 @@ class Rules
     }
 
     //打开小括号
-    private static function openParentheses()
+    private static function openParentheses(): array
     {
         return [
             'rule' => '\(',
@@ -522,7 +531,7 @@ class Rules
     }
 
     //关闭小括号
-    private static function closeParentheses()
+    private static function closeParentheses(): array
     {
         return [
             'rule' => '\)',
@@ -535,7 +544,7 @@ class Rules
 
     //=== 2级表达式============================
     //点键名
-    private static function varPoint()
+    private static function varPoint(): array
     {
         return [
             'rule' => '\.\w+',
@@ -545,7 +554,7 @@ class Rules
     }
 
     //->键名
-    private static function varArrow()
+    private static function varArrow(): array
     {
         return [
             'rule' => '->\w+',
@@ -555,7 +564,7 @@ class Rules
     }
 
     //=>键名
-    private static function arrayArrow()
+    private static function arrayArrow(): array
     {
         return [
             'rule' => '=>',
@@ -566,7 +575,7 @@ class Rules
     }
 
     //结束点键名
-    private static function arrayComma()
+    private static function arrayComma(): array
     {
         return [
             'rule' => ',',
@@ -576,7 +585,7 @@ class Rules
         ];
     }
 
-    private static function openMethod()
+    private static function openMethod(): array
     {
         $next = self::expression();
         $next['closeMethod'] = ['mode' => 0, 'flags' => self::FLAG_METHOD];
@@ -588,7 +597,7 @@ class Rules
         ];
     }
 
-    private static function closeMethod()
+    private static function closeMethod(): array
     {
         return [
             'rule' => '\)',
@@ -598,7 +607,7 @@ class Rules
         ];
     }
 
-    private static function openDynamicMethod()
+    private static function openDynamicMethod(): array
     {
         $next = self::expression();
         $next['closeDynamicMethod'] = ['mode' => 0, 'flags' => self::FLAG_DYMETHOD];
@@ -610,7 +619,7 @@ class Rules
         ];
     }
 
-    private static function closeDynamicMethod()
+    private static function closeDynamicMethod(): array
     {
         return [
             'rule' => '\)',
@@ -620,7 +629,7 @@ class Rules
         ];
     }
 
-    private static function openFunction()
+    private static function openFunction(): array
     {
         $next = self::expression();
         $next['closeFunction'] = ['mode' => 0, 'flags' => self::FLAG_FUNCTION];
@@ -632,7 +641,7 @@ class Rules
         ];
     }
 
-    private static function closeFunction()
+    private static function closeFunction(): array
     {
         return [
             'rule' => '\)',
@@ -643,7 +652,7 @@ class Rules
     }
 
     //打开下标
-    private static function openSubscript()
+    private static function openSubscript(): array
     {
         return [
             'rule' => '\[',
@@ -654,7 +663,7 @@ class Rules
     }
 
     //关闭下标
-    private static function closeSubscript()
+    private static function closeSubscript(): array
     {
         return [
             'rule' => '\]',
@@ -666,7 +675,7 @@ class Rules
 
     //=== 3 符号===================
     //逗号
-    private static function comma()
+    private static function comma(): array
     {
         return [
             'rule' => ',',
@@ -676,7 +685,7 @@ class Rules
     }
 
     //冒号
-    private static function colons()
+    private static function colons(): array
     {
         return [
             'rule' => ':',
@@ -686,7 +695,7 @@ class Rules
     }
 
     //取非运算
-    private static function not()
+    private static function not(): array
     {
         return [
             'rule' => '\!+',
@@ -696,7 +705,7 @@ class Rules
     }
 
     //正负号
-    private static function prefixSymbol()
+    private static function prefixSymbol(): array
     {
         return [
             'rule' => '\+(?!\+)|\-(?!\-)',
@@ -706,7 +715,7 @@ class Rules
     }
 
     //前置++ --
-    private static function prefixVarSymbol()
+    private static function prefixVarSymbol(): array
     {
         return [
             'rule' => '\+\+|\-\-',
@@ -716,7 +725,7 @@ class Rules
     }
 
     //后置 ++ --
-    private static function suffixSymbol()
+    private static function suffixSymbol(): array
     {
         return [
             'rule' => '\+\+|\-\-',
@@ -726,7 +735,7 @@ class Rules
     }
 
     //比较运算符号
-    private static function symbol()
+    private static function symbol(): array
     {
         return [
             'rule' => '===|!==|==|!=|>=|<=|\+(?!\s*=)|-(?!\s*=)|\*(?!\s*=)|\/(?!\s*=)|%(?!\s*=)|&&|\|\||>|<|instanceof',
@@ -736,7 +745,7 @@ class Rules
     }
 
     //赋值运算符
-    private static function assignSymbol()
+    private static function assignSymbol(): array
     {
         return [
             'rule' => '=(?!\s*=)|\+\s*=|-\s*=|\*\s*=|\/\s*=|%\s*=',
@@ -747,7 +756,7 @@ class Rules
 
     //=== 4 表达式其他===================
     //三元表达式
-    private static function openTernary()
+    private static function openTernary(): array
     {
         return [
             'rule' => '\?',
@@ -758,7 +767,7 @@ class Rules
     }
 
     //关闭表达式
-    private static function closeTernary()
+    private static function closeTernary(): array
     {
         return [
             'rule' => '\:',
@@ -769,7 +778,7 @@ class Rules
     }
 
     //打开修饰器
-    private static function modifiers()
+    private static function modifiers(): array
     {
         return [
             'rule' => '\|\w+-\w+|\|\w+',
@@ -786,7 +795,7 @@ class Rules
     }
 
     //冒号
-    private static function modifierColons()
+    private static function modifierColons(): array
     {
         return [
             'rule' => '\:',
@@ -795,7 +804,7 @@ class Rules
         ];
     }
 
-    private static function raw()
+    private static function raw(): array
     {
         return [
             'rule' => '\|raw(?=\s*' . self::$right . ')',

@@ -9,25 +9,26 @@
 namespace sdopx\lib;
 
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
 class Outer
 {
     /**
-     * @var array
+     * @var string[]
      */
-    private $output = [];
+    private array $output = [];
     /**
      * @var int
      */
-    private $line = 0;
+    private int $line = 0;
     /**
      * @var string
      */
-    private $src = '';
+    private string $src = '';
     /**
-     * @var null|Sdopx
+     * @var Sdopx
      */
-    public $sdopx = null;
+    public Sdopx $sdopx;
 
     /**
      * Outer constructor.
@@ -95,7 +96,13 @@ class Outer
         $this->src = $src;
     }
 
-    public function throw($error)
+    /**
+     * 抛出错误
+     * @param $error
+     * @return string
+     * @throws SdopxException
+     */
+    public function throw($error): string
     {
         if (Sdopx::$debug && !empty($this->src)) {
             $this->sdopx->rethrow($error, $this->line, $this->src);
