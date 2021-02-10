@@ -8,70 +8,63 @@
 
 namespace sdopx\lib;
 
+use ErrorException;
+use sdopx\CompilerException;
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
 class Template
 {
 
-    public static $complieCache = [];
+    public static array $compliedCache = [];
 
     /**
-     * @var Sdopx
+     * @var ?Sdopx
      */
-    public $sdopx = null;
+    public ?Sdopx $sdopx = null;
     /**
      * 模板id
-     * @var string
+     * @var ?string
      */
-    public $tplId = null;
+    public ?string $tplId = null;
 
     /**
      * 父模板
-     * @var Template
+     * @var ?Template
      */
-    public $parent = null;
+    public ?Template $parent = null;
 
     /**
      * 模板名称
-     * @var string
+     * @var ?string
      */
-    public $tplname = null;
-
-    /**
-     * 继承的模板Id
-     * @var array
-     */
-    public $extendsTplId = [];
-
-    /**
-     * 再次编译
-     * @var bool
-     */
-    public $recompilation = false;
-
+    public ?string $tplname = null;
 
     /**
      * 编译器
-     * @var Compiler
+     * @var ?Compiler
      */
-    private $compiler = null;
-
+    private ?Compiler $compiler = null;
 
     /**
      * 数据源
-     * @var Source
+     * @var ?Source
      */
-    private $source = null;
-
+    private ?Source $source = null;
 
     /**
      * 依赖数据
      * @var array
      */
-    private $property = ['version' => Sdopx::VERSION];
+    private array $property = ['version' => Sdopx::VERSION];
 
-
-    public function __construct(string $tplname = null, Sdopx $sdopx = null, Template $parent = null)
+    /**
+     * Template constructor.
+     * @param string|null $tplname
+     * @param Sdopx|null $sdopx
+     * @param Template|null $parent
+     */
+    public function __construct(?string $tplname = null, ?Sdopx $sdopx = null, ?Template $parent = null)
     {
         $this->tplname = $tplname;
         $this->sdopx = empty($sdopx) ? $this : $sdopx;
@@ -83,10 +76,10 @@ class Template
 
     /**
      * 生成id
-     * @param $tplname
+     * @param string $tplname
      * @return string
      */
-    private function createTplId($tplname)
+    private function createTplId(string $tplname): string
     {
         list($name, $type) = Utils::parseResourceName($tplname);
         if ($type !== 'file') {
@@ -100,7 +93,14 @@ class Template
         return $type . '_' . trim($temp, '_');
     }
 
-    public function fetch(string $tplname)
+
+    /**
+     * 接下输出模板
+     * @param string $tplname
+     * @return string
+     * @throws SdopxException
+     */
+    public function fetch(string $tplname): string
     {
         $this->tplname = $tplname;
         $this->tplId = $this->createTplId($tplname);
@@ -116,11 +116,13 @@ class Template
 
     /**
      * 获取模板
+     * @return string
+     * @throws SdopxException
      */
-    public function fetchTpl()
+    public function fetchTpl(): string
     {
         if ($this->tplId == null) {
-            return;
+            return '';
         }
         //如果强制编译
         if ($this->sdopx->compileForce) {
@@ -133,7 +135,7 @@ class Template
      * 获取数据源
      * @return Source
      */
-    public function getSource()
+    public function getSource(): Source
     {
         if ($this->source === null) {
             $this->source = new Source($this);
@@ -145,7 +147,7 @@ class Template
      * 获取编译器
      * @return Compiler
      */
-    public function getCompiler()
+    public function getCompiler(): Compiler
     {
         if ($this->compiler === null) {
             $this->compiler = new Compiler($this->sdopx, $this);
@@ -165,9 +167,10 @@ class Template
 
     /**
      * 编译模板资源
-     * @return mixed
+     * @return string
+     * @throws CompilerException
      */
-    public function compileTemplateSource()
+    public function compileTemplateSource(): string
     {
         $source = $this->getSource();
         $this->addDependency($source);
@@ -177,20 +180,21 @@ class Template
     /**
      * 编译和运行
      * @return string
+     * @throws SdopxException
      */
-    public function compileAndRunTemplate()
+    public function compileAndRunTemplate(): string
     {
         $code = $this->compileTemplateSource();
-        $runCode = $this->writeAndRunContent($code);
-        return $runCode;
+        return $this->writeAndRunContent($code);
     }
 
     /**
      * 写入文件缓存并且运行
      * @param $content
      * @return string
+     * @throws SdopxException
      */
-    private function writeAndRunContent($content)
+    private function writeAndRunContent($content): string
     {
         $output = [];
         $this->property['debug'] = Sdopx::$debug;
@@ -207,7 +211,7 @@ class Template
             $this->sdopx->rethrow($error);
         }
         if (is_array($_property) && isset($_property['runFunc'])) {
-            Template::$complieCache[$this->tplId] = $_property;
+            Template::$compliedCache[$this->tplId] = $_property;
         }
         //装入文件
         $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
@@ -243,6 +247,7 @@ class Template
      * 验证模板是否有效
      * @param $property
      * @return bool
+     * @throws SdopxException
      */
     public function validProperties(&$property): bool
     {
@@ -285,13 +290,13 @@ class Template
      * @param Closure $runFunc
      * @return string
      */
-    private function run(\Closure &$runFunc)
+    private function run(\Closure $runFunc): string
     {
         $__out = new Outer($this->sdopx);
         $_sdopx = $this->sdopx;
         try {
             call_user_func($runFunc, $_sdopx, $__out);
-        } catch (\ErrorException $exception) {
+        } catch (ErrorException $exception) {
             $__out->throw($exception);
         }
         return $__out->getCode();
@@ -300,21 +305,22 @@ class Template
     /**
      * 检查并运行
      * @return string
+     * @throws SdopxException
      */
-    private function runTemplate()
+    private function runTemplate(): string
     {
-        if (!isset(Template::$complieCache[$this->tplId])) {
+        if (!isset(Template::$compliedCache[$this->tplId])) {
             $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
             if (file_exists($file)) {
-                Template::$complieCache[$this->tplId] = require($file);
+                Template::$compliedCache[$this->tplId] = require($file);
             }
         }
-        if (isset(Template::$complieCache[$this->tplId])) {
-            $_property = &Template::$complieCache[$this->tplId];
+        if (isset(Template::$compliedCache[$this->tplId])) {
+            $_property = &Template::$compliedCache[$this->tplId];
             if (!$this->sdopx->compileCheck || $this->validProperties($_property)) {
                 return $this->run($_property['runFunc']);
             } else {
-                unset(Template::$complieCache[$this->tplId]);
+                unset(Template::$compliedCache[$this->tplId]);
             }
         }
         return $this->compileAndRunTemplate();
@@ -325,11 +331,11 @@ class Template
      * @param string $tplname
      * @param array $params
      * @return string
+     * @throws SdopxException
      */
     public function getSubTemplate(string $tplname, array $params = []): string
     {
         $temp = [];
-
         foreach ($params as $key => $val) {
             if (isset($this->sdopx->_book[$key])) {
                 $temp[$key] = $this->sdopx->_book[$key];
@@ -339,7 +345,6 @@ class Template
 
         $tpl = $this->createChildTemplate($tplname);
         $code = $tpl->fetchTpl();
-
         foreach ($params as $key => $val) {
             if (isset($temp[$key])) {
                 $this->sdopx->_book[$key] = $temp[$key];
@@ -347,7 +352,6 @@ class Template
                 unset($this->sdopx->_book[$key]);
             }
         }
-
         return $code;
     }
 

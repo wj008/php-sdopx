@@ -363,7 +363,6 @@ class Sdopx extends Template
      * @param int|null $lineno
      * @param string|null $tplname
      * @throws SdopxException
-     * @throws ErrorException
      */
     public function rethrow($err, int $lineno = null, string $tplname = null)
     {
@@ -386,19 +385,11 @@ class Sdopx extends Template
                 if (is_string($err)) {
                     throw new SdopxException($err, $stack);
                 } else {
-                    if ($err->getSeverity() == E_NOTICE) {
-                        $stack = $tplname . ':' . $lineno . "\n" . $context . "\n";
-                        throw new SdopxException($err->getMessage(), $stack, $err->getCode(), $err);
-                    } else {
-                        throw $err;
-                    }
+                    $stack = $tplname . ':' . $lineno . "\n" . $context . "\n";
+                    throw new SdopxException($err->getMessage(), $stack, $err->getCode(), $err);
                 }
             }
-            if (is_string($err)) {
-                throw new SdopxException($err);
-            } else {
-                throw $err;
-            }
+            throw new SdopxException($err->getMessage(), '', $err->getCode(), $err);
         }
         throw $err;
     }
