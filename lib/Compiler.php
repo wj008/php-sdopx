@@ -298,7 +298,7 @@ class Compiler
 
     public function compilePlugin($name, $params = null, $close = false)
     {
-        $tag = Utils::toCamel($name);
+        $tag = SdopxUtil::toCamel($name);
         if ($close) {
             $tag = $tag . 'Close';
         }

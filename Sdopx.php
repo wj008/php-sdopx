@@ -17,7 +17,7 @@ use sdopx\interfaces\Resource;
 use stdClass;
 
 use sdopx\lib\Template;
-use sdopx\lib\Utils;
+use sdopx\lib\SdopxUtil;
 
 
 if (!defined('SDOPX_DIR')) {
@@ -368,7 +368,7 @@ class Sdopx extends Template
     {
         if (is_string($err) || $err instanceof ErrorException) {
             if (Sdopx::$debug && $lineno && $tplname) {
-                list($name, $type) = Utils::parseResourceName($tplname);
+                list($name, $type) = SdopxUtil::parseResourceName($tplname);
                 $instance = Sdopx::getResource($type);
                 $content = $instance->getContent($name, $this);
                 $lines = explode("\n", $content);
@@ -448,7 +448,7 @@ class Sdopx extends Template
      */
     public static function getPlugin(string $name): ?string
     {
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Plugin';
+        $class = '\\sdopx\\plugin\\' . SdopxUtil::toCamel($name) . 'Plugin';
         if (class_exists($class)) {
             return $class;
         }
@@ -462,7 +462,7 @@ class Sdopx extends Template
      */
     public static function getTag(string $name): ?string
     {
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Tag';
+        $class = '\\sdopx\\plugin\\' . SdopxUtil::toCamel($name) . 'Tag';
         if (class_exists($class)) {
             return $class;
         }
@@ -476,7 +476,7 @@ class Sdopx extends Template
      */
     public static function getModifier(string $name): ?string
     {
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Modifier';
+        $class = '\\sdopx\\plugin\\' . SdopxUtil::toCamel($name) . 'Modifier';
         if (class_exists($class)) {
             return $class;
         }
@@ -490,7 +490,7 @@ class Sdopx extends Template
      */
     public static function getModifierCompiler(string $name): ?string
     {
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'ModifierCompiler';
+        $class = '\\sdopx\\plugin\\' . SdopxUtil::toCamel($name) . 'ModifierCompiler';
         if (class_exists($class)) {
             return $class;
         }
@@ -520,7 +520,7 @@ class Sdopx extends Template
         if (isset(self::$resources[$type])) {
             return self::$resources[$type];
         }
-        $class = '\\sdopx\\resource\\' . Utils::toCamel($type) . 'Resource';
+        $class = '\\sdopx\\resource\\' . SdopxUtil::toCamel($type) . 'Resource';
         if (class_exists($class)) {
             self::$resources[$type] = new $class();
             return self::$resources[$type];

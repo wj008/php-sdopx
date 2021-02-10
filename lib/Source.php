@@ -92,7 +92,7 @@ class Source
         $this->sdopx = $tpl->sdopx;
         $this->tplname = $tpl->tplname;
         $this->tplId = $tpl->tplId;
-        list($name, $type) = Utils::parseResourceName($tpl->tplname);
+        list($name, $type) = SdopxUtil::parseResourceName($tpl->tplname);
         $this->resource = Sdopx::getResource($type);
         if ($this->resource == null) {
             $this->sdopx->rethrow('Resource type: ' . $type . ' does not exist');

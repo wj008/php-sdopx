@@ -9,6 +9,7 @@
 namespace sdopx\lib;
 
 use ErrorException;
+use ParseError;
 use sdopx\CompilerException;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
@@ -81,7 +82,7 @@ class Template
      */
     private function createTplId(string $tplname): string
     {
-        list($name, $type) = Utils::parseResourceName($tplname);
+        list($name, $type) = SdopxUtil::parseResourceName($tplname);
         if ($type !== 'file') {
             $name = md5($name);
         }
@@ -198,7 +199,7 @@ class Template
     {
         $output = [];
         $this->property['debug'] = Sdopx::$debug;
-        $output[] = '$_property = ' . Utils::export($this->property) . ';';
+        $output[] = '$_property = ' . SdopxUtil::export($this->property) . ';';
         $output[] = '$_property[\'runFunc\']=function($_sdopx,$__out){';
         $output[] = $content;
         $output[] = '};';
@@ -207,14 +208,14 @@ class Template
         $_property = null;
         try {
             @eval($content);
-        } catch (\ParseError $error) {
+        } catch (ParseError $error) {
             $this->sdopx->rethrow($error);
         }
         if (is_array($_property) && isset($_property['runFunc'])) {
             Template::$compliedCache[$this->tplId] = $_property;
         }
         //装入文件
-        $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
+        $file = SdopxUtil::path($this->sdopx->compileDir, $this->tplId . '.php');
         file_put_contents($file, '<?php ' . $content . 'return $_property;', LOCK_EX);
         if (isset($_property['runFunc']) && is_callable($_property['runFunc'])) {
             return $this->run($_property['runFunc']);
@@ -310,7 +311,7 @@ class Template
     private function runTemplate(): string
     {
         if (!isset(Template::$compliedCache[$this->tplId])) {
-            $file = Utils::path($this->sdopx->compileDir, $this->tplId . '.php');
+            $file = SdopxUtil::path($this->sdopx->compileDir, $this->tplId . '.php');
             if (file_exists($file)) {
                 Template::$compliedCache[$this->tplId] = require($file);
             }

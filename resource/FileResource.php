@@ -4,7 +4,7 @@ namespace sdopx\resource;
 
 
 use sdopx\interfaces\Resource;
-use sdopx\lib\Utils;
+use sdopx\lib\SdopxUtil;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
 
@@ -20,7 +20,7 @@ class FileResource implements Resource
      */
     public function getContent(string $tplname, Sdopx $sdopx): string
     {
-        $filepath = Utils::getPath($tplname, $sdopx);
+        $filepath = SdopxUtil::getPath($tplname, $sdopx);
         return file_get_contents($filepath);
     }
 
@@ -34,7 +34,7 @@ class FileResource implements Resource
      */
     public function getTimestamp(string $tplname, Sdopx $sdopx): int
     {
-        $filepath = Utils::getPath($tplname, $sdopx);
+        $filepath = SdopxUtil::getPath($tplname, $sdopx);
         $filemtime = @filemtime($filepath);
         if ($filemtime === FALSE) {
             $filemtime = 0;

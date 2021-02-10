@@ -10,15 +10,16 @@ namespace sdopx\lib;
 
 
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
-class Utils
+class SdopxUtil
 {
     /**
      * 路径标准化
-     * @param array ...$paths
+     * @param string ...$paths
      * @return string
      */
-    public static function path(...$paths)
+    public static function path(string ...$paths): string
     {
         $protocol = '';
         $path = trim(implode(DIRECTORY_SEPARATOR, $paths));
@@ -48,10 +49,10 @@ class Utils
 
     /**
      * 转为下划线
-     * @param $name
+     * @param string $name
      * @return string
      */
-    public static function toUnder($name)
+    public static function toUnder(string $name): string
     {
         $name = preg_replace_callback('@[A-Z]@', function ($m) {
             return '_' . strtolower($m[0]);
@@ -62,10 +63,10 @@ class Utils
 
     /**
      * 转为驼峰
-     * @param $name
+     * @param string $name
      * @return string
      */
-    public static function toCamel($name)
+    public static function toCamel(string $name): string
     {
         $name = preg_replace('@_+@', '_', $name);
         $name = preg_replace_callback('@_[a-z]@', function ($m) {
@@ -77,10 +78,10 @@ class Utils
 
     /**
      * 转义sql
-     * @param $value
-     * @return int|string
+     * @param mixed $value
+     * @return mixed
      */
-    public static function escapeSQL($value)
+    public static function escapeSQL(mixed $value): mixed
     {
         if ($value === null) {
             return 'NULL';
@@ -134,11 +135,11 @@ class Utils
 
     /**
      * 格式化导出数组
-     * @param $data
+     * @param array $data
      * @param string $sp
      * @return string
      */
-    public static function export($data, $sp = '')
+    public static function export(array $data, string $sp = ''): string
     {
         $tabs[] = '[';
         foreach ($data as $key => $item) {
@@ -157,7 +158,7 @@ class Utils
      * @param string $tplname
      * @return array
      */
-    public static function parseResourceName(string $tplname)
+    public static function parseResourceName(string $tplname): array
     {
         if (preg_match('@^(\w+):@', $tplname, $match)) {
             $type = strtolower($match[1]);
@@ -172,10 +173,9 @@ class Utils
      * @param string $tplname
      * @param Sdopx $sdopx
      * @return string
-     * @throws \ErrorException
-     * @throws \sdopx\SdopxException
+     * @throws SdopxException
      */
-    public static function getPath(string $tplname, Sdopx $sdopx)
+    public static function getPath(string $tplname, Sdopx $sdopx): string
     {
         if (empty($tplname)) {
             $sdopx->rethrow('template file is empty.');
@@ -189,13 +189,13 @@ class Utils
             $sdopx->rethrow('Template directory not set.');
         }
         if ($tplname[0] == '@' && isset($tplDirs['common'])) {
-            $filePath = Utils::path($tplDirs['common'], substr($tplname, 1));
+            $filePath = SdopxUtil::path($tplDirs['common'], substr($tplname, 1));
             if ($filePath != '' && file_exists($filePath)) {
                 return $filePath;
             }
         } else {
             foreach ($tplDirs as $key => $dirName) {
-                $filePath = Utils::path($dirName, $tplname);
+                $filePath = SdopxUtil::path($dirName, $tplname);
                 if ($filePath != '' && file_exists($filePath)) {
                     return $filePath;
                 }

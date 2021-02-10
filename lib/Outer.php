@@ -45,7 +45,7 @@ class Outer
     public function text($code)
     {
         if ($this->sdopx->parsingType == Sdopx::PARSING_SQL) {
-            $this->output[] = Utils::escapeSQL($code);
+            $this->output[] = SdopxUtil::escapeSQL($code);
         } else {
             if (is_string($code)) {
                 $this->output[] = htmlspecialchars($code, ENT_QUOTES);

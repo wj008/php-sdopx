@@ -11,7 +11,7 @@ namespace sdopx\resource;
 
 use ErrorException;
 use sdopx\interfaces\Resource;
-use sdopx\lib\Utils;
+use sdopx\lib\SdopxUtil;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
 
@@ -33,7 +33,7 @@ class ExtendsResource implements Resource
         }
         $tplChild = array_pop($names);
         $extends = join('|', $names);
-        list($name, $type) = Utils::parseResourceName($tplChild);
+        list($name, $type) = SdopxUtil::parseResourceName($tplChild);
         $instance = Sdopx::getResource($type);
         $content = $instance->getContent($name, $sdopx);
         $content = $sdopx->leftDelimiter . 'extends file=\'' . $extends . '\'' . $sdopx->rightDelimiter . $content;
@@ -55,7 +55,7 @@ class ExtendsResource implements Resource
             $sdopx->rethrow("File path format is incorrect :{$tplname} .");
         }
         $tplChild = array_pop($names);
-        list($name, $type) = Utils::parseResourceName($tplChild);
+        list($name, $type) = SdopxUtil::parseResourceName($tplChild);
         $instance = Sdopx::getResource($type);
         return $instance->getTimestamp($name, $sdopx);
     }
