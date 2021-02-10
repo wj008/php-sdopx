@@ -72,7 +72,7 @@ class Lexer
             $this->addError('The scope of the parsing template is beyond the length of the template content');
             return null;
         }
-        $content = $source->substring($offset, $source->bound);
+        $content = $source->subString($offset, $source->bound);
         if (!preg_match($pattern, $content, $match, PREG_OFFSET_CAPTURE)) {
             return null;
         }
@@ -234,7 +234,7 @@ class Lexer
             if (!empty($source->endLiteral)) {
                 $ret2 = $this->find('@' . $source->endLiteral . '@', null, true);
                 if ($ret2 != null) {
-                    $code = $source->substring($source->cursor, $ret2['start']);
+                    $code = $source->subString($source->cursor, $ret2['start']);
                     $source->cursor = $ret2['end'];
                     return [
                         'map' => '',
@@ -245,7 +245,7 @@ class Lexer
             }
             return [
                 'map' => '',
-                'code' => $source->substring($source->cursor, $source->bound),
+                'code' => $source->subString($source->cursor, $source->bound),
                 'next' => 'finish'
             ];
         }
@@ -256,7 +256,7 @@ class Lexer
         if ($source->endLiteral) {
             $ret2 = $this->find('@' . $source->endLiteral . '@', null, true);
             if ($ret2 != null && ($ret == null || $ret2['start'] <= $ret['start'])) {
-                $code = $source->substring($source->cursor, $ret2['start']);
+                $code = $source->subString($source->cursor, $ret2['start']);
                 $source->cursor = $ret2['end'];
                 return [
                     'map' => '',
@@ -267,9 +267,9 @@ class Lexer
         }
 
         if ($ret == null) {
-            return ['map' => null, 'code' => $source->substring($source->cursor, $source->bound), 'next' => 'finish'];
+            return ['map' => null, 'code' => $source->subString($source->cursor, $source->bound), 'next' => 'finish'];
         }
-        $code = $source->substring($source->cursor, $ret['start']);
+        $code = $source->subString($source->cursor, $ret['start']);
         $source->cursor = $ret['start'];
         $next = 'finish';
 
@@ -470,7 +470,7 @@ class Lexer
                 $temp = array_pop($block_stack);
                 $temp['end'] = $ret['end'];
                 $temp['over'] = $ret['start'];
-                $temp['content'] = $source->substring($temp['start'], $temp['over']);
+                $temp['content'] = $source->subString($temp['start'], $temp['over']);
                 array_push($blocks, $temp);
                 continue;
             }

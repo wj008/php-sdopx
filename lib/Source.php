@@ -8,84 +8,85 @@
 
 namespace sdopx\lib;
 
-
-use sdopx\interfaces\ResourceInterface;
+use sdopx\interfaces\Resource;
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
 class Source
 {
     //数据模板代码
     /**
      * 内容
-     * @var string
+     * @var ?string
      */
-    public $content = null;
+    public ?string $content = null;
     /**
      * 长度
      * @var int
      */
-    public $length = 0;
+    public int $length = 0;
 
     /**
      * 资源类型
      * @var string
      */
-    public $type = 'file';
+    public string $type = 'file';
     /**
      * 资源名称
-     * @var null|string
+     * @var ?string
      */
-    public $name = null;
+    public ?string $name = null;
     /**
      * 模板全名
-     * @var null|string
+     * @var ?string
      */
-    public $tplname = null;
+    public ?string $tplname = null;
     /**
      * 最后更新时间
      * @var int
      */
-    public $timestamp = 0;
+    public int $timestamp = 0;
     /**
      * 当前编译偏移量
      * @var int
      */
-    public $cursor = 0;
+    public int $cursor = 0;
     /**
      * 资源是否存在
      * @var bool
      */
-    public $isExits = false;
+    public bool $isExits = false;
     /**
      * 模板id
-     * @var null|string
+     * @var ?string
      */
-    public $tplId = null;
+    public ?string $tplId = null;
+
     /**
      * 资源加载器
-     * @var null|ResourceInterface
      */
-    public $resource = null;
-    //引擎
-    public $sdopx = null;
+    public ?Resource $resource = null;
 
+    //引擎
+    public ?Sdopx $sdopx = null;
     /**
      * 边界
      * @var int
      */
-    public $bound = 0;
+    public int $bound = 0;
 
     //资源分割标记
-    public $leftDelimiter = '{';
-    public $rightDelimiter = '}';
+    public string $leftDelimiter = '{';
+    public string $rightDelimiter = '}';
 
-    public $endLiteral = null;
-    public $literal = false;
+    public ?string $endLiteral = null;
+    public bool $literal = false;
 
     /**
      * 创建资源
      * Source constructor.
      * @param Template $tpl
+     * @throws SdopxException
      */
     public function __construct(Template $tpl)
     {
@@ -119,7 +120,7 @@ class Source
      * @param int $offset
      * @return array
      */
-    public function getDebugInfo($offset = 0)
+    public function getDebugInfo($offset = 0): array
     {
         if ($offset == 0) {
             $offset = $this->cursor;
@@ -144,20 +145,20 @@ class Source
         $this->content = $content;
         $this->length = strlen($this->content);
         $this->bound = $this->length;
-        $this->timestamp = $this->getTimestamp($name, $this->sdopx);
+        $this->timestamp = $this->getTimestamp();
         $this->isExits = true;
         $this->cursor = 0;
     }
 
     /**
      * 截断内容
-     * @param $start
-     * @param null $end
+     * @param int $start
+     * @param int $end
      * @return bool|string
      */
-    public function substring($start, $end = null)
+    public function subString(int $start, int $end = 0): false|string
     {
-        if ($end === null) {
+        if ($end === 0) {
             return substr($this->content, $start);
         }
         $len = $end - $start;
@@ -171,10 +172,8 @@ class Source
      * 获得资源最后修改时间
      * @return int
      */
-    public function getTimestamp()
+    public function getTimestamp(): int
     {
-        $name = $this->name;
-        $this->timestamp = $this->resource->getTimestamp($name, $this->sdopx);
-        return $this->timestamp;
+        return $this->resource->getTimestamp($this->name, $this->sdopx);
     }
 }
