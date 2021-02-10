@@ -20,9 +20,9 @@ class Template
     public static array $compliedCache = [];
 
     /**
-     * @var ?Sdopx
+     * @var Sdopx
      */
-    public ?Sdopx $sdopx = null;
+    public Sdopx $sdopx;
     /**
      * 模板id
      * @var ?string
@@ -68,7 +68,7 @@ class Template
     public function __construct(?string $tplname = null, ?Sdopx $sdopx = null, ?Template $parent = null)
     {
         $this->tplname = $tplname;
-        $this->sdopx = empty($sdopx) ? $this : $sdopx;
+        $this->sdopx = $sdopx === null ? $this : $sdopx;
         $this->parent = $parent;
         if ($tplname !== null) {
             $this->tplId = $this->createTplId($tplname);
@@ -133,8 +133,8 @@ class Template
     }
 
     /**
-     * 获取数据源
      * @return Source
+     * @throws SdopxException
      */
     public function getSource(): Source
     {

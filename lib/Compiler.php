@@ -5,53 +5,48 @@ namespace sdopx\lib;
 
 use sdopx\CompilerException;
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
 
 class Compiler
 {
 
-    /**
-     * @var Source
-     */
-    public $source = null;
-    /**
-     * @var Sdopx
-     */
-    public $sdopx = null;
-    /**
-     * @var Template
-     */
-    public $tpl = null;
-    /**
-     * @var Parser
-     */
-    private $parser = null;
+    public ?Source $source = null;
+
+    public ?Sdopx $sdopx = null;
+
+    public ?Template $tpl = null;
+
+    private ?Parser $parser = null;
 
     //是否已经关闭
-    public $closed = false;
+    public bool $closed = false;
 
     /**
      * 标签栈
      * @var array
      */
-    private $tag_stack = [];
+    private array $tag_stack = [];
     /**
      * 缓存区块
      * @var array
      */
-    public $blockCache = [];
+    public array $blockCache = [];
+
+    public array $varters = [];
+
+    public array $temp_vars = [];
+
+    public array $temp_prefixes = [];
+
+    public array $debugTemp = ['line' => -1, 'src' => ''];
 
     /**
-     * @var array<Varter>
+     * Compiler constructor.
+     * @param Sdopx $sdopx
+     * @param Template $tpl
+     * @throws SdopxException
      */
-    public $varters = [];
-
-    public $temp_vars = [];
-
-    public $temp_prefixs = [];
-
-    public $debugTemp = ['line' => -1, 'src' => ''];
-
     public function __construct(Sdopx $sdopx, Template $tpl)
     {
         $this->sdopx = $sdopx;
@@ -88,10 +83,10 @@ class Compiler
 
     /**
      * 循环解析标签
-     * @param $output
+     * @param array $output
      * @return bool
      */
-    private function loop(&$output)
+    private function loop(array &$output): bool
     {
         if ($this->closed) {
             return false;
@@ -102,12 +97,10 @@ class Compiler
             $this->closed = true;
             return false;
         }
+
         if (isset($htmlItem['code'][0])) {
-            $htmlItem['code'] = $htmlItem['code'];
-            if (isset($htmlItem['code'][0])) {
-                $code = '$__out->html(' . var_export($htmlItem['code'], true) . ');';
-                array_push($output, $code);
-            }
+            $code = '$__out->html(' . var_export($htmlItem['code'], true) . ');';
+            $output[] = $code;
         }
         //结束
         if ($htmlItem['next'] == 'finish') {
@@ -124,30 +117,30 @@ class Compiler
                 if ($debug['line'] !== $this->debugTemp['line'] || $debug['src'] != $this->debugTemp['src']) {
                     $this->debugTemp['line'] = $debug['line'];
                     $this->debugTemp['src'] = $debug['src'];
-                    array_push($output, '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');');
+                    $output[] = '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');';
                 }
             }
             switch ($tplItem['map']) {
                 case Parser::CODE_EXPRESS:
                     if (isset($tplItem['raw']) && $tplItem['raw'] === true) {
-                        array_push($output, '$__out->html(' . $tplItem['code'] . ');');
+                        $output[] = '$__out->html(' . $tplItem['code'] . ');';
                     } else {
-                        array_push($output, '$__out->text(' . $tplItem['code'] . ');');
+                        $output[] = '$__out->text(' . $tplItem['code'] . ');';
                     }
                     break;
                 case Parser::CODE_ASSIGN:
-                    array_push($output, $tplItem['code'] . ';');
+                    $output[] = $tplItem['code'] . ';';
                     break;
                 case  Parser::CODE_TAG:
                     $code = $this->compilePlugin($tplItem['name'], $tplItem['args']);
                     if ($code !== '') {
-                        array_push($output, $code);
+                        $output[] = $code;
                     }
                     break;
                 case  Parser::CODE_TAG_END:
                     $code = $this->compilePlugin($tplItem['name'], null, true);
                     if ($code !== '') {
-                        array_push($output, $code);
+                        $output[] = $code;
                     }
                     break;
                 default:
@@ -155,6 +148,7 @@ class Compiler
             }
             return !$this->closed;
         }
+
         //解析配置
         if ($htmlItem['next'] == 'parsConfig') {
             $cfgItem = $parser->parsConfig();
@@ -166,16 +160,17 @@ class Compiler
                 if ($debug['line'] !== $this->debugTemp['line'] || $debug['src'] != $this->debugTemp['src']) {
                     $this->debugTemp['line'] = $debug['line'];
                     $this->debugTemp['src'] = $debug['src'];
-                    array_push($output, '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');');
+                    $output[] = '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');';
                 }
             }
             if ($cfgItem['raw'] === true) {
-                array_push($output, '$__out->html(' . $cfgItem['code'] . ');');
+                $output[] = '$__out->html(' . $cfgItem['code'] . ');';
             } else {
-                array_push($output, '$__out->text(' . $cfgItem['code'] . ');');
+                $output[] = '$__out->text(' . $cfgItem['code'] . ');';
             }
             return !$this->closed;
         }
+
         //解析注释
         if ($htmlItem['next'] == 'parsComment') {
             $comItem = $parser->parsComment();
@@ -194,7 +189,7 @@ class Compiler
                 $name = $litItem['name'];
                 $code = $this->compilePlugin($name, null, true);
                 if ($code !== '') {
-                    array_push($output, $code);
+                    $output[] = $code;
                 }
             }
             return !$this->closed;
@@ -207,7 +202,7 @@ class Compiler
      * @return string
      * @throws CompilerException
      */
-    public function compileTemplate()
+    public function compileTemplate(): string
     {
         $output = [];
         $qty = 0;
@@ -224,12 +219,13 @@ class Compiler
         return $code;
     }
 
+
     /**
      * 编译变量
-     * @param $key
-     * @return mixed|string
+     * @param string $key
+     * @return string
      */
-    public function compileVar($key)
+    public function compileVar(string $key): string
     {
         if ($key == 'global') {
             return '$_sdopx->_book';
@@ -243,20 +239,20 @@ class Compiler
 
     /**
      * 编译配置项
-     * @param $var
+     * @param string $var
      * @return string
      */
-    public function compileConfigVar($var)
+    public function compileConfigVar(string $var): string
     {
         return "\$_sdopx->getConfig('{$var}')";
     }
 
     /**
      * 编译函数块
-     * @param $func
+     * @param string $func
      * @return string
      */
-    public function compileFunc($func)
+    public function compileFunc(string $func): string
     {
         if (preg_match('@^\w+$@', $func)) {
             if (Sdopx::getFunction($func) !== null) {
@@ -268,35 +264,44 @@ class Compiler
 
     /**
      * 编译过滤器
-     * @param $name
-     * @param $params
+     * @param string $name
+     * @param string[] $params
      * @return string
      * @throws CompilerException
      */
-    public function compileModifier($name, $params)
+    public function compileModifier(string $name, array $params): string
     {
         if (preg_match('@^(\w+)-(\w+)$@', $name, $m)) {
             $name = $m[1];
             $method = $m[2];
             $modifier = Sdopx::getModifier($name);
             if ($modifier) {
-                return Sdopx::class . '::getModifier(' . var_export($name, true) . ')->' . $method . '(' . join(',', $params) . ')';
+                return $modifier . '::' . $method . '(' . join(',', $params) . ')';
             }
             $this->addError("|$name modifier does not exist.");
         } else {
             $modifierCompiler = Sdopx::getModifierCompiler($name);
             if ($modifierCompiler) {
-                return $modifierCompiler->compile($this, $params);
+                return call_user_func([$modifierCompiler, 'compile'], $this, $params);
             }
             $modifier = Sdopx::getModifier($name);
             if ($modifier) {
-                return Sdopx::class . '::getModifier(' . var_export($name, true) . ')->render(' . join(',', $params) . ')';
+                return $modifier . '::render(' . join(',', $params) . ')';
             }
             $this->addError("|$name modifier does not exist.");
         }
     }
 
-    public function compilePlugin($name, $params = null, $close = false)
+
+    /**
+     * 编译插件
+     * @param $name
+     * @param null $params
+     * @param false $close
+     * @return string
+     * @throws CompilerException
+     */
+    public function compilePlugin($name, $params = null, $close = false): string
     {
         $tag = SdopxUtil::toCamel($name);
         if ($close) {
@@ -306,23 +311,20 @@ class Compiler
         $class = '\\sdopx\\compiler\\' . $tag . 'Compiler';
         if (class_exists($class) && is_callable($class, 'compile')) {
             if ($close) {
-                $code = call_user_func([$class, 'compile'], $this, $name);
-                return $code;
+                return call_user_func([$class, 'compile'], $this, $name);
             } else {
-                $code = call_user_func([$class, 'compile'], $this, $name, $params);
-                return $code;
+                return call_user_func([$class, 'compile'], $this, $name, $params);
             }
         }
-
         //如果有配对标记就使用配对标记
         $tagPlug = Sdopx::getTag($name);
         if ($tagPlug) {
             if ($close) {
-                list($name, $data) = $this->closeTag([$name]);
+                list(, $data) = $this->closeTag([$name]);
                 $this->removeVar($data[0]);
                 $code = '},$__out);';
                 if (method_exists($tagPlug, 'close')) {
-                    $code .= PHP_EOL . Sdopx::class . '::getTag(' . var_export($name, true) . ')->close($__out);';
+                    $code .= PHP_EOL . $tagPlug . '::close($__out);';
                 }
                 return $code;
             } else {
@@ -368,11 +370,11 @@ class Compiler
                 $use_vars[] = '$__out';
                 $use_vars[] = '$_sdopx';
                 $use = join(',', $use_vars);
-                $varMap = $this->getVariableMap($pre);
+                $varMap = $this->getVarMapper($pre);
                 foreach ($func_vars as $ikey) {
                     $varMap->add($ikey);
                 }
-                $this->addVariableMap($varMap);
+                $this->addVarMapper($varMap);
                 $param_temp = [];
                 $func_temp = [];
                 foreach ($func_vars as $attr => $key) {
@@ -398,19 +400,30 @@ class Compiler
             $temp[] = "'{$key}'=>{$val}";
         }
         if ($plugin) {
-            return Sdopx::class . '::getPlugin(' . var_export($name, true) . ")->render([" . join(',', $temp) . '],$__out);';
+            return $plugin . '::render([' . join(',', $temp) . '],$__out);';
         }
         //还有模板函数也应该支持
         $code = "if(isset(\$_sdopx->funcMap[" . var_export($name, true) . "])){\n  \$_sdopx->funcMap[" . var_export($name, true) . "]([" . join(',', $temp) . "],\$__out,\$_sdopx);\n}else{\n  \$__out->throw('{$name} plugin not found.');\n}";
         return $code;
     }
 
-    public function openTag($tag, $data = null)
+    /**
+     * 打开标签
+     * @param string $tag
+     * @param ?array $data
+     */
+    public function openTag(string $tag, ?array $data = null)
     {
         array_push($this->tag_stack, [$tag, $data]);
     }
 
-    public function closeTag($tags)
+    /**
+     * 关闭标签
+     * @param string[] $tags
+     * @return ?array
+     * @throws CompilerException
+     */
+    public function closeTag(array $tags): ?array
     {
         if (count($this->tag_stack) == 0) {
             $this->addError("End tag does not exist.");
@@ -425,7 +438,12 @@ class Compiler
         return [$tag, $data];
     }
 
-    public function testTag($tags)
+    /**
+     * 查看标签
+     * @param string[] $tags
+     * @return bool
+     */
+    public function lookupTag(array $tags): bool
     {
         $len = count($this->tag_stack);
         if ($len == 0) {
@@ -441,27 +459,53 @@ class Compiler
         return false;
     }
 
-    public function getLastTag()
+    /**
+     * 获取最后一个标签
+     * @return  array|false
+     */
+    public function getLastTag(): array|false
     {
         return end($this->tag_stack);
     }
 
-    public function hasBlockCache($name)
+    /**
+     * 是否有块缓存
+     * @param $name
+     * @return bool
+     */
+    public function hasBlockCache(string $name): bool
     {
         return isset($this->blockCache[$name]);
     }
 
-    public function getBlockCache($name)
+    /**
+     * 获取块缓存
+     * @param string $name
+     * @return ?Block
+     */
+    public function getBlockCache(string $name): ?Block
     {
         return isset($this->blockCache[$name]) ? $this->blockCache[$name] : null;
     }
 
-    public function addBlockCache($name, $block)
+    /**
+     * 添加块缓存
+     * @param string $name
+     * @param Block $block
+     */
+    public function addBlockCache(string $name, Block $block)
     {
-        return $this->blockCache[$name] = $block;
+        $this->blockCache[$name] = $block;
     }
 
-    public function getCursorBlockInfo($name, $offset = 0)
+
+    /**
+     * 获取当前块信息
+     * @param string $name
+     * @param int $offset
+     * @return array|null
+     */
+    public function getCursorBlockItem(string $name, int $offset = 0): ?BlockItem
     {
         if ($offset == 0) {
             $offset = $this->source->cursor;
@@ -470,92 +514,110 @@ class Compiler
         if ($blocks === null) {
             return null;
         }
-        $blockInfo = null;
         if (count($blocks) == 1) {
-            $blockInfo = $blocks[0];
+            return $blocks[0];
         } else {
             for ($i = 0; $i < count($blocks); $i++) {
-                $temp = $blocks[$i];
-                if ($temp['start'] === $offset) {
-                    $blockInfo = $temp;
-                    break;
+                $item = $blocks[$i];
+                if ($item->start === $offset) {
+                    return $item;
                 }
             }
         }
-        return $blockInfo;
+        return null;
     }
 
-    public function getFirstBlockInfo($name)
+    /**
+     * 获取首个块信息
+     * @param string $name
+     * @return ?BlockItem
+     */
+    public function getFirstBlockItem(string $name): ?BlockItem
     {
         $blocks = $this->parser->getBlock($name);
         if ($blocks === null) {
             return null;
         }
-        $blockInfo = null;
         if (count($blocks) >= 1) {
-            $blockInfo = $blocks[0];
+            return $blocks[0];
         }
-        return $blockInfo;
+        return null;
     }
 
-    public function moveBlockToEnd($name, $offset = 0)
+    /**
+     * 将编译数据源游标移至块结束标记之后
+     * @param string $name
+     * @param int $offset
+     * @return bool
+     */
+    public function moveBlockToEnd(string $name, int $offset = 0): bool
     {
-        $blockInfo = $this->getCursorBlockInfo($name, $offset);
-        if ($blockInfo === null) {
+        $blockItem = $this->getCursorBlockItem($name, $offset);
+        if ($blockItem === null) {
             return false;
         }
-        $this->source->cursor = $blockInfo['end'];
+        $this->source->cursor = $blockItem->end;
         return true;
     }
 
-    public function moveBlockToOver($name, $offset = 0)
+    /**
+     * 将编译数据源游标移至块结束标记之前
+     * @param string $name
+     * @param int $offset
+     * @return bool
+     */
+    public function moveBlockToOver(string $name, int $offset = 0): bool
     {
-        $blockInfo = $this->getCursorBlockInfo($name, $offset);
-        if ($blockInfo === null) {
+        $blockItem = $this->getCursorBlockItem($name, $offset);
+        if ($blockItem === null) {
             return false;
         }
-        $this->source->cursor = $blockInfo['over'];
+        $this->source->cursor = $blockItem->over;
         return true;
     }
 
-    public function compileBlock($name)
+
+    /**
+     * 编译代码块
+     * @param string $name
+     * @return ?array
+     * @throws CompilerException
+     */
+    public function compileBlock(string $name): ?Block
     {
         //查看是否有编译过的节点
         $block = $this->getParentBlock($name);
-        $info = $this->getFirstBlockInfo($name);
+        $info = $this->getFirstBlockItem($name);
         if ($info === null) {
             return $block;
         }
-        if ($info['hide'] && ($block === null || $block['code'] == null)) {
+        if ($info->hide && ($block === null || empty($block->code))) {
             return null;
         }
-        $cursorBlock = ['prepend' => $info['prepend'], 'append' => $info['append'], 'code' => null];
-
-        if ($block != null && !$block['prepend'] && !$block['append']) {
-            $cursorBlock['code'] = $block['code'];
+        $cursorBlock = new Block('', $info->prepend, $info->append);
+        if ($block != null && !$block->prepend && !$block->append) {
+            $cursorBlock->code = $block->code;
             return $cursorBlock;
         }
-
         $source = $this->source;
         $offset = $source->cursor;
         $bound = $source->bound;
         $closed = $this->closed;
         //将光标移到开始处
-        $source->cursor = $info['start'];
-        $source->bound = $info['over'];
+        $source->cursor = $info->start;
+        $source->bound = $info->over;
         $this->closed = false;
-
         $output = null;
         //将光标移到开始处
-        if ($info['literal']) {
+        if ($info->literal) {
             $literal = $source->literal;
             $source->literal = true;
             $output = $this->compileTemplate();
             $source->literal = $literal;
-        } else if (is_string($info['left']) && is_string($info['right']) && !empty($info['left']) && !empty($info['right'])) {
+        } else if (!empty($info->left) && !empty($info->right)) {
             $old_left = $source->leftDelimiter;
             $old_right = $source->rightDelimiter;
-            $source->changDelimiter($info['left'], $info['right']);
+            $source->changDelimiter($info->left, $info->right);
             $output = $this->compileTemplate();
             $source->changDelimiter($old_left, $old_right);
         } else {
@@ -565,22 +627,23 @@ class Compiler
         $source->bound = $bound;
         $this->closed = $closed;
         if ($block != null) {
-            if ($block['prepend'] && $block['code'] !== null) {
-                $output = $block['code'] . "\n" . $output;
-            } else if ($block['append'] && $block['code'] !== null) {
-                $output = $output . "\n" . $block['code'];
+            if ($block->prepend && !empty($block->code)) {
+                $output = $block->code . "\n" . $output;
+            } else if ($block->append && !empty($block->code)) {
+                $output = $output . "\n" . $block->code;
             }
         }
-        $cursorBlock['code'] = $output;
+        $cursorBlock->code = $output;
         return $cursorBlock;
     }
 
     /**
      * 解析父标签
-     * @param $name
-     * @return array|mixed|null
+     * @param string $name
+     * @return Block|null
+     * @throws CompilerException
      */
-    public function getParentBlock($name)
+    public function getParentBlock(string $name): ?Block
     {
         if ($this->tpl->parent == null) {
             return null;
@@ -589,32 +652,44 @@ class Compiler
         if ($block != null) {
             return $block;
         }
-        $pcomplie = $this->tpl->parent->getCompiler();
-        $temp = $pcomplie->getVarTemp();
-        $pcomplie->setVarTemp($this->getVarTemp());
-        $block = $pcomplie->compileBlock($name);
-        $pcomplie->setVarTemp($temp);
+        $pCompile = $this->tpl->parent->getCompiler();
+        $temp = $pCompile->getVarTemp();
+        $pCompile->setVarTemp($this->getVarTemp());
+        $block = $pCompile->compileBlock($name);
+        $pCompile->setVarTemp($temp);
         $this->addBlockCache($name, $block);
         return $block;
     }
 
-    public function setVarTemp($dist)
+    /**
+     * 设置全局变量
+     * @param array $dist
+     */
+    public function setVarTemp(array $dist)
     {
         $this->temp_vars = $dist['temp_vars'];
         $this->varters = $dist['varters'];
-        $this->temp_prefixs = $dist['temp_prefixs'];
+        $this->temp_prefixes = $dist['temp_prefixes'];
     }
 
-    public function getVarTemp()
+    /**
+     * 获取全局变量
+     * @return array
+     */
+    public function getVarTemp(): array
     {
         return [
             'temp_vars' => $this->temp_vars,
             'varters' => $this->varters,
-            'temp_prefixs' => $this->temp_prefixs
+            'temp_prefixes' => $this->temp_prefixes
         ];
     }
 
-    public function addVariableMap(VariableMap $map)
+    /**
+     * 添加临时变量表
+     * @param VarMapper $map
+     */
+    public function addVarMapper(VarMapper $map)
     {
         foreach ($map->data as $name => $item) {
             if (isset($this->temp_vars[$name])) {
@@ -629,12 +704,22 @@ class Compiler
         }
     }
 
-    public function getVarKeys()
+    /**
+     * 获取所有全局变量名
+     * @return array
+     */
+    public function getVarKeys(): array
     {
         return array_keys($this->temp_vars);
     }
 
-    public function getVar($key, $replace = false)
+    /**
+     * 获取全局变量
+     * @param string $key
+     * @param bool $replace
+     * @return string
+     */
+    public function getVar(string $key, bool $replace = false): string
     {
         $temp = $this->temp_vars[$key];
         $value = end($temp);
@@ -644,32 +729,41 @@ class Compiler
         return $value;
     }
 
-    public function hasVar($key)
+    /**
+     * 是否存在全局变量
+     * @param $key
+     * @return bool
+     */
+    public function hasVar(string $key): bool
     {
         return isset($this->temp_vars[$key]);
     }
 
     /**
-     * @param null $prefix
+     * 获取函数内临时变量表
+     * @param string $prefix
      * @param bool $create
-     * @return mixed|null|VariableMap
+     * @return ?VarMapper
      */
-    public function getVariableMap($prefix = null, $create = true)
+    public function getVarMapper(string $prefix = 'var', bool $create = true): ?VarMapper
     {
-        if ($prefix == null) {
-            $prefix = 'var';
-        }
         $map = isset($this->varters[$prefix]) ? $this->varters[$prefix] : null;
         if ($create && $map === null) {
-            $map = new VariableMap($prefix);
+            $map = new VarMapper($prefix);
             $this->varters[$prefix] = $map;
         }
         return $map;
     }
 
-    public function removeVar($prefix = null)
+    /**
+     * 移除全局变量
+     * @param string $prefix
+     * @return false
+     * @throws CompilerException
+     */
+    public function removeVar(string $prefix = 'var'): bool
     {
-        $map = $this->getVariableMap($prefix, false);
+        $map = $this->getVarMapper($prefix, false);
         if ($map !== null) {
             $prefix = $map->prefix;
             unset($this->varters[$prefix]);
@@ -688,19 +782,29 @@ class Compiler
                 }
             }
         }
+        return true;
     }
 
-    public function getTempPrefix($name)
+    /**
+     * 获取前缀
+     * @param string $name
+     * @return string
+     */
+    public function getTempPrefix(string $name): string
     {
-        if (isset($this->temp_prefixs[$name])) {
-            $this->temp_prefixs[$name]++;
-            return $name . $this->temp_prefixs[$name];
+        if (isset($this->temp_prefixes[$name])) {
+            $this->temp_prefixes[$name]++;
+            return $name . $this->temp_prefixes[$name];
         }
-        $this->temp_prefixs[$name] = 0;
+        $this->temp_prefixes[$name] = 0;
         return $name;
     }
 
-    public function getLastPrefix()
+    /**
+     * 获取最后一个前缀
+     * @return string
+     */
+    public function getLastPrefix(): string
     {
         $item = end($this->tag_stack);
         if ($item == null || $item[1] == null) {

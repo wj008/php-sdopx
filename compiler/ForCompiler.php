@@ -13,7 +13,7 @@ class ForCompiler
             $compiler->addError("Conditional code is missing from the {for} tag.");
         }
         $pre = $compiler->getTempPrefix('for');
-        $varMap = $compiler->getVariableMap($pre);
+        $varMap = $compiler->getVarMapper($pre);
         if (isset($args['var']) && is_array($args['var'])) {
             foreach ($args['var'] as $var => $val) {
                 if (empty($var)) {
@@ -23,7 +23,7 @@ class ForCompiler
                 $code = preg_replace('@' . preg_quote($val, '@') . '@', '$' . $pre . '_' . $var, $code);
             }
         }
-        $compiler->addVariableMap($varMap);
+        $compiler->addVarMapper($varMap);
         $output = [];
         $output[] = "\$__{$pre}_index=0; ";
         $output[] = "for({$code}){ \$__{$pre}_index++;";

@@ -27,9 +27,9 @@ class AssignCompiler
                 return '$' . str_replace('@key', $key, $temp) . ' = ' . $value . ';';
             }
             $prefix = $compiler->getLastPrefix();
-            $varMap = $compiler->getVariableMap($prefix);
+            $varMap = $compiler->getVarMapper($prefix);
             $varMap->add($key);
-            $compiler->addVariableMap($varMap);
+            $compiler->addVarMapper($varMap);
             $temp = $compiler->getVar($key);
             return '$' . str_replace('@key', $key, $temp) . ' = ' . $value . ';';
         } else {
@@ -43,9 +43,9 @@ class AssignCompiler
                 return '$'.str_replace('@key', $key, $temp) . $other . ';';
             }
             $prefix = $compiler->getLastPrefix();
-            $varMap = $compiler->getVariableMap($prefix);
+            $varMap = $compiler->getVarMapper($prefix);
             $varMap->add($key);
-            $compiler->addVariableMap($varMap);
+            $compiler->addVarMapper($varMap);
             $temp = $compiler->getVar($key);
             return '$'.str_replace('@key', $key, $temp) . $other . ';';
         }

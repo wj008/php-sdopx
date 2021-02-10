@@ -35,7 +35,7 @@ class ForeachCompiler
             }
         }
         $pre = $compiler->getTempPrefix('fe');
-        $varMap = $compiler->getVariableMap($pre);
+        $varMap = $compiler->getVarMapper($pre);
         $varMap->add($item);
         if (!empty($key)) {
             $varMap->add($key);
@@ -43,7 +43,7 @@ class ForeachCompiler
         if (!empty($attr)) {
             $varMap->add($attr);
         }
-        $compiler->addVariableMap($varMap);
+        $compiler->addVarMapper($varMap);
         $output = [];
         $output[] = "\$__{$pre}_from={$from};";
         $output[] = "if(!is_array(\$__{$pre}_from) && is_object(\$__{$pre}_from)){\$__{$pre}_from=get_object_vars(\$__{$pre}_from);}";

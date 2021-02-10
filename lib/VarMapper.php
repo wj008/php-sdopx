@@ -3,10 +3,10 @@
 namespace sdopx\lib;
 
 
-class VariableMap
+class VarMapper
 {
-    public $prefix = 'var';
-    public $data = [];
+    public string $prefix = 'var';
+    public array $data = [];
 
     public function __construct($prefix)
     {

@@ -21,7 +21,7 @@ class HookCompiler
         $temp = [];
         $output = [];
         $params = $compiler->getTempPrefix('params');
-        $varMap = $compiler->getVariableMap($params);
+        $varMap = $compiler->getVarMapper($params);
         foreach ($args as $key => $value) {
             if ($key === 'fn') {
                 continue;
@@ -31,7 +31,7 @@ class HookCompiler
             $temp[] = "\${$params}_{$key}";
             $codes[] = "\${$params}_{$key}=(\${$params}!==null && isset(\${$params}['{$key}']))?\${$params}['{$key}']:{$value};";
         }
-        $compiler->addVariableMap($varMap);
+        $compiler->addVarMapper($varMap);
         $compiler->openTag('hook', [$params, $fn]);
         $output[] = "\$_sdopx->hookMap['{$fn}']=function(\${$params}=null) use (\$_sdopx){";
         $output[] = '$__out=new \sdopx\lib\Outer($_sdopx);';

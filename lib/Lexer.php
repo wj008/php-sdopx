@@ -4,6 +4,7 @@ namespace sdopx\lib;
 
 
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
 class Lexer
 {
@@ -11,26 +12,26 @@ class Lexer
      * 数据源
      * @var Source null
      */
-    private $source = null;
+    private Source $source;
     /**
      * /规则集合
      * @var array
      */
-    private $maps = [];
+    private array $maps = [];
     /**
      * 标记栈
      * @var array
      */
-    private $stack = [];
+    private array $stack = [];
     /**
      * 代码块
      * @var array
      */
-    private $blocks = null;
+    private array $blocks = [];
     /**
      * @var Sdopx
      */
-    private $sdopx = null;
+    private Sdopx $sdopx;
 
     /**
      * Lexer constructor.
@@ -46,8 +47,7 @@ class Lexer
      * 添加错误
      * @param $err
      * @param int $offset
-     * @throws \ErrorException
-     * @throws \sdopx\SdopxException
+     * @throws SdopxException
      */
     private function addError($err, $offset = 0)
     {
@@ -58,13 +58,12 @@ class Lexer
     /**
      * 获取正则数据
      * @param $pattern
-     * @param null $offset
+     * @param ?int $offset
      * @param bool $normal
-     * @return array|null
-     * @throws \ErrorException
-     * @throws \sdopx\SdopxException
+     * @return ?array
+     * @throws SdopxException
      */
-    private function find($pattern, $offset = null, $normal = false)
+    private function find(string $pattern, ?int $offset = null, $normal = false): ?array
     {
         $source = $this->source;
         $offset = ($offset === null) ? $source->cursor : $offset;
@@ -98,15 +97,14 @@ class Lexer
 
     /**
      * 解析出表达式数据
-     * @param $tagname
-     * @param $option
-     * @return null|string
+     * @param string $tagname
+     * @param int|array $option
+     * @return ?string
      */
-    private function analysis($tagname, $option)
+    private function analysis(string $tagname, int|array $option): ?string
     {
         $mode = is_int($option) ? $option : $option['mode'];
         $flags = is_int($option) ? null : $option['flags'];
-
         if ($flags !== null) {
             $end = end($this->stack);
             if ($end !== false && ($flags & $end) == 0) {
@@ -140,16 +138,16 @@ class Lexer
                 $this->maps[] = ['tag' => $tagname, 'mode' => $mode];
                 return '^\\s*(' . $exp . ')(?!=)';
             default:
-                return;
+                return null;
         }
     }
 
     /**
      *解析完整表达式
-     * @param $next
-     * @return null|string
+     * @param ?array $next
+     * @return ?string
      */
-    public function getPattern($next)
+    public function getPattern(?array $next): ?string
     {
         $this->maps = [];
         $pat_items = [];
@@ -168,7 +166,12 @@ class Lexer
         return $pattern;
     }
 
-    public function match($next)
+    /**
+     * @param array|null $next
+     * @return array|null
+     * @throws SdopxException
+     */
+    public function match(?array $next): ?array
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
@@ -222,7 +225,7 @@ class Lexer
      * 解析HTML
      * @return array|null
      * @throws \ErrorException
-     * @throws \sdopx\SdopxException
+     * @throws SdopxException
      */
     public function lexHtml()
     {
@@ -295,7 +298,7 @@ class Lexer
      * 解析注释
      * @return array|null
      * @throws \ErrorException
-     * @throws \sdopx\SdopxException
+     * @throws SdopxException
      */
     public function lexComment()
     {
@@ -324,7 +327,7 @@ class Lexer
      * 解析配置
      * @return TreeMap|null
      * @throws \ErrorException
-     * @throws \sdopx\SdopxException
+     * @throws SdopxException
      */
     public function lexConfig()
     {
@@ -360,7 +363,7 @@ class Lexer
      * 解析模板
      * @return TreeMap|null
      * @throws \ErrorException
-     * @throws \sdopx\SdopxException
+     * @throws SdopxException
      */
     public function lexTpl()
     {
@@ -430,7 +433,7 @@ class Lexer
      * 获得区块数据
      * @return array
      */
-    public function getBlocks()
+    public function getBlocks(): array
     {
         if ($this->blocks !== null) {
             return $this->blocks;

@@ -186,6 +186,7 @@ class Sdopx extends Template
     /**
      * 显示数据
      * @param string $template
+     * @throws SdopxException
      */
     public function display(string $template)
     {

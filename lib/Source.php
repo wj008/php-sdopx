@@ -68,7 +68,7 @@ class Source
     public ?Resource $resource = null;
 
     //引擎
-    public ?Sdopx $sdopx = null;
+    public Sdopx $sdopx;
     /**
      * 边界
      * @var int

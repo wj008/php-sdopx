@@ -20,7 +20,7 @@ class FunctionCompiler
         $temp = [];
         $output = [];
         $params = $compiler->getTempPrefix('params');
-        $varMap = $compiler->getVariableMap($params);
+        $varMap = $compiler->getVarMapper($params);
         foreach ($args as $key => $value) {
             if ($key === 'fn') {
                 continue;
@@ -30,7 +30,7 @@ class FunctionCompiler
             $temp[] = "\${$params}_{$key}";
             $codes[] = "\${$params}_{$key}=isset(\${$params}['{$key}'])?\${$params}['{$key}']:{$value};";
         }
-        $compiler->addVariableMap($varMap);
+        $compiler->addVarMapper($varMap);
         $compiler->openTag('function', [$params, $fn]);
         $output[] = "\$_sdopx->funcMap['{$fn}']=function(\${$params},\$__out,\$_sdopx){";
         $output[] = join("\n", $codes);

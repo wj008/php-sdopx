@@ -15,7 +15,7 @@ class BreakCompiler
 {
     public static function compile(Compiler $compiler, string $name, array $args)
     {
-        $check = $compiler->testTag(['foreach', 'for', 'while']);
+        $check = $compiler->lookupTag(['foreach', 'for', 'while']);
         if ($check == false) {
             $compiler->addError("{break} can only be used within the {for} {foreach} {while} tag.");
         }
