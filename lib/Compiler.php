@@ -478,7 +478,7 @@ class Compiler
      * @param string $name
      * @param Block $block
      */
-    public function addBlockCache(string $name, ?Block $block)
+    public function addBlockCache(string $name, Block $block)
     {
         $this->blockCache[$name] = $block;
     }
@@ -643,7 +643,9 @@ class Compiler
         $pCompile->setVarTemp($this->getVarTemp());
         $block = $pCompile->compileBlock($name);
         $pCompile->setVarTemp($temp);
-        $this->addBlockCache($name, $block);
+        if ($block !== null) {
+            $this->addBlockCache($name, $block);
+        }
         return $block;
     }
 
