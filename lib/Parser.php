@@ -2,6 +2,7 @@
 
 namespace sdopx\lib;
 
+use sdopx\CompilerException;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
 
@@ -168,8 +169,11 @@ class Parser
         return $ret;
     }
 
-    //解析下一个
-    private function parsNext()
+    /**
+     * 解析下一个
+     * @return ?array
+     */
+    private function parsNext(): ?array
     {
         $item = $this->lexTree->next();
         if ($item === null || empty($item['token']) || !method_exists($this, 'pars_' . $item['token'])) {
@@ -180,9 +184,9 @@ class Parser
 
     /**
      * 解析表达式
-     * @return array|null
+     * @return  ?array
      */
-    private function pars_express()
+    private function pars_express(): ?array
     {
         //测试下一个是不是结束标记
         if ($this->lexTree->lookupNext('closeTpl', false)) {
@@ -242,15 +246,14 @@ class Parser
             }
             $node = $ret['node'];
         }
-
     }
 
     /**
      * 解析代码
-     * @param $item
+     * @param array $item
      * @return array
      */
-    private function pars_code($item)
+    private function pars_code(array $item): array
     {
         return [
             'map' => self::CODE_EXPRESS,
@@ -261,10 +264,10 @@ class Parser
 
     /**
      * 解析运算符号
-     * @param $item
+     * @param array $item
      * @return array
      */
-    private function pars_symbol($item)
+    private function pars_symbol(array $item): array
     {
         return [
             'map' => self::CODE_EXPRESS,
@@ -273,7 +276,12 @@ class Parser
         ];
     }
 
-    private function pars_var($item)
+    /**
+     * 解析变量
+     * @param array $item
+     * @return array
+     */
+    private function pars_var(array $item): array
     {
         $code = trim($item['value']);
         if (preg_match('@^\$(\w+)@', $code, $math)) {
@@ -286,7 +294,12 @@ class Parser
         ];
     }
 
-    private function pars_for_var($item)
+    /**
+     * 解析for循环内的变量
+     * @param array $item
+     * @return array
+     */
+    private function pars_for_var(array $item): array
     {
         $code = trim($item['value']);
         $var = '';
@@ -302,8 +315,12 @@ class Parser
         ];
     }
 
-
-    private function pars_pvarkey($item)
+    /**
+     * 解析.下标
+     * @param array $item
+     * @return array
+     */
+    private function pars_pvarkey(array $item): array
     {
         $code = ltrim(trim($item['value']), '.');
         return [
@@ -313,7 +330,12 @@ class Parser
         ];
     }
 
-    private function pars_varkey($item)
+    /**
+     * 解析 键名
+     * @param array $item
+     * @return array
+     */
+    private function pars_varkey(array $item): array
     {
         return [
             'map' => self::CODE_EXPRESS,
@@ -322,7 +344,12 @@ class Parser
         ];
     }
 
-    private function pars_method($item)
+    /**
+     * 解析方法名
+     * @param array $item
+     * @return array
+     */
+    private function pars_method(array $item): array
     {
         return [
             'map' => self::CODE_EXPRESS,
@@ -331,7 +358,12 @@ class Parser
         ];
     }
 
-    private function pars_func($item)
+    /**
+     * 解析函数名
+     * @param array $item
+     * @return array
+     */
+    private function pars_func(array $item): array
     {
         $code = trim($item['value']);
         if (preg_match('@^(.+)\(@', $code, $math)) {
@@ -344,7 +376,12 @@ class Parser
         ];
     }
 
-    private function pars_string($item)
+    /**
+     * 解析字符串
+     * @param $item
+     * @return array
+     */
+    private function pars_string(array $item): array
     {
         $code = trim($item['value']);
         return [
@@ -354,7 +391,12 @@ class Parser
         ];
     }
 
-    private function pars_string_open($item)
+    /**
+     * 解析字符串内分界符开启
+     * @param $item
+     * @return array|null
+     */
+    private function pars_string_open(array $item): ?array
     {
         $temp = [
             'map' => self::CODE_EXPRESS,
@@ -393,7 +435,12 @@ class Parser
         }
     }
 
-    private function pars_string_close($item)
+    /**
+     * 解析字符串内分界符关闭
+     * @param array $item
+     * @return array
+     */
+    private function pars_string_close(array $item): array
     {
         $temp = [
             'map' => self::CODE_EXPRESS,
@@ -407,7 +454,12 @@ class Parser
         return $temp;
     }
 
-    private function pars_tpl_string($item)
+    /**
+     * 解析模板字符串
+     * @param array $item
+     * @return array|null
+     */
+    private function pars_tpl_string(array $item): ?array
     {
         $temp = [
             'map' => self::CODE_EXPRESS,
@@ -421,7 +473,6 @@ class Parser
         if ($nitem == null) {
             return null;
         }
-
         switch ($nitem['tag']) {
             case 'closeTplString':
                 $ntemp = $this->pars_string_close($nitem);
@@ -442,7 +493,12 @@ class Parser
         }
     }
 
-    private function pars_delimi_open($item)
+    /**
+     * 解析分界符开启
+     * @param array $item
+     * @return array
+     */
+    private function pars_delimi_open(array $item): array
     {
         $temp = [
             'map' => self::CODE_EXPRESS,
@@ -456,7 +512,12 @@ class Parser
         return $temp;
     }
 
-    private function pars_delimi_close($item)
+    /**
+     * 解析分界符关闭
+     * @param array $item
+     * @return array|null
+     */
+    private function pars_delimi_close(array $item): ?array
     {
         $temp = [
             'map' => self::CODE_EXPRESS,
@@ -496,7 +557,12 @@ class Parser
         }
     }
 
-    private function pars_tagname($item)
+    /**
+     * 解析标签
+     * @param $item
+     * @return array|null
+     */
+    private function pars_tagname(array $item): ?array
     {
         $temp = [
             'map' => self::CODE_TAG,
@@ -549,7 +615,12 @@ class Parser
         }
     }
 
-    private function pars_attr($item)
+    /**
+     * 解析属性
+     * @param array $item
+     * @return array
+     */
+    private function pars_attr(array $item): array
     {
         return [
             'map' => self::CODE_EMPTY,
@@ -558,9 +629,13 @@ class Parser
         ];
     }
 
-    private function pars_tagcode($item)
+    /**
+     * 解析标签内代码
+     * @param $item
+     * @return array|null
+     */
+    private function pars_tagcode(array $item): ?array
     {
-
         $temp = [
             'map' => self::CODE_TAG,
             'node' => $item['node'],
@@ -578,8 +653,12 @@ class Parser
         return $temp;
     }
 
-    //闭合标签
-    private function pars_tagend($item)
+    /**
+     * 解析闭合标签
+     * @param array $item
+     * @return array|null
+     */
+    private function pars_tagend(array $item): ?array
     {
         if (!$this->lexTree->lookupNext("closeTpl")) {
             return null;
@@ -591,7 +670,12 @@ class Parser
         ];
     }
 
-    private function pars_closetpl($item)
+    /**
+     * 解析关闭模板
+     * @param $item
+     * @return array|null
+     */
+    private function pars_closetpl(array $item): ?array
     {
         $temp = [
             'map' => self::CODE_CLOSE,
@@ -603,7 +687,12 @@ class Parser
         return $temp;
     }
 
-    private function pars_empty($item)
+    /**
+     * 解析空代码
+     * @param array $item
+     * @return array
+     */
+    private function pars_empty(array $item): array
     {
         return [
             'map' => self::CODE_EMPTY,
@@ -611,7 +700,12 @@ class Parser
         ];
     }
 
-    private function pars_modifier($item)
+    /**
+     * 解析修饰器
+     * @param array $item
+     * @return array
+     */
+    private function pars_modifier(array $item): array
     {
 
         $temp = [
@@ -627,7 +721,12 @@ class Parser
         return $temp;
     }
 
-    private function pars_raw($item)
+    /**
+     * 解析原义修饰器
+     * @param $item
+     * @return array
+     */
+    private function pars_raw($item): array
     {
         return [
             'map' => self::CODE_RAW,
@@ -637,7 +736,12 @@ class Parser
         ];
     }
 
-    private function pars_mod_colons($item)
+    /**
+     * 解析修饰器参数
+     * @param $item
+     * @return array
+     */
+    private function pars_mod_colons($item): array
     {
         return [
             'map' => self::CODE_EXPRESS,
@@ -646,7 +750,14 @@ class Parser
         ];
     }
 
-    private function assembly_modifier(&$ret, $name)
+    /**
+     * 编译修饰器
+     * @param $ret
+     * @param $name
+     * @return array
+     * @throws CompilerException
+     */
+    private function assembly_modifier(&$ret, $name): array
     {
         $params = [$ret['code']];
         $mod_name = null;
