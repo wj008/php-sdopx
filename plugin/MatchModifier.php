@@ -5,7 +5,14 @@ namespace sdopx\plugin;
 
 class MatchModifier
 {
-    private static function find($string, $keys, $values = '', $def = '')
+    /**
+     * @param $string
+     * @param $keys
+     * @param string $values
+     * @param string $def
+     * @return mixed
+     */
+    private static function find($string, $keys, $values = '', $def = ''):mixed
     {
         if (is_array($keys) && is_array($values)) {
             if ($string === null) {
@@ -32,7 +39,14 @@ class MatchModifier
         return $string == $keys ? $values : $def;
     }
 
-    public static function render($string, $keys, $values = null, $def = '')
+    /**
+     * @param $string
+     * @param $keys
+     * @param null $values
+     * @param string $def
+     * @return mixed
+     */
+    public static function render($string, $keys, $values = null, $def = ''):mixed
     {
         if (is_array($string)) {
             $temp = [];

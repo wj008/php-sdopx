@@ -17,7 +17,7 @@ class VolistTag
      * 用于回调的参数描述变量指定
      * @return array
      */
-    public static function callbackParameter(): array
+    public function callback(string $item='item',string $key=null,string $attr): array
     {
         return [
             'item' => ['must' => true, 'default' => 'item'],
@@ -25,6 +25,7 @@ class VolistTag
             'attr' => ['must' => false],
         ];
     }
+
 
     public static function render(array $param, $callback, Outer $outer)
     {

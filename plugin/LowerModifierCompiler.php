@@ -12,7 +12,7 @@ class LowerModifierCompiler
      * @param array $args
      * @return string
      */
-    public static function compile(Compiler $compiler, array $args)
+    public static function compile(Compiler $compiler, array $args): string
     {
         return 'strtolower(' . $args[0] . ')';
     }

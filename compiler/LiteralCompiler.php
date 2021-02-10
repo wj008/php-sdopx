@@ -2,7 +2,7 @@
 
 namespace sdopx\compiler;
 
-use sdopx\CompilerException;
+use sdopx\SdopxException;
 use sdopx\lib\Compiler;
 
 class LiteralCompiler
@@ -12,7 +12,7 @@ class LiteralCompiler
      * @param string $name
      * @param array $args
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
@@ -59,7 +59,7 @@ class LiteralCloseCompiler
      * @param Compiler $compiler
      * @param string $name
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name): string
     {

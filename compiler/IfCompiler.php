@@ -2,8 +2,8 @@
 
 namespace sdopx\compiler;
 
-use sdopx\CompilerException;
 use \sdopx\lib\Compiler;
+use sdopx\SdopxException;
 
 class IfCompiler
 {
@@ -27,7 +27,7 @@ class ElseCompiler
      * @param string $name
      * @param array $args
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
@@ -44,7 +44,7 @@ class ElseifCompiler
      * @param string $name
      * @param array $args
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
@@ -60,7 +60,7 @@ class IfCloseCompiler
      * @param Compiler $compiler
      * @param string $name
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name): string
     {

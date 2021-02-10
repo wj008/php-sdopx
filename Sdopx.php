@@ -535,6 +535,7 @@ class Sdopx extends Template
      * @param string $templateDir
      * @param int $parsingType
      * @return string
+     * @throws SdopxException
      */
     public static function compile(string $template, string $templateDir, int $parsingType = Sdopx::PARSING_HTML): string
     {
@@ -551,6 +552,7 @@ class Sdopx extends Template
      * @param array $params
      * @param string $compileDir 编译文件存放路径
      * @return string
+     * @throws SdopxException
      */
     public static function fetchSQL(string $sql, array $params, string $compileDir): string
     {

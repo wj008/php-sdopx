@@ -13,9 +13,9 @@ class DateFormatModifier
     {
         if (empty($string)) {
             return time();
-        } elseif ($string instanceof DateTime) {
+        } elseif ($string instanceof \DateTime) {
             return $string->getTimestamp();
-        } elseif ($string instanceof MongoDate) {
+        } elseif ($string instanceof \MongoDate) {
             return intval($string->sec);
         } elseif (strlen($string) == 14 && ctype_digit($string)) {
             return mktime(substr($string, 8, 2), substr($string, 10, 2), substr($string, 12, 2), substr($string, 4, 2), substr($string, 6, 2), substr($string, 0, 4));
@@ -36,9 +36,9 @@ class DateFormatModifier
      * @param string|null $format
      * @param string $default_date
      * @param string $formatter
-     * @return mixed|void
+     * @return string
      */
-    public static function render($string, string $format = null, string $default_date = '', string $formatter = 'auto')
+    public static function render($string, string $format = null, string $default_date = '', string $formatter = 'auto'): string
     {
         if ($format === null) {
             $format = '%Y-%m-%d %H:%M:%S';
@@ -49,7 +49,7 @@ class DateFormatModifier
         } elseif ($default_date != '') {
             $timestamp = self::makeTimestamp($default_date);
         } else {
-            return;
+            return '';
         }
         if ($formatter == 'strftime' || ($formatter == 'auto' && strpos($format, '%') !== false)) {
             if (DIRECTORY_SEPARATOR == '\\') {

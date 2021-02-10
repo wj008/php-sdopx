@@ -10,7 +10,6 @@ namespace sdopx\lib;
 
 use ErrorException;
 use ParseError;
-use sdopx\CompilerException;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
 
@@ -181,7 +180,7 @@ class Template
     /**
      * 编译模板资源
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function compileTemplateSource(): string
     {

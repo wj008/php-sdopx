@@ -9,9 +9,15 @@
 namespace sdopx\plugin;
 
 use sdopx\lib\Outer;
+use sdopx\SdopxException;
 
 class Nl2brPlugin
 {
+    /**
+     * @param array $param
+     * @param Outer $outer
+     * @throws SdopxException
+     */
     public static function render(array $param, Outer $outer)
     {
         $raw = (isset($params['raw'])) ? boolval($param['raw']) : false;

@@ -3,7 +3,6 @@
 namespace sdopx\lib;
 
 
-use sdopx\CompilerException;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
 
@@ -59,7 +58,7 @@ class Compiler
      * 抛出编译错误
      * @param $err
      * @param int $offset
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function addError($err, $offset = 0)
     {
@@ -78,13 +77,14 @@ class Compiler
         }
         $context = join("\n", $lines);
         $message = $tplname . ':' . $lineno . "\n" . $context . "\n";
-        throw new CompilerException($err, $message);
+        throw new SdopxException($err, $message);
     }
 
     /**
      * 循环解析标签
      * @param array $output
      * @return bool
+     * @throws SdopxException
      */
     private function loop(array &$output): bool
     {
@@ -200,7 +200,7 @@ class Compiler
     /**
      * 编译模板
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function compileTemplate(): string
     {
@@ -267,7 +267,7 @@ class Compiler
      * @param string $name
      * @param string[] $params
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function compileModifier(string $name, array $params): string
     {
@@ -299,7 +299,7 @@ class Compiler
      * @param null $params
      * @param false $close
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function compilePlugin($name, $params = null, $close = false): string
     {
@@ -421,7 +421,7 @@ class Compiler
      * 关闭标签
      * @param string[] $tags
      * @return ?array
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function closeTag(array $tags): ?array
     {
@@ -582,7 +582,7 @@ class Compiler
      * 编译代码块
      * @param string $name
      * @return ?array
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function compileBlock(string $name): ?Block
     {
@@ -642,7 +642,7 @@ class Compiler
      * 解析父标签
      * @param string $name
      * @return Block|null
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function getParentBlock(string $name): ?Block
     {
@@ -760,7 +760,7 @@ class Compiler
      * 移除全局变量
      * @param string $prefix
      * @return false
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public function removeVar(string $prefix = 'var'): bool
     {

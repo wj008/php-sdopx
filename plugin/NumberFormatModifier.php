@@ -11,7 +11,14 @@ namespace sdopx\plugin;
 
 class NumberFormatModifier
 {
-    public static function render($number, $decimals = 0, $dec_point = '.', $thousands_sep = '')
+    /**
+     * @param $number
+     * @param int $decimals
+     * @param string $dec_point
+     * @param string $thousands_sep
+     * @return string
+     */
+    public static function render($number, $decimals = 0, $dec_point = '.', $thousands_sep = ''): string
     {
         return number_format($number, $decimals, $dec_point, $thousands_sep);
     }

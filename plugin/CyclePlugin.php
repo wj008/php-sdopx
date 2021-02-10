@@ -10,9 +10,15 @@ namespace sdopx\plugin;
 
 
 use sdopx\lib\Outer;
+use sdopx\SdopxException;
 
 class CyclePlugin
 {
+    /**
+     * @param array $params
+     * @param Outer $outer
+     * @throws SdopxException
+     */
     public static function render(array $params, Outer $outer)
     {
 
@@ -59,9 +65,9 @@ class CyclePlugin
             $template->assign($params['assign'], $cycle_array[$cycle_vars[$name]['index']]);
         }
         if ($print) {
-            $retval = $cycle_array[$cycle_vars[$name]['index']];
+            $retVal = $cycle_array[$cycle_vars[$name]['index']];
         } else {
-            $retval = null;
+            $retVal = null;
         }
         if ($advance) {
             if ($cycle_vars[$name]['index'] >= count($cycle_array) - 1) {
@@ -71,9 +77,9 @@ class CyclePlugin
             }
         }
         if ($raw) {
-            $outer->html($retval);
+            $outer->html($retVal);
         } else {
-            $outer->text($retval);
+            $outer->text($retVal);
         }
     }
 }

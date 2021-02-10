@@ -2,9 +2,9 @@
 
 namespace sdopx\compiler;
 
-use sdopx\CompilerException;
-use sdopx\lib\Compiler;
 use sdopx\SdopxException;
+use sdopx\lib\Compiler;
+
 
 class ExtendsCompiler
 {
@@ -13,7 +13,6 @@ class ExtendsCompiler
      * @param string $name
      * @param array $args
      * @return string
-     * @throws CompilerException
      * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name, array $args): string

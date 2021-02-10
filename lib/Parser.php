@@ -2,7 +2,6 @@
 
 namespace sdopx\lib;
 
-use sdopx\CompilerException;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
 
@@ -755,7 +754,7 @@ class Parser
      * @param $ret
      * @param $name
      * @return array
-     * @throws CompilerException
+     * @throws SdopxException
      */
     private function assembly_modifier(&$ret, $name): array
     {

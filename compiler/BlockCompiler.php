@@ -2,8 +2,8 @@
 
 namespace sdopx\compiler;
 
-use sdopx\CompilerException;
 use sdopx\lib\Compiler;
+use sdopx\SdopxException;
 
 class BlockCompiler
 {
@@ -12,7 +12,7 @@ class BlockCompiler
      * @param string $name
      * @param array $args
      * @return string
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
@@ -54,7 +54,7 @@ class BlockCloseCompiler
      * @param Compiler $compiler
      * @param string $name
      * @return mixed
-     * @throws CompilerException
+     * @throws SdopxException
      */
     public static function compile(Compiler $compiler, string $name): string
     {

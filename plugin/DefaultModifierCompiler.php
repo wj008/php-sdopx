@@ -10,9 +10,9 @@ class DefaultModifierCompiler
     /**
      * @param Compiler $compiler
      * @param array $args
-     * @return mixed|string
+     * @return string
      */
-    public static function compile(Compiler $compiler, array $args)
+    public static function compile(Compiler $compiler, array $args): string
     {
         $output = $args[0];
         if (!isset($args[1])) {
