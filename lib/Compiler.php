@@ -99,7 +99,7 @@ class Compiler
         }
 
         if (isset($htmlItem['code'][0])) {
-            $code = '$__out->html(' . var_export($htmlItem['code'], true) . ');/* 103 */';
+            $code = '$__out->html(' . var_export($htmlItem['code'], true) . ');';
             $output[] = $code;
         }
         //结束
@@ -123,7 +123,7 @@ class Compiler
             switch ($tplItem['map']) {
                 case Parser::CODE_EXPRESS:
                     if (isset($tplItem['raw']) && $tplItem['raw'] === true) {
-                        $output[] = '$__out->html(' . $tplItem['code'] . ');/* 127 */';
+                        $output[] = '$__out->html(' . $tplItem['code'] . ');';
                     } else {
                         $output[] = '$__out->text(' . $tplItem['code'] . ');';
                     }
@@ -164,7 +164,7 @@ class Compiler
                 }
             }
             if ($cfgItem['raw'] === true) {
-                $output[] = '$__out->html(' . $cfgItem['code'] . ');/* 168 */';
+                $output[] = '$__out->html(' . $cfgItem['code'] . ');';
             } else {
                 $output[] = '$__out->text(' . $cfgItem['code'] . ');';
             }
