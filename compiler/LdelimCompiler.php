@@ -7,7 +7,13 @@ use sdopx\lib\Compiler;
 
 class LdelimCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         return '$__out->html(' . var_export($compiler->source->leftDelimiter, true) . ');';
     }

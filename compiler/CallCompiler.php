@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use \sdopx\lib\Compiler;
 
 class CallCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $fn = isset($args['fn']) ? $args['fn'] : null;
         if (empty($fn)) {
@@ -24,7 +32,7 @@ class CallCompiler
             $val = empty($val) ? 'null' : $val;
             $temp[] = "'{$key}'=>{$val}";
         }
-        $params = '[' . join($temp, ',') . ']';
+        $params = '[' . join(',', $temp) . ']';
         $code = "if(isset(\$_sdopx->funcMap['{$fn}'])){ \$_sdopx->funcMap['{$fn}']({$params},\$__out,\$_sdopx);}";
         return $code;
     }

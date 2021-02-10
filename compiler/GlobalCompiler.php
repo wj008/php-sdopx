@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use sdopx\lib\Compiler;
 
 class GlobalCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $key = isset($args['var']) ? $args['var'] : null;
         $value = isset($args['value']) ? $args['value'] : null;

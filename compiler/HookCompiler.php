@@ -2,12 +2,20 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use sdopx\lib\Compiler;
 use sdopx\Sdopx;
 
 class HookCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $fn = isset($args['fn']) ? $args['fn'] : null;
         if (empty($fn)) {
@@ -47,9 +55,15 @@ class HookCompiler
 
 class HookCloseCompiler
 {
-    public static function compile(Compiler $compiler, string $name)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name): string
     {
-        list($name, $data) = $compiler->closeTag(['hook']);
+        list(, $data) = $compiler->closeTag(['hook']);
         $compiler->removeVar($data[0]);
         $output = [];
         $output[] = 'return $__out->getCode();';

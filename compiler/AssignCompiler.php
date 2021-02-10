@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use sdopx\lib\Compiler;
 
 class AssignCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $key = isset($args['var']) ? $args['var'] : null;
         $value = isset($args['value']) ? $args['value'] : null;
@@ -40,14 +48,14 @@ class AssignCompiler
             $other = $m[2];
             if ($compiler->hasVar($key)) {
                 $temp = $compiler->getVar($key);
-                return '$'.str_replace('@key', $key, $temp) . $other . ';';
+                return '$' . str_replace('@key', $key, $temp) . $other . ';';
             }
             $prefix = $compiler->getLastPrefix();
             $varMap = $compiler->getVarMapper($prefix);
             $varMap->add($key);
             $compiler->addVarMapper($varMap);
             $temp = $compiler->getVar($key);
-            return '$'.str_replace('@key', $key, $temp) . $other . ';';
+            return '$' . str_replace('@key', $key, $temp) . $other . ';';
         }
 
     }

@@ -2,11 +2,18 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use \sdopx\lib\Compiler;
 
 class IfCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $compiler->openTag('if');
         return "if({$args['code']}){";
@@ -15,7 +22,14 @@ class IfCompiler
 
 class ElseCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $compiler->closeTag(['if', 'elseif']);
         $compiler->openTag('else');
@@ -25,7 +39,14 @@ class ElseCompiler
 
 class ElseifCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $compiler->closeTag(['if', 'elseif']);
         $compiler->openTag('elseif');
@@ -35,7 +56,13 @@ class ElseifCompiler
 
 class IfCloseCompiler
 {
-    public static function compile(Compiler $compiler, string $name)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name): string
     {
         $compiler->closeTag(['if', 'else', 'elseif']);
         return "}";

@@ -2,11 +2,18 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use \sdopx\lib\Compiler;
 
 class WhileCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $compiler->openTag('while');
         return "while({$args['code']}){";
@@ -15,7 +22,13 @@ class WhileCompiler
 
 class WhileCloseCompiler
 {
-    public static function compile(Compiler $compiler, string $name)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name): string
     {
         $compiler->closeTag(['while']);
         return "}";

@@ -54,6 +54,18 @@ class Template
     private ?Source $source = null;
 
     /**
+     * 继承的模板Id
+     * @var array
+     */
+    public array $extendsTplId = [];
+
+    /**
+     * 再次编译
+     * @var bool
+     */
+    public bool $recompilation = false;
+
+    /**
      * 依赖数据
      * @var array
      */

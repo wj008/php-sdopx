@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use \sdopx\lib\Compiler;
 
 class ForeachCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $from = isset($args['from']) ? $args['from'] : null;
         $item = isset($args['item']) ? $args['item'] : null;
@@ -64,9 +72,16 @@ class ForeachCompiler
 
 class ForeachelseCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        list($name, $data) = $compiler->closeTag(['foreach']);
+        list(, $data) = $compiler->closeTag(['foreach']);
         $pre = $data[0];
         $compiler->openTag('foreachelse', $data);
         $output = [];
@@ -78,9 +93,15 @@ class ForeachelseCompiler
 
 class ForeachCloseCompiler
 {
-    public static function compile(Compiler $compiler, string $name)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name): string
     {
-        list($name, $data) = $compiler->closeTag(['foreach', 'foreachelse']);
+        list(, $data) = $compiler->closeTag(['foreach', 'foreachelse']);
         $pre = $data[0];
         $compiler->removeVar($pre);
         return '}';

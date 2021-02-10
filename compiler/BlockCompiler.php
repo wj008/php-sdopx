@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use sdopx\lib\Compiler;
 
 class BlockCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
 
         $name = isset($args['name']) ? $args['name'] : null;
@@ -27,26 +35,31 @@ class BlockCompiler
             $compiler->openTag('block', ['']);
             return '';
         } else {
-            if (!($block['append'] || $block['prepend'])) {
+            if (!($block->append || $block->prepend)) {
                 $compiler->moveBlockToOver($name, $offset);
             }
-            if ($block['append']) {
-                $compiler->openTag('block', [$block['code']]);
+            if ($block->append) {
+                $compiler->openTag('block', [$block->code]);
                 return '';
             }
             $compiler->openTag('block', ['']);
-            return $block['code'];
+            return $block->code;
         }
     }
 }
 
 class BlockCloseCompiler
 {
-    public static function compile(Compiler $compiler, string $name)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @return mixed
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name): string
     {
-        list($tag, $data) = $compiler->closeTag(['block']);
-        $code = $data[0];
-        return $code;
+        list(, $data) = $compiler->closeTag(['block']);
+        return $data[0];
     }
 }
 

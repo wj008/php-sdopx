@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use \sdopx\lib\Compiler;
 
 class ForCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $code = isset($args['code']) ? $args['code'] : null;
         if (empty($code)) {
@@ -34,9 +42,16 @@ class ForCompiler
 
 class ForelseCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        list($name, $data) = $compiler->closeTag(['for']);
+        list(, $data) = $compiler->closeTag(['for']);
         $pre = $data[0];
         $compiler->openTag('forelse', $data);
         $output = [];
@@ -48,9 +63,15 @@ class ForelseCompiler
 
 class ForCloseCompiler
 {
-    public static function compile(Compiler $compiler, string $name)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name): string
     {
-        list($name, $data) = $compiler->closeTag(['for', 'forelse']);
+        list(, $data) = $compiler->closeTag(['for', 'forelse']);
         $pre = $data[0];
         $compiler->removeVar($pre);
         return '}';

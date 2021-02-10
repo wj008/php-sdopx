@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use sdopx\lib\Compiler;
 
 class FunctionCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $fn = isset($args['fn']) ? $args['fn'] : null;
         if (empty($fn)) {
@@ -41,9 +49,15 @@ class FunctionCompiler
 
 class FunctionCloseCompiler
 {
-    public static function compile(Compiler $compiler, string $name)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name): string
     {
-        list($name, $data) = $compiler->closeTag(['function']);
+        list(, $data) = $compiler->closeTag(['function']);
         $compiler->removeVar($data[0]);
         return '};';
     }

@@ -7,7 +7,13 @@ use sdopx\lib\Compiler;
 
 class RdelimCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         return '$__out->html(' . var_export($compiler->source->rightDelimiter, true) . ');';
     }

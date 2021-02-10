@@ -2,11 +2,19 @@
 
 namespace sdopx\compiler;
 
+use sdopx\CompilerException;
 use \sdopx\lib\Compiler;
 
 class IncludeCompiler
 {
-    public static function compile(Compiler $compiler, string $name, array $args)
+    /**
+     * @param Compiler $compiler
+     * @param string $name
+     * @param array $args
+     * @return string
+     * @throws CompilerException
+     */
+    public static function compile(Compiler $compiler, string $name, array $args): string
     {
         $file = isset($args['file']) ? $args['file'] : null;
         if (empty($file)) {
@@ -16,7 +24,7 @@ class IncludeCompiler
         $is_output = true;
         try {
             eval(empty($args['output']) ? '$is_output=true;' : '$is_output=' . $args['output'] . ';');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
         unset($args['output']);
         $output = '';
