@@ -25,9 +25,9 @@ class Lexer
     private array $stack = [];
     /**
      * 代码块
-     * @var array
+     * @var ?array
      */
-    private array $blocks = [];
+    private ?array $blockMapper = null;
     /**
      * @var Sdopx
      */
@@ -223,11 +223,10 @@ class Lexer
 
     /**
      * 解析HTML
-     * @return array|null
-     * @throws \ErrorException
+     * @return ?array
      * @throws SdopxException
      */
-    public function lexHtml()
+    public function lexHtml(): ?array
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
@@ -252,7 +251,6 @@ class Lexer
                 'next' => 'finish'
             ];
         }
-
         //设置编译的定界符
         Rules::reset($source->leftDelimiter, $source->rightDelimiter);
         $ret = $this->find('@' . preg_quote($source->leftDelimiter, '@') . '@', null, true);
@@ -268,39 +266,29 @@ class Lexer
                 ];
             }
         }
-
         if ($ret == null) {
             return ['map' => null, 'code' => $source->subString($source->cursor, $source->bound), 'next' => 'finish'];
         }
         $code = $source->subString($source->cursor, $ret['start']);
         $source->cursor = $ret['start'];
         $next = 'finish';
-
         if (1 + $ret['end'] < $source->bound) {
             $char = substr($source->content, $ret['end'], 1);
-            switch ($char) {
-                case '#':
-                    $next = 'parsConfig';
-                    break;
-                case '*':
-                    $next = 'parsComment';
-                    break;
-                default:
-                    $next = 'parsTpl';
-                    break;
-            }
+            $next = match ($char) {
+                '#' => 'parsConfig',
+                '*' => 'parsComment',
+                default => 'parsTpl',
+            };
         }
-
         return ['map' => null, 'code' => $code, 'next' => $next];
     }
 
     /**
      * 解析注释
-     * @return array|null
-     * @throws \ErrorException
+     * @return ?array
      * @throws SdopxException
      */
-    public function lexComment()
+    public function lexComment(): ?array
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
@@ -325,11 +313,10 @@ class Lexer
 
     /**
      * 解析配置
-     * @return TreeMap|null
-     * @throws \ErrorException
+     * @return ?TreeMap
      * @throws SdopxException
      */
-    public function lexConfig()
+    public function lexConfig(): ?TreeMap
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
@@ -361,11 +348,10 @@ class Lexer
 
     /**
      * 解析模板
-     * @return TreeMap|null
-     * @throws \ErrorException
+     * @return ?TreeMap
      * @throws SdopxException
      */
-    public function lexTpl()
+    public function lexTpl(): ?TreeMap
     {
         $source = $this->source;
         if ($source->cursor >= $source->bound) {
@@ -381,7 +367,6 @@ class Lexer
         $next = ['openTpl' => 1];
         do {
             $data = $this->match($next);
-
             if ($data == null) {
                 $this->addError("Template tag syntax is incorrect", $source->cursor);
                 return null;
@@ -432,27 +417,27 @@ class Lexer
     /**
      * 获得区块数据
      * @return array
+     * @throws SdopxException
      */
-    public function getBlocks(): array
+    public function getBlockMapper(): array
     {
-        if ($this->blocks !== null) {
-            return $this->blocks;
+        if ($this->blockMapper !== null) {
+            return $this->blockMapper;
         }
-        $this->findBrocks();
-        return $this->blocks;
+        $this->findBrockMapper();
+        return $this->blockMapper;
     }
 
     /**
      * 查找block
+     * @throws SdopxException
      */
-    private function findBrocks()
+    private function findBrockMapper()
     {
         $source = $this->source;
         Rules::reset($source->leftDelimiter, $source->rightDelimiter);
-
         $left = preg_quote($source->leftDelimiter, '@');
         $right = preg_quote($source->rightDelimiter, '@');
-
         $block_stack = [];
         $blocks = [];
         $offset = 0;
@@ -470,29 +455,15 @@ class Lexer
                     $this->addError("Extra {/block} end tag", $offset);
                     return;
                 }
-                $temp = array_pop($block_stack);
-                $temp['end'] = $ret['end'];
-                $temp['over'] = $ret['start'];
-                $temp['content'] = $source->subString($temp['start'], $temp['over']);
-                array_push($blocks, $temp);
+                $item = array_pop($block_stack);
+                $item->end = $ret['end'];
+                $item->over = $ret['start'];
+                $item->content = $source->subString($item->start, $item->over);
+                array_push($blocks, $item);
                 continue;
             }
             //找到的是开始标记
-            $item = [
-                'content' => '',
-                'begin' => $ret['start'], //开始标记之前
-                'start' => 0, //开始标记之后
-                'over' => 0,  //结束标记之前
-                'end' => 0,   //结束标记之后
-                'name' => '',
-                'append' => false,
-                'append' => false,
-                'prepend' => false,
-                'hide' => false,
-                'left' => null,
-                'right' => null,
-                'literal' => false,
-            ];
+            $item = new BlockItem('', '', $ret['start'], 0, 0, 0);
             //查找属性
             $closed = false;
             while ($ret !== null) {
@@ -504,44 +475,44 @@ class Lexer
                 $attr = $ret['val'];
                 $offset = $ret['end'];
                 if ($attr == 'name') {
-                    $retm = $this->find('@^([\w-]+)\s*|^\'([\w-]+)\'\s*|^"([\w-]+)"\s*@', $offset);
-                    if ($retm === null || empty($retm['val'])) {
+                    $ret2 = $this->find('@^([\w-]+)\s*|^\'([\w-]+)\'\s*|^"([\w-]+)"\s*@', $offset);
+                    if ($ret2 === null || empty($ret2['val'])) {
                         $this->addError("[name] attribute value syntax error in {block} tag", $offset);
                     }
-                    $offset = $retm['end'];
-                    $item['name'] = trim($retm['val']);
+                    $offset = $ret2['end'];
+                    $item->name = trim($ret2['val']);
                 } else if ($attr == 'left' || $attr == 'right') {
-                    $retm = $this->find('@^\'([^\']+)\'\s*|^"([^"]+)"\s*@', $offset);
-                    if ($retm === null || empty($retm['val'])) {
+                    $ret2 = $this->find('@^\'([^\']+)\'\s*|^"([^"]+)"\s*@', $offset);
+                    if ($ret2 === null || empty($ret2['val'])) {
                         $this->addError("[{$attr}] attribute value syntax error in {block} tag", $offset);
                     }
-                    $offset = $retm['end'];
-                    $item[$attr] = trim($retm['val']);
+                    $offset = $ret2['end'];
+                    $item->$attr = trim($ret2['val']);
                 } else if ($attr == $source->rightDelimiter) {
                     $item['start'] = $offset;
                     array_push($block_stack, $item);
                     $closed = true;
                     break;
                 } else {
-                    $item[$attr] = true;
+                    $item->$attr = true;
                 }
-
             }
             if (!$closed) {
                 $this->addError("{block} did not find the end delimiter symbol.", $offset);
             }
         }
-        $this->blocks = [];
+
+        $this->blockMapper = [];
         $blocks = array_reverse($blocks);
         foreach ($blocks as $item) {
-            if (empty($item['name'])) {
+            if (empty($item->name)) {
                 continue;
             }
-            $name = $item['name'];
-            if (isset($this->blocks[$name])) {
-                array_push($this->blocks[$name], $item);
+            $name = $item->name;
+            if (isset($this->blockMapper[$name])) {
+                array_push($this->blockMapper[$name], $item);
             } else {
-                $this->blocks[$name] = [$item];
+                $this->blockMapper[$name] = [$item];
             }
         }
     }

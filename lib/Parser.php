@@ -42,9 +42,13 @@ class Parser
         $this->lexer = new Lexer($compiler->source);
     }
 
-    public function getBlock(string $name): ?BlockItem
+    /**
+     * @param string $name
+     * @return BlockItem[]|null
+     */
+    public function getBlock(string $name): ?array
     {
-        $blocks = $this->lexer->getBlocks();
+        $blocks = $this->lexer->getBlockMapper();
         return isset($blocks[$name]) ? $blocks[$name] : null;
     }
 

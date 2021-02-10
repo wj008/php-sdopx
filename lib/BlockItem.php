@@ -7,6 +7,7 @@ namespace sdopx\lib;
 class BlockItem
 {
 
+
     public function __construct(
         public string $name,
         public string $content,
@@ -20,6 +21,7 @@ class BlockItem
         public string $left = '',
         public string $right = '',
         public bool $literal = false,
+        public bool $nocache = false
     )
     {
 
