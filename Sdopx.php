@@ -2,7 +2,7 @@
 /**
  * Created by PhpStorm.
  * User: wj008
- * Date: 18-7-22
+ * Date: 2021-02-10
  * Time: 下午10:48
  */
 declare(strict_types=1);
@@ -11,65 +11,29 @@ namespace sdopx;
 require_once("lib/Utils.php");
 require_once("lib/Template.php");
 
+use Closure;
+use ErrorException;
+use sdopx\interfaces\Resource;
+use stdClass;
+
 use sdopx\lib\Template;
 use sdopx\lib\Utils;
+
 
 if (!defined('SDOPX_DIR')) {
     define('SDOPX_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 }
 
-set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+set_error_handler(function (int $errno, string $errStr, string $errFile, int $errLine) {
     if (!(error_reporting() & $errno)) {
         return false;
     }
     if ($errno == E_WARNING || $errno == E_PARSE || $errno == E_NOTICE) {
-        throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        throw new ErrorException($errStr, 0, $errno, $errFile, $errLine);
     }
     return true;
 });
 
-
-/**
- * 模板错误
- * Class SdopxException
- * @package sdopx
- */
-class SdopxException extends \Exception
-{
-    protected $detail = '';
-
-    public function __construct(string $message = '', $detail = '', int $code = 0, \Throwable $previous = null)
-    {
-        $this->detail = $detail;
-        parent::__construct($message, $code, $previous);
-    }
-
-    public function getDetail()
-    {
-        return $this->detail;
-    }
-}
-
-/**
- * 编译类型错误
- * Class CompilerException
- * @package sdopx
- */
-class CompilerException extends \Exception
-{
-    protected $detail = '';
-
-    public function __construct(string $message = '', $detail = '', int $code = 0, \Throwable $previous = null)
-    {
-        $this->detail = $detail;
-        parent::__construct($message, $code, $previous);
-    }
-
-    public function getDetail()
-    {
-        return $this->detail;
-    }
-}
 
 /**
  * Sdopx模板引擎
@@ -78,7 +42,7 @@ class CompilerException extends \Exception
  */
 class Sdopx extends Template
 {
-    const VERSION = '2.0.36';
+    const VERSION = '3.0.0';
     /**
      * 解析HTML
      */
@@ -92,155 +56,116 @@ class Sdopx extends Template
      * 调试模式
      * @var bool
      */
-    public static $debug = false;
-
+    public static bool $debug = false;
     /**
      * 固定后缀模式，如果设置将会自动添加后缀
      * @var string
      */
-    public static $extension = '';
-
+    public static string $extension = '';
     /**
      * 注册的函数
      * @var array
      */
-    private static $functions = [];
+    private static array $functions = [];
     /**
      * 注册的过滤器
      * @var array
      */
-    private static $filters = [];
+    private static array $filters = [];
+
     /**
-     * 注册的资源
+     * 注册的过滤器
      * @var array
      */
     private static $resources = [];
-    /**
-     * 注册的插件
-     * @var array
-     */
-    private static $plugins = [];
-
 
     /**
-     * 插件查找的位置
-     * @var string
+     * 设置配置器
+     * @var Closure|stdClass|array|null
      */
-    private static $pluginDir = null;
-
-    /**
-     * 插件查找的位置
-     * @var string
-     */
-    private static $resourceDir = null;
-
-    /**
-     * 注册的配对标记
-     * @var array
-     */
-    private static $tags = [];
-
-    /**
-     * 修饰器
-     * @var array
-     */
-    private static $modifiers = [];
-
-
-    /**
-     * @var ConfigInterface|\Closure
-     */
-    private static $config = null;
-
-    /**
-     * 修饰器编译器
-     * @var array
-     */
-    private static $modifierCompilers = [];
+    private static Closure|stdClass|array|null $config = null;
 
     /**
      * 默认模板目录
      * @var string
      */
-    public static $defaultTemplateDirs = './view';
+    public static string $defaultTemplateDirs = './view';
 
     /**
      * 默认编译目录
      * @var string
      */
-    public static $defaultCompileDir = './runtime';
+    public static string $defaultCompileDir = './runtime';
 
     /**
      * @var int  解析类型
      */
-    public $parsingType = self::PARSING_HTML;
+    public int $parsingType = self::PARSING_HTML;
 
     /**
      * @var bool 强制编译
      */
-    public $compileForce = false;
+    public bool $compileForce = false;
 
     /**
      * @var bool 编译检查
      */
-    public $compileCheck = true;
+    public bool $compileCheck = true;
 
     /**
      * 左边界符号
      */
-    public $leftDelimiter = '{';
+    public string $leftDelimiter = '{';
 
     /**
      * 右分界符
      */
-    public $rightDelimiter = '}';
+    public string $rightDelimiter = '}';
 
     /**
      * 上下文，在模板中可以用 $this
      */
-
-    public $context = null;
+    public ?stdClass $context = null;
 
     /**
      * @var array 注册变量字典
      */
-    public $_book = [];
+    public array $_book = [];
 
     /**
      * @var array 缓存数据
      */
-    public $_cache = [];
-
+    public array $_cache = [];
 
     /**
      * @var array 模板目录
      */
-    private $templateDirs = [];
+    private array $templateDirs = [];
 
     /**
-     * @var array 运行缓存目录
+     * @var ?string 运行缓存目录
      */
-    public $compileDir = null;
+    public ?string $compileDir = null;
 
     /**
      * @var string 合并的目录字符串
      */
-    private $templateJoined = '';
+    private string $templateJoined = '';
 
     /**
      * 模板中注册的函数
      * @var array
      */
-    public $funcMap = [];
+    public array $funcMap = [];
 
     /**
      * 钩子
      * @var array
      */
+    public array $hookMap = [];
 
-    public $hookMap = [];
 
-    public function __construct($context = null)
+    public function __construct(?stdClass $context = null)
     {
         parent::__construct();
         $this->context = $context;
@@ -264,8 +189,8 @@ class Sdopx extends Template
      */
     public function display(string $template)
     {
-        if ($this->context && is_callable([$this->context, 'end'])) {
-            $this->context->end($this->fetch($template));
+        if ($this->context && is_callable([$this->context, 'write'])) {
+            $this->context->write($this->fetch($template));
         } else {
             echo $this->fetch($template);
         }
@@ -276,7 +201,7 @@ class Sdopx extends Template
      * @param array|string $dirs
      * @return $this
      */
-    public function setTemplateDir($dirs): Sdopx
+    public function setTemplateDir(array|string $dirs): static
     {
         $this->templateDirs = [];
         $this->templateJoined = '';
@@ -301,9 +226,9 @@ class Sdopx extends Template
      * 添加模板
      * @param string $dir
      * @param string|null $key
-     * @return Sdopx
+     * @return $this
      */
-    public function addTemplateDir(string $dir, string $key = null): Sdopx
+    public function addTemplateDir(string $dir, ?string $key = null): static
     {
         if ($key === null) {
             $this->templateDirs[] = $dir;
@@ -315,10 +240,10 @@ class Sdopx extends Template
 
     /**
      * 获得模板
-     * @param string|int $key
-     * @return null
+     * @param string|int|null $key
+     * @return array|null
      */
-    public function getTemplateDir($key = null)
+    public function getTemplateDir(string|int|null $key = null): ?array
     {
         if ($key === null) {
             if (count($this->templateDirs) > 0) {
@@ -336,7 +261,7 @@ class Sdopx extends Template
      * 获得合并字符串
      * @return string
      */
-    public function getTemplateJoined()
+    public function getTemplateJoined(): string
     {
         if (!empty($this->templateJoined)) {
             return $this->templateJoined;
@@ -355,11 +280,11 @@ class Sdopx extends Template
 
     /**
      * 注册变量
-     * @param $key
-     * @param null $value
-     * @return Sdopx
+     * @param array|string $key
+     * @param mixed|null $value
+     * @return $this
      */
-    public function assign($key, $value = null): Sdopx
+    public function assign(array|string $key, mixed $value = null): static
     {
         if (is_string($key)) {
             $this->_book[$key] = $value;
@@ -375,9 +300,9 @@ class Sdopx extends Template
     /**
      * 获取注册变量
      * @param string|null $key
-     * @return array|mixed|null
+     * @return mixed
      */
-    public function getAssign(string $key = null)
+    public function getAssign(string $key = null): mixed
     {
         if ($key == null) {
             return $this->_book;
@@ -393,10 +318,10 @@ class Sdopx extends Template
      * @param string $key
      * @return mixed
      */
-    public function getConfig(string $key)
+    public function getConfig(string $key): mixed
     {
         //使用回调函数
-        if (self::$config instanceof \Closure) {
+        if (self::$config instanceof Closure) {
             return call_user_func(self::$config, $key);
         } //直接注册数组
         elseif (is_array(self::$config)) {
@@ -419,9 +344,9 @@ class Sdopx extends Template
     /**
      * 获取钩子
      * @param string|null $fn
-     * @return array|mixed|null
+     * @return mixed
      */
-    public function getHook(string $fn = null)
+    public function getHook(?string $fn = null): mixed
     {
         if ($fn == null) {
             return $this->hookMap;
@@ -438,11 +363,11 @@ class Sdopx extends Template
      * @param int|null $lineno
      * @param string|null $tplname
      * @throws SdopxException
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function rethrow($err, int $lineno = null, string $tplname = null)
     {
-        if (is_string($err) || $err instanceof \ErrorException) {
+        if (is_string($err) || $err instanceof ErrorException) {
             if (Sdopx::$debug && $lineno && $tplname) {
                 list($name, $type) = Utils::parseResourceName($tplname);
                 $instance = Sdopx::getResource($type);
@@ -480,9 +405,9 @@ class Sdopx extends Template
 
     /**
      * 注册配置器
-     * @param mixed $config
+     * @param Closure|stdClass|array $config
      */
-    public static function registerConfig($config)
+    public static function registerConfig(Closure|stdClass|array $config)
     {
         self::$config = $config;
     }
@@ -490,151 +415,11 @@ class Sdopx extends Template
     /**
      * 注册函数
      * @param string $name
-     * @param \Closure $func
+     * @param Closure $func
      */
-    public static function registerFunction(string $name, $func)
+    public static function registerFunction(string $name, Closure $func)
     {
         self::$functions[$name] = $func;
-    }
-
-    /**
-     * 获取注册的函数
-     * @param string $name
-     * @return \Closure
-     */
-    public static function getFunction(string $name)
-    {
-        return isset(self::$functions[$name]) ? self::$functions[$name] : null;
-    }
-
-    /**
-     *注册插件
-     * @param string $name
-     * @param mixed $plugin
-     */
-    public static function registerPlugin(string $name, $plugin)
-    {
-        self::$plugins[$name] = $plugin;
-    }
-
-    /**
-     * 设置插件目录
-     * @param string $dirname
-     */
-    public static function setPluginDir(string $dirname)
-    {
-        self::$pluginDir = $dirname;
-    }
-
-    /**
-     * 获取插件目录
-     * @return string
-     */
-    public static function getPluginDir()
-    {
-        return self::$pluginDir;
-    }
-
-
-    /**
-     * 获取注册的插件
-     * @param string $name
-     * @return mixed
-     */
-    public static function getPlugin(string $name)
-    {
-        if (isset(self::$plugins[$name])) {
-            return self::$plugins[$name];
-        }
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Plugin';
-        if (class_exists($class)) {
-            self::$plugins[$name] = new $class();
-            return self::$plugins[$name];
-        }
-        return null;
-    }
-
-    /**
-     *注册标签
-     * @param string $name
-     * @param mixed $tag
-     */
-    public static function registerTag(string $name, $tag)
-    {
-        self::$tags[$name] = $tag;
-    }
-
-    /**
-     * 获取注册的标签
-     * @param string $name
-     * @return mixed
-     */
-    public static function getTag(string $name)
-    {
-        if (isset(self::$tags[$name])) {
-            return self::$tags[$name];
-        }
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Tag';
-        if (class_exists($class)) {
-            self::$tags[$name] = new $class();
-            return self::$tags[$name];
-        }
-        return null;
-    }
-
-    /**
-     *注册修饰器
-     * @param string $name
-     * @param  $modifier
-     */
-    public static function registerModifier(string $name, $modifier)
-    {
-        self::$modifiers[$name] = $modifier;
-    }
-
-    /**
-     * 获取注册的修饰器
-     * @param string $name
-     * @return mixed|null
-     */
-    public static function getModifier(string $name)
-    {
-        if (isset(self::$modifiers[$name])) {
-            return self::$modifiers[$name];
-        }
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Modifier';
-        if (class_exists($class)) {
-            self::$modifiers[$name] = new $class();
-            return self::$modifiers[$name];
-        }
-        return null;
-    }
-
-    /**
-     * 注册修饰器编译器
-     * @param string $name
-     * @param mixed $modifier
-     */
-    public static function registerModifierCompiler(string $name, $modifier)
-    {
-        self::$modifierCompilers[$name] = $modifier;
-    }
-
-    /**
-     * @param string $name
-     * @return mixed
-     */
-    public static function getModifierCompiler(string $name)
-    {
-        if (isset(self::$modifierCompilers[$name])) {
-            return self::$modifierCompilers[$name];
-        }
-        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'ModifierCompiler';
-        if (class_exists($class)) {
-            self::$modifierCompilers[$name] = new $class();
-            return self::$modifierCompilers[$name];
-        }
-        return null;
     }
 
 
@@ -643,7 +428,7 @@ class Sdopx extends Template
      * @param string $type
      * @param mixed $filter
      */
-    public static function registerFilter(string $type, $filter)
+    public static function registerFilter(string $type, Closure $filter)
     {
         if (gettype($type) !== 'string') {
             return;
@@ -655,6 +440,74 @@ class Sdopx extends Template
     }
 
     /**
+     * 获取函数
+     * @param string $name
+     * @return ?Closure
+     */
+    public static function getFunction(string $name): ?Closure
+    {
+        return isset(self::$functions[$name]) ? self::$functions[$name] : null;
+    }
+
+
+    /**
+     * 获取插件
+     * @param string $name
+     * @return ?string
+     */
+    public static function getPlugin(string $name): ?string
+    {
+        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Plugin';
+        if (class_exists($class)) {
+            return $class;
+        }
+        return null;
+    }
+
+    /**
+     * 获取标签
+     * @param string $name
+     * @return  ?string
+     */
+    public static function getTag(string $name): ?string
+    {
+        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Tag';
+        if (class_exists($class)) {
+            return $class;
+        }
+        return null;
+    }
+
+    /**
+     * 获取修饰器
+     * @param string $name
+     * @return mixed|null
+     */
+    public static function getModifier(string $name): ?string
+    {
+        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'Modifier';
+        if (class_exists($class)) {
+            return $class;
+        }
+        return null;
+    }
+
+    /**
+     * 获取编译型修饰器
+     * @param string $name
+     * @return ?string
+     */
+    public static function getModifierCompiler(string $name): ?string
+    {
+        $class = '\\sdopx\\plugin\\' . Utils::toCamel($name) . 'ModifierCompiler';
+        if (class_exists($class)) {
+            return $class;
+        }
+        return null;
+    }
+
+
+    /**
      * 获取注册的过滤器
      * @param string $type
      * @return array
@@ -664,40 +517,14 @@ class Sdopx extends Template
         return isset(self::$filters[$type]) ? self::$filters[$type] : [];
     }
 
-    /**
-     *注册修资源
-     * @param string $type
-     * @param mixed $resource
-     */
-    public static function registerResource(string $type, $resource)
-    {
-        self::$resources[$type] = $resource;
-    }
-
-    /**
-     * 设置资源目录
-     * @param string $dirname
-     */
-    public static function setResourceDir(string $dirname)
-    {
-        self::$resourceDir = $dirname;
-    }
-
-    /**
-     * 获取资源目录
-     * @return string
-     */
-    public static function getResourceDir()
-    {
-        return self::$resourceDir;
-    }
 
     /**
      * 获取注册的资源
      * @param string $type
-     * @return mixed
+     * @return ?Resource
+     * @throws SdopxException
      */
-    public static function getResource(string $type)
+    public static function getResource(string $type): ?Resource
     {
         if (isset(self::$resources[$type])) {
             return self::$resources[$type];
@@ -707,7 +534,7 @@ class Sdopx extends Template
             self::$resources[$type] = new $class();
             return self::$resources[$type];
         }
-        return null;
+        throw new SdopxException('Class ' . $class . ' not found');
     }
 
     /**
@@ -715,9 +542,9 @@ class Sdopx extends Template
      * @param string $template
      * @param string $templateDir
      * @param int $parsingType
-     * @return mixed
+     * @return string
      */
-    public static function compile(string $template, string $templateDir, int $parsingType = Sdopx::PARSING_HTML)
+    public static function compile(string $template, string $templateDir, int $parsingType = Sdopx::PARSING_HTML): string
     {
         $sdopx = new Sdopx();
         $sdopx->setTemplateDir($templateDir);
@@ -731,9 +558,9 @@ class Sdopx extends Template
      * @param string $sql
      * @param array $params
      * @param string $compileDir 编译文件存放路径
-     * @return mixed|string|void
+     * @return string
      */
-    public static function fetchSQL(string $sql, array $params, string $compileDir)
+    public static function fetchSQL(string $sql, array $params, string $compileDir): string
     {
         $sdopx = new Sdopx();
         $sdopx->setCompileDir($compileDir);
@@ -742,41 +569,5 @@ class Sdopx extends Template
         return $sdopx->fetch('string:' . $sql);
     }
 
-    public static function autoload()
-    {
-        spl_autoload_register(function ($class) {
-            //插件目录
-            $pluginDir = Sdopx::getPluginDir();
-            if (preg_match('@^sdopx\\\\plugin\\\\(.+)$@', $class, $mc)) {
-                if (!empty($pluginDir)) {
-                    $path = Utils::path($pluginDir, "{$mc[1]}.php");
-                    if (file_exists($path)) {
-                        @include($path);
-                        return;
-                    }
-                }
-            }
-            $resourceDir = Sdopx::getResourceDir();
-            //资源目录
-            if (preg_match('@^sdopx\\\\resource\\\\(.+)$@', $class, $mc)) {
-                if (!empty($resourceDir)) {
-                    $path = Utils::path($resourceDir, "{$mc[1]}.php");
-                    if (file_exists($path)) {
-                        @include($path);
-                        return;
-                    }
-                }
-            }
-            //其他所有
-            if (preg_match('@^sdopx\\\\(.+)$@', $class, $mc)) {
-                $path = Utils::path(SDOPX_DIR, "{$mc[1]}.php");
-                if (file_exists($path)) {
-                    @include($path);
-                    return;
-                }
-            }
-        });
-    }
 }
 
-Sdopx::autoload();

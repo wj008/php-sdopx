@@ -3,30 +3,34 @@
 namespace sdopx\resource;
 
 
+use sdopx\interfaces\Resource;
 use sdopx\lib\Utils;
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
-class FileResource
+class FileResource implements Resource
 {
 
     /**
-     * 获得资源内容
-     * @param string $filepath
+     * @param string $tplname
      * @param Sdopx $sdopx
      * @return string
+     * @throws \ErrorException
+     * @throws SdopxException
      */
     public function getContent(string $tplname, Sdopx $sdopx): string
     {
         $filepath = Utils::getPath($tplname, $sdopx);
-        $content = file_get_contents($filepath);
-        return $content;
+        return file_get_contents($filepath);
     }
 
     /**
      * 获得资源最后修改时间戳
-     * @param string $filepath
+     * @param string $tplname
      * @param Sdopx $sdopx
      * @return int
+     * @throws SdopxException
+     * @throws \ErrorException
      */
     public function getTimestamp(string $tplname, Sdopx $sdopx): int
     {

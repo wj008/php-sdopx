@@ -9,37 +9,54 @@
 namespace sdopx\resource;
 
 
+use ErrorException;
+use sdopx\interfaces\Resource;
 use sdopx\lib\Utils;
 use sdopx\Sdopx;
+use sdopx\SdopxException;
 
-class ExtendsResource
+class ExtendsResource implements Resource
 {
+    /**
+     * 获取内容
+     * @param string $tplname
+     * @param Sdopx $sdopx
+     * @return string
+     * @throws ErrorException
+     * @throws SdopxException
+     */
     public function getContent(string $tplname, Sdopx $sdopx): string
     {
         $names = explode('|', $tplname);
         if (count($names) < 2) {
             $sdopx->rethrow("File path format is incorrect :{$tplname} .");
         }
-        $tplchild = array_pop($names);
+        $tplChild = array_pop($names);
         $extends = join('|', $names);
-        list($name, $type) = Utils::parseResourceName($tplchild);
+        list($name, $type) = Utils::parseResourceName($tplChild);
         $instance = Sdopx::getResource($type);
         $content = $instance->getContent($name, $sdopx);
         $content = $sdopx->leftDelimiter . 'extends file=\'' . $extends . '\'' . $sdopx->rightDelimiter . $content;
         return $content;
     }
 
+    /**
+     * 获取时间戳
+     * @param string $tplname
+     * @param Sdopx $sdopx
+     * @return int
+     * @throws ErrorException
+     * @throws SdopxException
+     */
     public function getTimestamp(string $tplname, Sdopx $sdopx): int
     {
         $names = explode('|', $tplname);
         if (count($names) < 2) {
             $sdopx->rethrow("File path format is incorrect :{$tplname} .");
         }
-        $tplchild = array_pop($names);
-        $extends = join('|', $names);
-        list($name, $type) = Utils::parseResourceName($tplchild);
+        $tplChild = array_pop($names);
+        list($name, $type) = Utils::parseResourceName($tplChild);
         $instance = Sdopx::getResource($type);
-        $filemtime = $instance->getTimestamp($name, $sdopx);
-        return $filemtime;
+        return $instance->getTimestamp($name, $sdopx);
     }
 }

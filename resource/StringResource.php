@@ -8,16 +8,29 @@
 
 namespace sdopx\resource;
 
+use sdopx\interfaces\Resource;
 use sdopx\Sdopx;
 
-class StringResource
+class StringResource implements Resource
 {
+    /**
+     * 获取资源数据
+     * @param string $tplname
+     * @param Sdopx $sdopx
+     * @return string
+     */
     public function getContent(string $tplname, Sdopx $sdopx): string
     {
         return $tplname;
     }
 
-    public function getTimestamp(string $tplname, Sdopx $sdopx)
+    /**
+     * 获取时间戳
+     * @param string $tplname
+     * @param Sdopx $sdopx
+     * @return int
+     */
+    public function getTimestamp(string $tplname, Sdopx $sdopx): int
     {
         return -1;
     }
