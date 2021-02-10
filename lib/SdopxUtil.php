@@ -107,28 +107,18 @@ class SdopxUtil
                 break;
         }
         $value = '\'' . preg_replace_callback('@[\0\b\t\n\r\x1a\"\'\\\\]@', function ($m) {
-                switch ($m[0]) {
-                    case '\0':
-                        return '\\0';
-                    case '\b':
-                        return '\\b';
-                    case '\t':
-                        return '\\t';
-                    case '\n':
-                        return '\\n';
-                    case '\r':
-                        return '\\r';
-                    case '\x1a':
-                        return '\\Z';
-                    case '"':
-                        return '\\"';
-                    case '\'':
-                        return '\\\'';
-                    case '\\':
-                        return '\\\\';
-                    default:
-                        return '';
-                }
+                return match ($m[0]) {
+                    '\0' => '\\0',
+                    '\b' => '\\b',
+                    '\t' => '\\t',
+                    '\n' => '\\n',
+                    '\r' => '\\r',
+                    '\x1a' => '\\Z',
+                    '"' => '\\"',
+                    '\'' => '\\\'',
+                    '\\' => '\\\\',
+                    default => '',
+                };
             }, $value) . '\'';
         return $value;
     }
