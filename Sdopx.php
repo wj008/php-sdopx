@@ -302,7 +302,7 @@ class Sdopx extends Template
      * @param string|null $key
      * @return mixed
      */
-    public function getAssign(string $key = null): mixed
+    public function getAssign(?string $key = null): mixed
     {
         if ($key == null) {
             return $this->_book;
