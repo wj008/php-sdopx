@@ -251,7 +251,7 @@ class Sdopx extends Template
             }
             return null;
         }
-        if (is_string($key) === 'string' || is_int($key)) {
+        if (is_string($key) || is_int($key)) {
             return isset($this->templateDirs[$key]) ? $this->templateDirs[$key] : null;
         }
         return null;
