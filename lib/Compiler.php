@@ -233,8 +233,7 @@ class Compiler
         if (!$this->hasVar($key)) {
             return '$_sdopx->_book[\'' . $key . '\']';
         }
-        $code = $this->getVar($key, true);
-        return $code;
+        return $this->getVar($key, true);
     }
 
     /**
@@ -324,7 +323,7 @@ class Compiler
                 $this->removeVar($data[0]);
                 return '},$__out);';
             } else {
-                $func_vars = [];
+                $func_vars = ['item'];
                 if (method_exists($tagPlug, 'define')) {
                     $func_vars = call_user_func([$tagPlug, 'define'], $params, $this);
                 }
@@ -517,6 +516,7 @@ class Compiler
      * 获取首个块信息
      * @param string $name
      * @return ?BlockItem
+     * @throws SdopxException
      */
     public function getFirstBlockItem(string $name): ?BlockItem
     {
@@ -535,6 +535,7 @@ class Compiler
      * @param string $name
      * @param int $offset
      * @return bool
+     * @throws SdopxException
      */
     public function moveBlockToEnd(string $name, int $offset = 0): bool
     {
@@ -551,6 +552,7 @@ class Compiler
      * @param string $name
      * @param int $offset
      * @return bool
+     * @throws SdopxException
      */
     public function moveBlockToOver(string $name, int $offset = 0): bool
     {
