@@ -33,7 +33,6 @@ class CallCompiler
             $temp[] = "'{$key}'=>{$val}";
         }
         $params = '[' . join(',', $temp) . ']';
-        $code = "if(isset(\$_sdopx->funcMap['{$fn}'])){ \$_sdopx->funcMap['{$fn}']({$params},\$__out,\$_sdopx);}";
-        return $code;
+        return "if(isset(\$_sdopx->funcMap['{$fn}'])){ \$_sdopx->funcMap['{$fn}']({$params},\$__out,\$_sdopx);}";
     }
 }

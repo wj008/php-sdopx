@@ -70,5 +70,6 @@ class LiteralCloseCompiler
         } else {
             $compiler->source->changDelimiter($old_left, $old_right);
         }
+        return '';
     }
 }

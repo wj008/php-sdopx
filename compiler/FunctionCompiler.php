@@ -42,8 +42,7 @@ class FunctionCompiler
         $compiler->openTag('function', [$params, $fn]);
         $output[] = "\$_sdopx->funcMap['{$fn}']=function(\${$params},\$__out,\$_sdopx){";
         $output[] = join("\n", $codes);
-        $code = join("\n", $output);
-        return $code;
+        return join("\n", $output);
     }
 }
 
