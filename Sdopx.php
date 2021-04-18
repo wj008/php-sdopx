@@ -386,7 +386,11 @@ class Sdopx extends Template
                     throw new SdopxException($err->getMessage(), $stack, $err->getCode(), $err);
                 }
             }
-            throw new SdopxException($err->getMessage(), '', $err->getCode(), $err);
+            if (is_string($err)) {
+                throw new SdopxException($err, '');
+            } else {
+                throw new SdopxException($err->getMessage(), '', $err->getCode(), $err);
+            }
         }
         throw $err;
     }
