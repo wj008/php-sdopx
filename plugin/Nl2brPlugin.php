@@ -20,10 +20,8 @@ class Nl2brPlugin
      */
     public static function render(array $param, Outer $outer)
     {
-        $raw = (isset($params['raw'])) ? boolval($param['raw']) : false;
-        if (!isset($param['value'])) {
-            $outer->throw('Missing [value] attribute field.');
-        }
+        $raw = isset($params['raw']) && boolval($param['raw']);
+        $param['value'] = $param['value'] ?? '';
         $string = $param['value'];
         if (is_string($string)) {
             if ($raw) {
