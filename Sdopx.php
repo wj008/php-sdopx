@@ -356,12 +356,12 @@ class Sdopx extends Template
 
     /**
      * 重新丢出错误
-     * @param $err
+     * @param string|\Throwable $err
      * @param int|null $lineno
      * @param string|null $tplname
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
-    public function rethrow($err, int $lineno = null, string $tplname = null)
+    public function rethrow(string|\Throwable $err, int $lineno = null, string $tplname = null)
     {
         if (is_string($err) || $err instanceof ErrorException) {
             if (Sdopx::$debug && $lineno && $tplname) {
@@ -387,7 +387,7 @@ class Sdopx extends Template
                 }
             }
             if (is_string($err)) {
-                throw new SdopxException($err, '');
+                throw new SdopxException($err, '', 0);
             } else {
                 throw new SdopxException($err->getMessage(), '', $err->getCode(), $err);
             }
