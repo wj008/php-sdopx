@@ -17,8 +17,8 @@ class BlockCompiler
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
 
-        $name = isset($args['name']) ? $args['name'] : null;
-        $hide = isset($args['hide']) ? $args['hide'] : null;
+        $name = $args['name'] ?? null;
+        $hide = $args['hide'] ?? null;
         if (empty($name)) {
             $compiler->addError("The [name] attribute in the {block} tag is required.");
         }

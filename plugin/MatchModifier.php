@@ -8,11 +8,11 @@ class MatchModifier
     /**
      * @param $string
      * @param $keys
-     * @param string $values
-     * @param string $def
+     * @param mixed $values
+     * @param mixed $def
      * @return mixed
      */
-    private static function find($string, $keys, $values = '', $def = ''):mixed
+    private static function find($string, $keys, mixed $values = '', mixed $def = ''): mixed
     {
         if (is_array($keys) && is_array($values)) {
             if ($string === null) {
@@ -42,11 +42,11 @@ class MatchModifier
     /**
      * @param $string
      * @param $keys
-     * @param null $values
-     * @param string $def
+     * @param mixed $values
+     * @param mixed $def
      * @return mixed
      */
-    public static function render($string, $keys, $values = null, $def = ''):mixed
+    public static function render($string, $keys, mixed $values = null, mixed $def = ''): mixed
     {
         if (is_array($string)) {
             $temp = [];

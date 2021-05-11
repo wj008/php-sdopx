@@ -52,7 +52,7 @@ class VolistTag
      * @param array $param
      * @param $callback
      * @param Outer $outer
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public static function render(array $param, $callback, Outer $outer)
     {

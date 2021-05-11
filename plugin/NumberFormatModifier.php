@@ -18,7 +18,7 @@ class NumberFormatModifier
      * @param string $thousands_sep
      * @return string
      */
-    public static function render($number, $decimals = 0, $dec_point = '.', $thousands_sep = ''): string
+    public static function render($number, int $decimals = 0, string $dec_point = '.', string $thousands_sep = ''): string
     {
         return number_format($number, $decimals, $dec_point, $thousands_sep);
     }

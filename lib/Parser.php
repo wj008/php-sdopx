@@ -92,7 +92,6 @@ class Parser
         return $item;
     }
 
-
     /**
      * 解析备注
      * @return array|null
@@ -725,7 +724,7 @@ class Parser
      * @param $item
      * @return array
      */
-    private function pars_raw($item): array
+    private function pars_raw(array $item): array
     {
         return [
             'map' => self::CODE_RAW,
@@ -740,7 +739,7 @@ class Parser
      * @param $item
      * @return array
      */
-    private function pars_mod_colons($item): array
+    private function pars_mod_colons(array $item): array
     {
         return [
             'map' => self::CODE_EXPRESS,
@@ -751,12 +750,12 @@ class Parser
 
     /**
      * 编译修饰器
-     * @param $ret
-     * @param $name
+     * @param array $ret
+     * @param string $name
      * @return array
      * @throws SdopxException
      */
-    private function assembly_modifier(&$ret, $name): array
+    private function assembly_modifier(array &$ret, string $name): array
     {
         $params = [$ret['code']];
         $mod_name = null;

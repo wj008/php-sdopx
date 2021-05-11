@@ -60,7 +60,7 @@ class Compiler
      * @param int $offset
      * @throws SdopxException
      */
-    public function addError($err, $offset = 0)
+    public function addError($err, int $offset = 0)
     {
         $info = $this->source->getDebugInfo($offset);
         $lineno = $info['line'];
@@ -300,7 +300,7 @@ class Compiler
      * @return string
      * @throws SdopxException
      */
-    public function compilePlugin($name, $params = null, $close = false): string
+    public function compilePlugin($name, $params = null, bool $close = false): string
     {
         $tag = SdopxUtil::toCamel($name);
         if ($close) {
@@ -374,9 +374,9 @@ class Compiler
     /**
      * 转成值
      * @param string $arg
-     * @return mixed
+     * @return string|null
      */
-    public function toValue(string $arg): mixed
+    public function toValue(string $arg): ?string
     {
         if (empty($arg)) {
             return null;

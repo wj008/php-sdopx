@@ -9,7 +9,7 @@ class DateFormatModifier
      * @param $string
      * @return false|int
      */
-    private static function makeTimestamp($string)
+    private static function makeTimestamp($string): bool|int
     {
         if (empty($string)) {
             return time();
@@ -21,13 +21,12 @@ class DateFormatModifier
             return mktime(substr($string, 8, 2), substr($string, 10, 2), substr($string, 12, 2), substr($string, 4, 2), substr($string, 6, 2), substr($string, 0, 4));
         } elseif (is_numeric($string)) {
             return (int)$string;
-        } else {
-            $time = strtotime($string);
-            if ($time == -1 || $time === false) {
-                return time();
-            }
-            return $time;
         }
+        $time = strtotime($string);
+        if ($time == -1 || $time === false) {
+            return time();
+        }
+        return $time;
     }
 
     /**
@@ -51,15 +50,15 @@ class DateFormatModifier
         } else {
             return '';
         }
-        if ($formatter == 'strftime' || ($formatter == 'auto' && strpos($format, '%') !== false)) {
+        if ($formatter == 'strftime' || ($formatter == 'auto' && str_contains($format, '%'))) {
             if (DIRECTORY_SEPARATOR == '\\') {
                 $_win_from = array('%D', '%h', '%n', '%r', '%R', '%t', '%T');
                 $_win_to = array('%m/%d/%y', '%b', "\n", '%I:%M:%S %p', '%H:%M', "\t", '%H:%M:%S');
-                if (strpos($format, '%e') !== false) {
+                if (str_contains($format, '%e')) {
                     $_win_from[] = '%e';
                     $_win_to[] = sprintf('%\' 2d', date('j', $timestamp));
                 }
-                if (strpos($format, '%l') !== false) {
+                if (str_contains($format, '%l')) {
                     $_win_from[] = '%l';
                     $_win_to[] = sprintf('%\' 2d', date('h', $timestamp));
                 }

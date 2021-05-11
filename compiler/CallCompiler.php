@@ -16,7 +16,7 @@ class CallCompiler
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        $fn = isset($args['fn']) ? $args['fn'] : null;
+        $fn = $args['fn'] ?? null;
         if (empty($fn)) {
             $compiler->addError("The [fn] attribute in the {call} tag is required.");
         }

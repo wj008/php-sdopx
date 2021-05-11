@@ -16,8 +16,8 @@ class LiteralCompiler
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        $left = isset($args['left']) ? $args['left'] : null;
-        $right = isset($args['right']) ? $args['right'] : null;
+        $left = $args['left'] ?? null;
+        $right = $args['right'] ?? null;
         $delimitLeft = '';
         $delimitRight = '';
         $literal = false;

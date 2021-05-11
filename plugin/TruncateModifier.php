@@ -5,7 +5,7 @@ namespace sdopx\plugin;
 
 class TruncateModifier
 {
-    public static function render($string, $length = 80, $etc = '...'): string
+    public static function render($string, int $length = 80, string $etc = '...'): string
     {
         $list1 = [];
         $len = 0;

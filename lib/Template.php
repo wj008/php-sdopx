@@ -158,6 +158,7 @@ class Template
     /**
      * 获取编译器
      * @return Compiler
+     * @throws \sdopx\SdopxException
      */
     public function getCompiler(): Compiler
     {
@@ -204,7 +205,7 @@ class Template
      * 写入文件缓存并且运行
      * @param $content
      * @return string
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     private function writeAndRunContent($content): string
     {
@@ -227,7 +228,8 @@ class Template
         }
         //装入文件
         $file = SdopxUtil::path($this->sdopx->compileDir, $this->tplId . '.php');
-        file_put_contents($file, '<?php ' . $content . 'return $_property;', LOCK_EX);
+        $content .= 'return $_property;';
+        file_put_contents($file, '<?php ' . $content, LOCK_EX);
         if (isset($_property['runFunc']) && is_callable($_property['runFunc'])) {
             return $this->run($_property['runFunc']);
         }
@@ -299,8 +301,10 @@ class Template
 
     /**
      * 运行代码
-     * @param Closure $runFunc
+     * @param \Closure $runFunc
      * @return string
+     * @throws \Throwable
+     * @throws \sdopx\SdopxException
      */
     private function run(\Closure $runFunc): string
     {

@@ -86,7 +86,7 @@ class Source
      * 创建资源
      * Source constructor.
      * @param Template $tpl
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function __construct(Template $tpl)
     {
@@ -109,7 +109,7 @@ class Source
      * @param string $left
      * @param string $right
      */
-    public function changDelimiter($left = '{', $right = '}')
+    public function changDelimiter(string $left = '{', string $right = '}')
     {
         $this->leftDelimiter = $left;
         $this->rightDelimiter = $right;
@@ -120,7 +120,7 @@ class Source
      * @param int $offset
      * @return array
      */
-    public function getDebugInfo($offset = 0): array
+    public function getDebugInfo(int $offset = 0): array
     {
         if ($offset == 0) {
             $offset = $this->cursor;

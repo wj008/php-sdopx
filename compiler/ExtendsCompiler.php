@@ -17,7 +17,7 @@ class ExtendsCompiler
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        $file = isset($args['file']) ? $args['file'] : null;
+        $file = $args['file'] ?? null;
         if (empty($file)) {
             $compiler->addError("The [file] attribute in the {extends} tag is required.");
         }

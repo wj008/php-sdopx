@@ -16,7 +16,7 @@ class ForCompiler
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        $code = isset($args['code']) ? $args['code'] : null;
+        $code = $args['code'] ?? null;
         if (empty($code)) {
             $compiler->addError("Conditional code is missing from the {for} tag.");
         }

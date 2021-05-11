@@ -16,10 +16,10 @@ class ForeachCompiler
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        $from = isset($args['from']) ? $args['from'] : null;
-        $item = isset($args['item']) ? $args['item'] : null;
-        $key = isset($args['key']) ? $args['key'] : null;
-        $attr = isset($args['attr']) ? $args['attr'] : null;
+        $from = $args['from'] ?? null;
+        $item = $args['item'] ?? null;
+        $key = $args['key'] ?? null;
+        $attr = $args['attr'] ?? null;
         if (empty($from)) {
             $compiler->addError("The [from] attribute in the {foreach} tag is required.");
         }

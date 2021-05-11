@@ -16,9 +16,9 @@ class AssignCompiler
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        $key = isset($args['var']) ? $args['var'] : null;
-        $value = isset($args['value']) ? $args['value'] : null;
-        $code = isset($args['code']) ? $args['code'] : null;
+        $key = $args['var'] ?? null;
+        $value = $args['value'] ?? null;
+        $code = $args['code'] ?? null;
         if ($code === null) {
             if ($key == null) {
                 $compiler->addError('The [var] attribute in the {assign} tag is required.');

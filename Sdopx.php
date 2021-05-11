@@ -9,11 +9,9 @@ declare(strict_types=1);
 
 namespace sdopx;
 
-
-use Closure;
-use ErrorException;
+use \Closure;
+use \ErrorException;
 use sdopx\interfaces\Resource;
-
 
 use sdopx\lib\Template;
 use sdopx\lib\SdopxUtil;
@@ -23,7 +21,9 @@ if (!defined('SDOPX_DIR')) {
     define('SDOPX_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 }
 
-set_error_handler(function (int $errno, string $errStr, string $errFile, int $errLine) {
+set_error_handler(/**
+ * @throws \ErrorException
+ */ function (int $errno, string $errStr, string $errFile, int $errLine) {
     if (!(error_reporting() & $errno)) {
         return false;
     }
@@ -124,7 +124,7 @@ class Sdopx extends Template
     /**
      * 上下文，在模板中可以用 $this
      */
-    public $context = null;
+    public mixed $context = null;
 
     /**
      * @var array 注册变量字典
@@ -175,7 +175,7 @@ class Sdopx extends Template
 
     /**
      * 设置运行时缓存目录
-     * @param $dirname
+     * @param string $dirname
      */
     public function setCompileDir(string $dirname)
     {
@@ -252,7 +252,7 @@ class Sdopx extends Template
             return null;
         }
         if (is_string($key) || is_int($key)) {
-            return isset($this->templateDirs[$key]) ? $this->templateDirs[$key] : null;
+            return $this->templateDirs[$key] ?? null;
         }
         return null;
     }
@@ -333,7 +333,7 @@ class Sdopx extends Template
                 }
                 return null;
             }
-            return isset(self::$config[$key]) ? self::$config[$key] : null;
+            return self::$config[$key] ?? null;
         } //使用实例
         return null;
     }
@@ -438,7 +438,7 @@ class Sdopx extends Template
      */
     public static function getFunction(string $name): ?Closure
     {
-        return isset(self::$functions[$name]) ? self::$functions[$name] : null;
+        return self::$functions[$name] ?? null;
     }
 
 

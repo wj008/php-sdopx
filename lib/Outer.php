@@ -66,7 +66,6 @@ class Outer
             if ($code != '') {
                 if (trim($code) == '') {
                     $this->output[] = ' ';
-                    return;
                 } else {
                     if (preg_match('@^\s+([\w\W]+)\s+$@', $code, $mt)) {
                         $this->output[] = ' ' . trim($mt[1]) . ' ';
@@ -77,7 +76,6 @@ class Outer
                     } else {
                         $this->output[] = $code;
                     }
-                    return;
                 }
             }
             return;
@@ -100,7 +98,7 @@ class Outer
      * 抛出错误
      * @param $error
      * @return string
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function throw($error): string
     {

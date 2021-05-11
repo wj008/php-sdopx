@@ -16,7 +16,7 @@ class FunctionCompiler
      */
     public static function compile(Compiler $compiler, string $name, array $args): string
     {
-        $fn = isset($args['fn']) ? $args['fn'] : null;
+        $fn = $args['fn'] ?? null;
         if (empty($fn)) {
             $compiler->addError("The [fn] attribute in the {function} tag is required.");
         }
@@ -25,7 +25,7 @@ class FunctionCompiler
             $compiler->addError("The [fn] attribute of the {function} tag is invalid. Please use letters and numbers and underscores.");
         }
         $codes = [];
-        $temp = [];
+        // $temp = [];
         $output = [];
         $params = $compiler->getTempPrefix('params');
         $varMap = $compiler->getVarMapper($params);
@@ -35,7 +35,7 @@ class FunctionCompiler
             }
             $value = empty($value) ? 'null' : $value;
             $varMap->add($key);
-            $temp[] = "\${$params}_{$key}";
+            //$temp[] = "\${$params}_{$key}";
             $codes[] = "\${$params}_{$key}=isset(\${$params}['{$key}'])?\${$params}['{$key}']:{$value};";
         }
         $compiler->addVarMapper($varMap);

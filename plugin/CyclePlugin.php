@@ -29,10 +29,11 @@ class CyclePlugin
         $cycle_vars = &$template->_cache['_cycle_vars'];
 
         $name = (empty($params['name'])) ? 'default' : $params['name'];
-        $print = (isset($params['print'])) ? boolval($params['print']) : true;
-        $advance = (isset($params['advance'])) ? boolval($params['advance']) : true;
-        $reset = (isset($params['reset'])) ? boolval($params['reset']) : false;
-        $raw = (isset($params['raw'])) ? boolval($params['raw']) : false;
+        $print = !(isset($params['print'])) || boolval($params['print']);
+        $advance = !(isset($params['advance'])) || boolval($params['advance']);
+        $reset = isset($params['reset']) && boolval($params['reset']);
+        $raw = isset($params['raw']) && boolval($params['raw']);
+
         if (!isset($cycle_vars[$name])) {
             $cycle_vars[$name] = [];
         }

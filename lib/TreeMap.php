@@ -37,7 +37,7 @@ class TreeMap implements \Iterator
      * @param bool $move
      * @return array|null
      */
-    public function next($move = true): ?array
+    public function next(bool $move = true): ?array
     {
         $idx = $this->position + 1;
         if ($move) {
@@ -51,7 +51,7 @@ class TreeMap implements \Iterator
      * @param bool $move
      * @return array|null
      */
-    public function prev($move = true): ?array
+    public function prev(bool $move = true): ?array
     {
         $idx = $this->position - 1;
         if ($move) {

@@ -47,9 +47,9 @@ class Lexer
      * 添加错误
      * @param $err
      * @param int $offset
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
-    private function addError($err, $offset = 0)
+    private function addError($err, int $offset = 0)
     {
         $info = $this->source->getDebugInfo($offset);
         $this->sdopx->rethrow($err, $info['line'], $info['src']);
@@ -57,13 +57,13 @@ class Lexer
 
     /**
      * 获取正则数据
-     * @param $pattern
+     * @param string $pattern
      * @param ?int $offset
      * @param bool $normal
      * @return ?array
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
-    private function find(string $pattern, ?int $offset = null, $normal = false): ?array
+    private function find(string $pattern, ?int $offset = null, bool $normal = false): ?array
     {
         $source = $this->source;
         $offset = ($offset === null) ? $source->cursor : $offset;
@@ -162,14 +162,13 @@ class Lexer
         if (!isset($this->maps[0]) || !isset($pat_items[0])) {
             return null;
         }
-        $pattern = '@' . join('|', $pat_items) . '@';
-        return $pattern;
+        return '@' . join('|', $pat_items) . '@';
     }
 
     /**
      * @param array|null $next
      * @return array|null
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function match(?array $next): ?array
     {
@@ -224,7 +223,7 @@ class Lexer
     /**
      * 解析HTML
      * @return ?array
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function lexHtml(): ?array
     {
@@ -288,7 +287,7 @@ class Lexer
     /**
      * 解析注释
      * @return ?array
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function lexComment(): ?array
     {
@@ -316,7 +315,7 @@ class Lexer
     /**
      * 解析配置
      * @return ?TreeMap
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function lexConfig(): ?TreeMap
     {
@@ -351,7 +350,7 @@ class Lexer
     /**
      * 解析模板
      * @return ?TreeMap
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function lexTpl(): ?TreeMap
     {
@@ -419,7 +418,7 @@ class Lexer
     /**
      * 获得区块数据
      * @return array
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     public function getBlockMapper(): array
     {
@@ -432,7 +431,7 @@ class Lexer
 
     /**
      * 查找block
-     * @throws SdopxException
+     * @throws SdopxException|\Throwable
      */
     private function findBrockMapper()
     {
