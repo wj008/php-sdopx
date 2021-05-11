@@ -24,7 +24,7 @@ class CallCompiler
             $val = empty($val) ? 'null' : $val;
             $temp[] = "'{$key}'=>{$val}";
         }
-        $params = '[' . join($temp, ',') . ']';
+        $params = '[' . join(',', $temp) . ']';
         $code = "if(isset(\$_sdopx->funcMap['{$fn}'])){ \$_sdopx->funcMap['{$fn}']({$params},\$__out,\$_sdopx);}";
         return $code;
     }
