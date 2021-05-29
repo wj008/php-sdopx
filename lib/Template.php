@@ -288,6 +288,7 @@ class Template
     private function run(\Closure &$runFunc)
     {
         $__out = new Outer($this->sdopx);
+        Sdopx::$__outer = $__out;
         $_sdopx = $this->sdopx;
         try {
             call_user_func($runFunc, $_sdopx, $__out);

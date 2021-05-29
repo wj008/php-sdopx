@@ -11,6 +11,7 @@ namespace sdopx;
 require_once("lib/Utils.php");
 require_once("lib/Template.php");
 
+use sdopx\lib\Outer;
 use sdopx\lib\Template;
 use sdopx\lib\Utils;
 
@@ -23,6 +24,9 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) {
         return false;
     }
     if ($errno == E_WARNING || $errno == E_PARSE || $errno == E_NOTICE) {
+        if (Sdopx::$__outer !== null) {
+            Sdopx::$__outer->throw($errstr);
+        }
         throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
     return true;
@@ -93,6 +97,8 @@ class Sdopx extends Template
      * @var bool
      */
     public static $debug = false;
+
+    public static $__outer = null;
 
     /**
      * 固定后缀模式，如果设置将会自动添加后缀
