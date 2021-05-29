@@ -8,7 +8,6 @@
 
 namespace sdopx\lib;
 
-use ErrorException;
 use ParseError;
 use sdopx\Sdopx;
 use sdopx\SdopxException;
@@ -309,10 +308,11 @@ class Template
     private function run(\Closure $runFunc): string
     {
         $__out = new Outer($this->sdopx);
+        Sdopx::$__outer = $__out;
         $_sdopx = $this->sdopx;
         try {
             call_user_func($runFunc, $_sdopx, $__out);
-        } catch (ErrorException $exception) {
+        } catch (\ErrorException $exception) {
             $__out->throw($exception);
         }
         return $__out->getCode();

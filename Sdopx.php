@@ -13,6 +13,7 @@ use \Closure;
 use \ErrorException;
 use sdopx\interfaces\Resource;
 
+use sdopx\lib\Outer;
 use sdopx\lib\Template;
 use sdopx\lib\SdopxUtil;
 
@@ -21,13 +22,14 @@ if (!defined('SDOPX_DIR')) {
     define('SDOPX_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 }
 
-set_error_handler(/**
- * @throws \ErrorException
- */ function (int $errno, string $errStr, string $errFile, int $errLine) {
+set_error_handler(function (int $errno, string $errStr, string $errFile, int $errLine) {
     if (!(error_reporting() & $errno)) {
         return false;
     }
     if ($errno == E_WARNING || $errno == E_PARSE || $errno == E_NOTICE) {
+        if (Sdopx::$__outer !== null) {
+            Sdopx::$__outer->throw($errStr);
+        }
         throw new ErrorException($errStr, 0, $errno, $errFile, $errLine);
     }
     return true;
@@ -56,6 +58,8 @@ class Sdopx extends Template
      * @var bool
      */
     public static bool $debug = false;
+
+    public static ?Outer $__outer = null;
     /**
      * 固定后缀模式，如果设置将会自动添加后缀
      * @var string
