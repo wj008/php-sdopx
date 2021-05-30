@@ -16,6 +16,7 @@ use sdopx\interfaces\Resource;
 use sdopx\lib\Outer;
 use sdopx\lib\Template;
 use sdopx\lib\SdopxUtil;
+use sdopx\resource\FileResource;
 
 
 if (!defined('SDOPX_DIR')) {
@@ -368,7 +369,7 @@ class Sdopx extends Template
     public function rethrow(string|\Throwable $err, int $lineno = null, string $tplname = null)
     {
         if (is_string($err) || $err instanceof ErrorException) {
-            if (Sdopx::$debug && $lineno && $tplname) {
+            if (Sdopx::$debug && $lineno && !empty($tplname)) {
                 list($name, $type) = SdopxUtil::parseResourceName($tplname);
                 $instance = Sdopx::getResource($type);
                 $content = $instance->getContent($name, $this);
@@ -382,11 +383,14 @@ class Sdopx extends Template
                     $line = ($curr == $lineno ? ' >> ' : '    ') . $curr . '| ' . $line;
                 }
                 $context = join("\n", $lines);
-                $stack = $tplname . ':' . $lineno . "\n" . $context . "\n";
+                if ($instance instanceof FileResource) {
+                    $tplname = SdopxUtil::getPath($tplname, $this);
+                }
+                $stack = '#0 ' . $tplname . '(' . $lineno . "):\n" . $context . "\n";
                 if (is_string($err)) {
                     throw new SdopxException($err, $stack);
                 } else {
-                    $stack = $tplname . ':' . $lineno . "\n" . $context . "\n";
+                    $stack = '#0 ' . $tplname . '(' . $lineno . "):\n" . $context . "\n";
                     throw new SdopxException($err->getMessage(), $stack, $err->getCode(), $err);
                 }
             }
@@ -418,7 +422,6 @@ class Sdopx extends Template
         self::$functions[$name] = $func;
     }
 
-
     /**
      * 过滤器注册
      * @param string $type
@@ -444,7 +447,6 @@ class Sdopx extends Template
     {
         return self::$functions[$name] ?? null;
     }
-
 
     /**
      * 获取插件

@@ -168,7 +168,7 @@ class SdopxUtil
     public static function getPath(string $tplname, Sdopx $sdopx): string
     {
         if (empty($tplname)) {
-            $sdopx->rethrow('template file is empty.');
+            throw new SdopxException('template file is empty.');
         }
         //如果没有后缀
         if (!empty(Sdopx::$extension) && !preg_match('@\.[a-zA-z0-9]+$@', $tplname)) {
@@ -176,7 +176,7 @@ class SdopxUtil
         }
         $tplDirs = $sdopx->getTemplateDir();
         if ($tplDirs == null) {
-            $sdopx->rethrow('Template directory not set.');
+            throw new SdopxException('template directory is not set.');
         }
         if ($tplname[0] == '@' && isset($tplDirs['common'])) {
             $filePath = SdopxUtil::path($tplDirs['common'], substr($tplname, 1));
@@ -184,14 +184,14 @@ class SdopxUtil
                 return $filePath;
             }
         } else {
-            foreach ($tplDirs as $key => $dirName) {
+            foreach ($tplDirs as $dirName) {
                 $filePath = SdopxUtil::path($dirName, $tplname);
                 if ($filePath != '' && file_exists($filePath)) {
                     return $filePath;
                 }
             }
         }
-        $sdopx->rethrow('template file not found:' . $tplname);
+        throw new SdopxException('template file is not found:' . $tplname);
     }
 
 }
