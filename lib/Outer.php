@@ -45,6 +45,10 @@ class Outer
      */
     public function text($code)
     {
+        if (is_object($code) && $code instanceof Raw) {
+            $this->output[] = $code;
+            return;
+        }
         if ($this->sdopx->parsingType == Sdopx::PARSING_SQL) {
             $this->output[] = SdopxUtil::escapeSQL($code);
         } else {
