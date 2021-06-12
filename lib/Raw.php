@@ -17,4 +17,9 @@ class Raw
     {
         $this->code = $code;
     }
+
+    public function __toString(): string
+    {
+        return $this->code;
+    }
 }
