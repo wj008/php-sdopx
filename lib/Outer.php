@@ -66,6 +66,10 @@ class Outer
      */
     public function html($code)
     {
+        if (is_object($code) && $code instanceof Raw) {
+            $this->output[] = $code;
+            return;
+        }
         if ($this->sdopx->parsingType == Sdopx::PARSING_SQL) {
             if ($code != '') {
                 if (trim($code) == '') {
