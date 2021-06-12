@@ -46,7 +46,7 @@ class Outer
     public function text($code)
     {
         if (is_object($code) && $code instanceof Raw) {
-            $this->output[] = $code;
+            $this->output[] = $code->code;
             return;
         }
         if ($this->sdopx->parsingType == Sdopx::PARSING_SQL) {
@@ -67,7 +67,7 @@ class Outer
     public function html($code)
     {
         if (is_object($code) && $code instanceof Raw) {
-            $this->output[] = $code;
+            $this->output[] = $code->code;
             return;
         }
         if ($this->sdopx->parsingType == Sdopx::PARSING_SQL) {
