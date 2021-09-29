@@ -186,7 +186,13 @@ class Template
     {
         $source = $this->getSource();
         $this->addDependency($source);
-        return $this->getCompiler()->compileTemplate();
+        $compiler=$this->getCompiler();
+        try{
+            return $compiler->compileTemplate();
+        }catch (\Exception $e){
+            $compiler->addError($e->getMessage());
+            return '';
+        }
     }
 
     /**
