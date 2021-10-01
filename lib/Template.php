@@ -93,7 +93,7 @@ class Template
     private function createTplId(string $tplname): string
     {
         list($name, $type) = SdopxUtil::parseResourceName($tplname);
-        if ($type !== 'file') {
+        if ($type !== 'file' && $type !== 'extends') {
             $name = md5($name);
             return $type . '_' . $name;
         }
