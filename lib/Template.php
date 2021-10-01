@@ -95,6 +95,7 @@ class Template
         list($name, $type) = SdopxUtil::parseResourceName($tplname);
         if ($type !== 'file') {
             $name = md5($name);
+            return $type . '_' . $name;
         }
         $temp = $this->sdopx->getTemplateJoined() . '_' . $name;
         $temp = strtolower(str_replace(['.', ':', ';', '|', '/', ' ', '\\'], '_', $temp));
