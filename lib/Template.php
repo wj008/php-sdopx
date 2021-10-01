@@ -231,10 +231,13 @@ class Template
         if (is_array($_property) && isset($_property['runFunc'])) {
             Template::$compliedCache[$this->tplId] = $_property;
         }
-        //装入文件
-        $file = SdopxUtil::path($this->sdopx->compileDir, $this->tplId . '.php');
-        $content .= 'return $_property;';
-        file_put_contents($file, '<?php ' . $content, LOCK_EX);
+        //如果是一次性的，放弃生成
+        if (!$this->sdopx->disposable) {
+            //装入文件
+            $file = SdopxUtil::path($this->sdopx->compileDir, $this->tplId . '.php');
+            $content .= 'return $_property;';
+            file_put_contents($file, '<?php ' . $content, LOCK_EX);
+        }
         if (isset($_property['runFunc']) && is_callable($_property['runFunc'])) {
             return $this->run($_property['runFunc']);
         }

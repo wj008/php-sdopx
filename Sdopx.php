@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace sdopx;
 
-use \Closure;
-use \ErrorException;
+use Closure;
+use ErrorException;
 use sdopx\interfaces\Resource;
-
 use sdopx\lib\Outer;
-use sdopx\lib\Template;
 use sdopx\lib\SdopxUtil;
+use sdopx\lib\Template;
 use sdopx\resource\FileResource;
 
 
@@ -155,6 +154,12 @@ class Sdopx extends Template
      * @var string 合并的目录字符串
      */
     private string $templateJoined = '';
+
+    /**
+     * 是否禁用生成运行文件，一次性使用
+     * @var bool
+     */
+    public bool $disposable = false;
 
     /**
      * 模板中注册的函数
