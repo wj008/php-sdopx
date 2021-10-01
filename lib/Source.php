@@ -14,6 +14,8 @@ use sdopx\SdopxException;
 
 class Source
 {
+
+    private static array $nameMap = [];
     //数据模板代码
     /**
      * 内容
@@ -94,6 +96,7 @@ class Source
         $this->tplname = $tpl->tplname;
         $this->tplId = $tpl->tplId;
         list($name, $type) = SdopxUtil::parseResourceName($tpl->tplname);
+        self::$nameMap[$this->tplId] = $tpl->tplname;
         $this->resource = Sdopx::getResource($type);
         if ($this->resource == null) {
             $this->sdopx->rethrow('Resource type: ' . $type . ' does not exist');
@@ -102,6 +105,11 @@ class Source
         $this->name = $name;
         $this->changDelimiter($this->sdopx->leftDelimiter, $this->sdopx->rightDelimiter);
         $this->load();
+    }
+
+    public static function getTplName(string $tplId): string
+    {
+        return self::$nameMap[$tplId] ?? '';
     }
 
     /**
@@ -128,7 +136,7 @@ class Source
         $content = substr($this->content, 0, $offset);
         $lines = explode("\n", $content);
         $line = count($lines);
-        return ['line' => $line, 'src' => $this->tplname];
+        return ['line' => $line, 'id' => $this->tplId];
     }
 
     /**

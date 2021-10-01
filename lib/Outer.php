@@ -94,12 +94,12 @@ class Outer
     /**
      * 调试信息记录
      * @param int $line
-     * @param string $src
+     * @param string $id
      */
-    public function debug(int $line, string $src)
+    public function debug(int $line, string $id)
     {
         $this->line = $line;
-        $this->src = $src;
+        $this->src = Source::getTplName($id);
     }
 
     /**

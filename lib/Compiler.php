@@ -38,7 +38,7 @@ class Compiler
 
     public array $temp_prefixes = [];
 
-    public array $debugTemp = ['line' => -1, 'src' => ''];
+    public array $debugTemp = ['line' => -1, 'id' => ''];
 
     /**
      * Compiler constructor.
@@ -64,7 +64,7 @@ class Compiler
     {
         $info = $this->source->getDebugInfo($offset);
         $lineno = $info['line'];
-        $tplname = $info['src'];
+        $tplname = Source::getTplName($info['id']);
         $content = $this->source->content;
         $lines = explode("\n", $content);
         $len = count($lines);
@@ -114,10 +114,10 @@ class Compiler
             }
             if (Sdopx::$debug && isset($tplItem['info'])) {
                 $debug = $tplItem['info'];
-                if ($debug['line'] !== $this->debugTemp['line'] || $debug['src'] != $this->debugTemp['src']) {
+                if ($debug['line'] !== $this->debugTemp['line'] || $debug['id'] != $this->debugTemp['id']) {
                     $this->debugTemp['line'] = $debug['line'];
-                    $this->debugTemp['src'] = $debug['src'];
-                    $output[] = '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');';
+                    $this->debugTemp['id'] = $debug['id'];
+                    $output[] = '$__out->debug(' . $debug['line'] . ',' . var_export($debug['id'], true) . ');';
                 }
             }
             switch ($tplItem['map']) {
@@ -157,10 +157,10 @@ class Compiler
             }
             if (Sdopx::$debug && isset($cfgItem['info'])) {
                 $debug = $cfgItem['info'];
-                if ($debug['line'] !== $this->debugTemp['line'] || $debug['src'] != $this->debugTemp['src']) {
+                if ($debug['line'] !== $this->debugTemp['line'] || $debug['id'] != $this->debugTemp['id']) {
                     $this->debugTemp['line'] = $debug['line'];
-                    $this->debugTemp['src'] = $debug['src'];
-                    $output[] = '$__out->debug(' . $debug['line'] . ',' . var_export($debug['src'], true) . ');';
+                    $this->debugTemp['id'] = $debug['id'];
+                    $output[] = '$__out->debug(' . $debug['line'] . ',' . var_export($debug['id'], true) . ');';
                 }
             }
             if ($cfgItem['raw'] === true) {

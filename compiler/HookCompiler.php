@@ -45,7 +45,7 @@ class HookCompiler
         $output[] = '$__out=new \sdopx\lib\Outer($_sdopx);';
         if (Sdopx::$debug) {
             $output[] = 'try{';
-            $output[] = '$__out->debug(' . $compiler->debugTemp['line'] . ',' . var_export($compiler->debugTemp['src'], true) . ');';
+            $output[] = '$__out->debug(' . $compiler->debugTemp['line'] . ',' . var_export($compiler->debugTemp['id'], true) . ');';
         }
         $output[] = join("\n", $codes);
         $code = join("\n", $output);

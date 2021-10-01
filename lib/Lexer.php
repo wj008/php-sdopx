@@ -52,7 +52,8 @@ class Lexer
     private function addError($err, int $offset = 0)
     {
         $info = $this->source->getDebugInfo($offset);
-        $this->sdopx->rethrow($err, $info['line'], $info['src']);
+        $tplname = Source::getTplName($info['id']);
+        $this->sdopx->rethrow($err, $info['line'], $tplname);
     }
 
     /**
