@@ -43,7 +43,7 @@ set_error_handler(function (int $errno, string $errStr, string $errFile, int $er
  */
 class Sdopx extends Template
 {
-    const VERSION = '3.0.17';
+    const VERSION = '3.0.18';
     /**
      * 解析HTML
      */
