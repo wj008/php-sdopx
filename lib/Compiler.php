@@ -583,7 +583,7 @@ class Compiler
             return null;
         }
         $cursorBlock = new Block('', $info->prepend, $info->append);
-        if ($block != null && !$block->prepend && !$block->append) {
+        if (empty($info->content) && $block != null && !$block->prepend && !$block->append) {
             $cursorBlock->code = $block->code;
             return $cursorBlock;
         }
