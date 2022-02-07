@@ -21,7 +21,8 @@ class BlockItem
         public string $left = '',
         public string $right = '',
         public bool $literal = false,
-        public bool $nocache = false
+        public bool $nocache = false,
+        public bool $replace = false
     )
     {
 

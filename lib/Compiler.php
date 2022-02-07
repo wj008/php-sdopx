@@ -582,10 +582,12 @@ class Compiler
         if ($info->hide && ($block === null || empty($block->code))) {
             return null;
         }
-        $cursorBlock = new Block('', $info->prepend, $info->append);
-        if (empty($info->content) && $block != null && !$block->prepend && !$block->append) {
-            $cursorBlock->code = $block->code;
-            return $cursorBlock;
+        $cursorBlock = new Block('', $info->prepend, $info->append,$info->replace);
+        if ($block != null && !$block->prepend && !$block->append) {
+            if(empty($info->content)||$block->replace){
+                $cursorBlock->code = $block->code;
+                return $cursorBlock;
+            }
         }
         $source = $this->source;
         $offset = $source->cursor;

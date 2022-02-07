@@ -8,8 +8,9 @@ class Block
 {
     public function __construct(
         public string $code,
-        public bool $prepend,
-        public bool $append,
+        public bool $prepend= false,
+        public bool $append= false,
+        public bool $replace = false
     )
     {
 

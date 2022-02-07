@@ -469,7 +469,7 @@ class Lexer
             //查找属性
             $closed = false;
             while ($ret !== null) {
-                $ret = $this->find('@^(name|left|right)=\s*|^(append|prepend|hide|nocache|literal)(?:=true)?\s*|^(' . $right . ')@', $offset);
+                $ret = $this->find('@^(name|left|right)=\s*|^(append|prepend|hide|nocache|replace|literal)(?:=true)?\s*|^(' . $right . ')@', $offset);
                 if ($ret === null) {
                     //没有找到属性值
                     break;
